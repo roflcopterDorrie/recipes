@@ -8,6 +8,7 @@ use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use app\models\RecipePlannerIngredient;
 use app\models\RecipeIngredient;
 use app\models\RecipeQuick;
 use app\models\RecipeStep;
@@ -281,7 +282,15 @@ class RecipeController extends Controller {
      */
     public function actionDelete($id) {
         $model = $this->findModel($id);
-        RecipeIngredient::deleteAll(['recipe_id' => $model->id]);
+
+        // Delete ingredients and planner ingredients.
+        $ingredients = RecipeIngredient::find()->where(['recipe_id' => $id])->indexBy('id')->all();
+        foreach ($ingredients as $ingredient) {
+          RecipePlannerIngredient::deleteAll(['recipe_ingredient_id' => $ingredient->id]);
+          $ingredient->delete();
+        }
+
+        RecipePlanner::deleteAll(['recipe_id' => $model->id]);
         RecipeStep::deleteAll(['recipe_id' => $model->id]);
 
         // Delete.
