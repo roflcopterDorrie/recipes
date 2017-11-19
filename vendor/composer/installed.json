@@ -889,12 +889,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/swiftmailer/swiftmailer.git",
-            "reference": "ca780797dbd027c394a926a2607bca441ce2607e"
+            "reference": "0dbb301100b3312e4c2570f1a6ed70760b8c5e76"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/swiftmailer/swiftmailer/zipball/ca780797dbd027c394a926a2607bca441ce2607e",
-            "reference": "ca780797dbd027c394a926a2607bca441ce2607e",
+            "url": "https://api.github.com/repos/swiftmailer/swiftmailer/zipball/0dbb301100b3312e4c2570f1a6ed70760b8c5e76",
+            "reference": "0dbb301100b3312e4c2570f1a6ed70760b8c5e76",
             "shasum": ""
         },
         "require": {
@@ -905,7 +905,7 @@
             "mockery/mockery": "~0.9.1",
             "symfony/phpunit-bridge": "~3.3@dev"
         },
-        "time": "2017-11-08T00:14:48+00:00",
+        "time": "2017-11-19T08:49:26+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
