@@ -9,7 +9,7 @@ nbproject
 # windows thumbnail cache
 Thumbs.db
 # composer vendor dir
-/vendor
+#/vendor
 # cubrid install dir
 /cubrid
 # composer itself is not needed
