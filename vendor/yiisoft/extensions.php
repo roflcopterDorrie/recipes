@@ -33,7 +33,7 @@ return array (
   'yiisoft/yii2-swiftmailer' => 
   array (
     'name' => 'yiisoft/yii2-swiftmailer',
-    'version' => '9999999-dev',
+    'version' => '2.1.0.0',
     'alias' => 
     array (
       '@yii/swiftmailer' => $vendorDir . '/yiisoft/yii2-swiftmailer',
@@ -42,7 +42,7 @@ return array (
   'yiisoft/yii2-bootstrap' => 
   array (
     'name' => 'yiisoft/yii2-bootstrap',
-    'version' => '9999999-dev',
+    'version' => '2.0.7.0',
     'alias' => 
     array (
       '@yii/bootstrap' => $vendorDir . '/yiisoft/yii2-bootstrap',
@@ -51,7 +51,7 @@ return array (
   'robregonm/yii2-auth' => 
   array (
     'name' => 'robregonm/yii2-auth',
-    'version' => '9999999-dev',
+    'version' => '0.6.2.0',
     'alias' => 
     array (
       '@auth' => $vendorDir . '/robregonm/yii2-auth',
@@ -60,7 +60,7 @@ return array (
   'kartik-v/yii2-krajee-base' => 
   array (
     'name' => 'kartik-v/yii2-krajee-base',
-    'version' => '9999999-dev',
+    'version' => '1.8.9.0',
     'alias' => 
     array (
       '@kartik/base' => $vendorDir . '/kartik-v/yii2-krajee-base',
@@ -69,7 +69,7 @@ return array (
   'kartik-v/yii2-widget-fileinput' => 
   array (
     'name' => 'kartik-v/yii2-widget-fileinput',
-    'version' => '9999999-dev',
+    'version' => '1.0.6.0',
     'alias' => 
     array (
       '@kartik/file' => $vendorDir . '/kartik-v/yii2-widget-fileinput',
@@ -78,7 +78,7 @@ return array (
   'kartik-v/yii2-widget-typeahead' => 
   array (
     'name' => 'kartik-v/yii2-widget-typeahead',
-    'version' => '9999999-dev',
+    'version' => '1.0.1.0',
     'alias' => 
     array (
       '@kartik/typeahead' => $vendorDir . '/kartik-v/yii2-widget-typeahead',
@@ -87,7 +87,7 @@ return array (
   'kartik-v/yii2-widget-datepicker' => 
   array (
     'name' => 'kartik-v/yii2-widget-datepicker',
-    'version' => '9999999-dev',
+    'version' => '1.4.3.0',
     'alias' => 
     array (
       '@kartik/date' => $vendorDir . '/kartik-v/yii2-widget-datepicker',
@@ -96,7 +96,7 @@ return array (
   'kartik-v/yii2-checkbox-x' => 
   array (
     'name' => 'kartik-v/yii2-checkbox-x',
-    'version' => '9999999-dev',
+    'version' => '1.0.3.0',
     'alias' => 
     array (
       '@kartik/checkbox' => $vendorDir . '/kartik-v/yii2-checkbox-x',
@@ -105,7 +105,7 @@ return array (
   'yiisoft/yii2-codeception' => 
   array (
     'name' => 'yiisoft/yii2-codeception',
-    'version' => '9999999-dev',
+    'version' => '2.0.6.0',
     'alias' => 
     array (
       '@yii/codeception' => $vendorDir . '/yiisoft/yii2-codeception',
@@ -114,7 +114,7 @@ return array (
   'yiisoft/yii2-gii' => 
   array (
     'name' => 'yiisoft/yii2-gii',
-    'version' => '9999999-dev',
+    'version' => '2.0.5.0',
     'alias' => 
     array (
       '@yii/gii' => $vendorDir . '/yiisoft/yii2-gii',
@@ -123,7 +123,7 @@ return array (
   'yiisoft/yii2-faker' => 
   array (
     'name' => 'yiisoft/yii2-faker',
-    'version' => '9999999-dev',
+    'version' => '2.0.3.0',
     'alias' => 
     array (
       '@yii/faker' => $vendorDir . '/yiisoft/yii2-faker',

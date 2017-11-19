@@ -47,16 +47,6 @@ class ComposerStaticInit6a06293287412297f73180898ed7f21a
         array (
             'auth\\' => 5,
         ),
-        'P' => 
-        array (
-            'Psr\\SimpleCache\\' => 16,
-            'Psr\\Log\\' => 8,
-            'Psr\\Cache\\' => 10,
-        ),
-        'L' => 
-        array (
-            'League\\Flysystem\\' => 17,
-        ),
         'F' => 
         array (
             'Faker\\' => 6,
@@ -64,16 +54,6 @@ class ComposerStaticInit6a06293287412297f73180898ed7f21a
         'E' => 
         array (
             'Egulias\\EmailValidator\\' => 23,
-        ),
-        'D' => 
-        array (
-            'Doctrine\\Common\\Lexer\\' => 22,
-        ),
-        'C' => 
-        array (
-            'Cache\\TagInterop\\' => 17,
-            'Cache\\Adapter\\Filesystem\\' => 25,
-            'Cache\\Adapter\\Common\\' => 21,
         ),
     );
 
@@ -158,22 +138,6 @@ class ComposerStaticInit6a06293287412297f73180898ed7f21a
         array (
             0 => __DIR__ . '/..' . '/robregonm/yii2-auth',
         ),
-        'Psr\\SimpleCache\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/psr/simple-cache/src',
-        ),
-        'Psr\\Log\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
-        ),
-        'Psr\\Cache\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/psr/cache/src',
-        ),
-        'League\\Flysystem\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/league/flysystem/src',
-        ),
         'Faker\\' => 
         array (
             0 => __DIR__ . '/..' . '/fzaninotto/faker/src/Faker',
@@ -181,22 +145,6 @@ class ComposerStaticInit6a06293287412297f73180898ed7f21a
         'Egulias\\EmailValidator\\' => 
         array (
             0 => __DIR__ . '/..' . '/egulias/email-validator/EmailValidator',
-        ),
-        'Doctrine\\Common\\Lexer\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/doctrine/lexer/lib/Doctrine/Common/Lexer',
-        ),
-        'Cache\\TagInterop\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/cache/tag-interop',
-        ),
-        'Cache\\Adapter\\Filesystem\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/cache/filesystem-adapter',
-        ),
-        'Cache\\Adapter\\Common\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/cache/adapter-common',
         ),
     );
 
@@ -217,6 +165,10 @@ class ComposerStaticInit6a06293287412297f73180898ed7f21a
         ),
         'D' => 
         array (
+            'Doctrine\\Common\\Lexer\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/doctrine/lexer/lib',
+            ),
             'Diff' => 
             array (
                 0 => __DIR__ . '/..' . '/phpspec/php-diff/lib',
