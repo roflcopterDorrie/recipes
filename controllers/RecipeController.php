@@ -14,6 +14,7 @@ use app\models\RecipeQuick;
 use app\models\RecipeStep;
 use app\models\RecipePlanner;
 
+
 /**
  * RecipeController implements the CRUD actions for Recipe model.
  */
@@ -42,43 +43,8 @@ class RecipeController extends Controller {
             ],
         ]);
 
-        $reciplePlannerDP = new ActiveDataProvider([
-            'query' => RecipePlanner::find(),
-        ]);
-
-        $get = Yii::$app->request->get();
-        if (isset($get['date'])) {
-            $date = \DateTime::createFromFormat('Ymd', $get['date']);
-        } else {
-            $date = new \DateTime();
-        }
-
-        $week = $date->format('W');
-        
-        $day = $date->format('w');
-        $date->sub(new \DateInterval('P' . $day . 'D'));
-        $dates = [];
-        for($i = 0; $i<7; $i++) {
-            $date->add(new \DateInterval('P1D'));
-            $dates[$date->format('l')] = $date->format('Y-m-d');
-        }
-        
-        $prev = \DateTime::createFromFormat('Y-m-d', $dates['Monday']);
-        $prev->sub(new \DateInterval('P7D'));
-        
-        $next = \DateTime::createFromFormat('Y-m-d', $dates['Monday']);
-        $next->add(new \DateInterval('P7D'));
-        
-        $planner = RecipePlanner::find()->where(['between', 'date', $dates['Monday'], $dates['Sunday']])->all();
-        
         return $this->render('index', [
-                    'dataProvider' => $dataProvider,
-                    'reciplePlannerDP' => $reciplePlannerDP,
-                    'planner' => $planner,
-                    'dates' => $dates,
-                    'week' => $week,
-                    'prev' => $prev,
-                    'next' => $next
+          'dataProvider' => $dataProvider,
         ]);
     }
 

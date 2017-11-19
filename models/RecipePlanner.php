@@ -17,6 +17,9 @@ use Yii;
  */
 class RecipePlanner extends \yii\db\ActiveRecord
 {
+
+    public $count;
+
     /**
      * @inheritdoc
      */
