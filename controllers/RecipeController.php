@@ -37,6 +37,9 @@ class RecipeController extends Controller {
     public function actionIndex() {
         $dataProvider = new ActiveDataProvider([
             'query' => Recipe::find(),
+            'pagination' => [
+              'pageSize' => 1000,
+            ],
         ]);
 
         $reciplePlannerDP = new ActiveDataProvider([
