@@ -49,7 +49,7 @@ class RecipeController extends Controller {
             'label' => 'Name',
           ],
         ],
-        'defaultOrder' => ['popularity']
+        'defaultOrder' => ['popularity' => SORT_DESC]
       ]);
 
       $recipe = new Recipe();
