@@ -42,12 +42,8 @@ class RecipeController extends Controller {
       $sort = new Sort([
         'attributes' => [
           'popularity',
-          'name' => [
-            'asc' => ['first_name' => SORT_ASC, 'last_name' => SORT_ASC],
-            'desc' => ['first_name' => SORT_DESC, 'last_name' => SORT_DESC],
-            'default' => SORT_DESC,
-            'label' => 'Name',
-          ],
+          'rating',
+          'name'
         ],
         'defaultOrder' => ['popularity' => SORT_DESC]
       ]);
@@ -62,6 +58,7 @@ class RecipeController extends Controller {
 
       return $this->render('index', [
         'dataProvider' => $dataProvider,
+        'sort' => $sort,
       ]);
     }
 

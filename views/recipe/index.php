@@ -17,6 +17,8 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= Html::a('Create Recipe', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
+    <?= $sort->link('popularity') . ' | ' . $sort->link('rating') . ' | ' . $sort->link('name'); ?>
+
     <?=
     ListView::widget([
         'dataProvider' => $dataProvider,

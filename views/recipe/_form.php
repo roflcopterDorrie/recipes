@@ -20,6 +20,14 @@ use yii\helpers\Url;
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => 255]) ?>
 
+    <?= $form->field($model, 'rating')->dropDownList([
+      1 => '1 star',
+      2 => '2 star',
+      3 => '3 star',
+      4 => '4 star',
+      5 => '5 star',
+    ])?>
+
     <?php if (!$model->isNewRecord): ?>
         <?php $image = $model->getImage(); ?>
         <?php if ($image) : ?>

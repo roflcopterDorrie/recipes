@@ -114,8 +114,14 @@ a.desc:after {
   right: 15px;
   bottom: 5px;
 }
-i.popularity_flame {
+i.fa-fire {
   font-size: 1.5em;
   margin: 3px;
   color: red;
+}
+
+i.fa-star {
+    font-size: 1.5em;
+    margin: 3px;
+    color: yellow;
 }
