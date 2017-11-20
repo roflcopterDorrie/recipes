@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use \yii\data\ActiveDataProvider;
 
 /**
  * This is the model class for table "recipe".
@@ -10,7 +11,7 @@ use Yii;
  * @property integer $id
  * @property string $name
  * @property string $description
- * @property integer $count
+ * @property integer $popularity
  *
  * @property RecipeIngredient[] $recipeIngredients
  * @property RecipePlanner[] $recipePlanners
@@ -34,7 +35,7 @@ class Recipe extends \yii\db\ActiveRecord {
             [['name'], 'required'],
             [['description', 'image'], 'string'],
             [['name'], 'string', 'max' => 255],
-            [['image'], 'safe']
+            [['image', 'popularity'], 'safe']
         ];
     }
 
@@ -46,8 +47,17 @@ class Recipe extends \yii\db\ActiveRecord {
             'id' => 'ID',
             'name' => 'Name',
             'description' => 'Description',
-            'image' => 'Replace Image - URL'
+            'image' => 'Replace Image - URL',
+            'popularity' => 'Popularity'
         ];
+    }
+
+    public function attributes() {
+      return array_merge(parent::attributes(), ['popularity']);
+    }
+
+    public function sortModels($models, $sort) {
+
     }
 
     /**
@@ -64,37 +74,41 @@ class Recipe extends \yii\db\ActiveRecord {
         return $this->hasMany(RecipePlanner::className(), ['recipe_id' => 'id']);
     }
 
-    public function getPopularity() {
-        // Load all planner recipes.
-        // SELECT recipe_id, count(recipe_id) AS count FROM `recipe_planner` GROUP BY recipe_id ORDER BY count DESC
-        $most_popular = RecipePlanner::find()
-          ->select(['COUNT(*) AS count', 'recipe_id'])
-          ->groupBy(['recipe_id'])
-          ->orderBy('count DESC')
-          ->one();
+    /**
+     * setup search function for filtering and sorting
+     * based on `orderAmount` field
+     */
+    public function search($params) {
+      $query = $this->find()
+        ->select("*, id AS tmp_recipe_id,
+FLOOR((SELECT COUNT(recipe_id) AS count FROM recipe
+LEFT JOIN recipe_planner ON recipe.id = recipe_planner.recipe_id
+WHERE recipe.id = tmp_recipe_id
+GROUP BY recipe.id
+ORDER BY count DESC LIMIT 1)
+/
+(SELECT COUNT(recipe_id) AS count FROM recipe
+LEFT JOIN recipe_planner ON recipe.id = recipe_planner.recipe_id
+GROUP BY recipe.id
+ORDER BY count DESC LIMIT 1) * 100 / 25) AS popularity")
+        ->orderBy($params['sort']->orders);
 
-        $recipe_popularity = RecipePlanner::find()
-          ->select(['COUNT(*) AS count', 'recipe_id'])
-          ->groupBy(['recipe_id'])
-          ->where(['recipe_id'=>$this->id])
-          ->orderBy(['count'=>'desc'])
-          ->one();
+      $params['query'] = $query;
 
-        if (!isset($recipe_popularity)) {
-          $recipe_popularity = new RecipePlanner();
-          $recipe_popularity->count = 0;
-        }
-        $popularity = ($recipe_popularity->count / $most_popular->count) * 100;
+      $dataProvider = new ActiveDataProvider($params);
 
-        if ($popularity < 25) {
-          return 0;
-        } else if ($popularity < 50) {
-          return 1;
-        } else if ($popularity < 75) {
-          return 2;
-        } else {
-          return 3;
-        }
+      /**
+       * Setup your sorting attributes
+       * Note: This is setup before the $this->load($params)
+       * statement below
+       */
+      $dataProvider->setSort([
+        'attributes' => [
+          'popularity',
+        ]
+      ]);
+
+      return $dataProvider;
     }
 
     public function behaviors() {

@@ -21,10 +21,9 @@ use yii\helpers\Html;
 
 
           <?php
-          $popularity = $model->getPopularity();
-          if ($popularity && $popularity > 0) {
+          if ($model->popularity > 0) {
             ?><div class="card-popularity"><?php
-            for ($i = 0; $i < $popularity; $i++) {
+            for ($i = 0; $i < $model->popularity; $i++) {
               print '<i class="fa fa-fire popularity_flame" aria-hidden="true"></i>';
             }
             ?></div><?php

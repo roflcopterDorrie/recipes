@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use app\models\Recipe;
 use yii\data\ActiveDataProvider;
+use yii\data\Sort;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -33,19 +34,35 @@ class RecipeController extends Controller {
 
     /**
      * Lists all Recipe models.
+     *
      * @return mixed
      */
     public function actionIndex() {
-        $dataProvider = new ActiveDataProvider([
-            'query' => Recipe::find(),
-            'pagination' => [
-              'pageSize' => 1000,
-            ],
-        ]);
+      // Sort by popularity by default.
+      $sort = new Sort([
+        'attributes' => [
+          'popularity',
+          'name' => [
+            'asc' => ['first_name' => SORT_ASC, 'last_name' => SORT_ASC],
+            'desc' => ['first_name' => SORT_DESC, 'last_name' => SORT_DESC],
+            'default' => SORT_DESC,
+            'label' => 'Name',
+          ],
+        ],
+        'defaultOrder' => ['popularity']
+      ]);
 
-        return $this->render('index', [
-          'dataProvider' => $dataProvider,
-        ]);
+      $recipe = new Recipe();
+      $dataProvider = $recipe->search([
+        'pagination' => [
+          'pageSize' => 1000,
+        ],
+        'sort' => $sort
+      ]);
+
+      return $this->render('index', [
+        'dataProvider' => $dataProvider,
+      ]);
     }
 
     /**
