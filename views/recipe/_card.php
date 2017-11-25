@@ -9,7 +9,7 @@ use yii\helpers\Html;
 
     <div class="card-image">
       <?php
-      print Html::img(\Yii::$app->imagemanager->getImagePath($model->ImageManager_image_id, 720, 405, "inset"));
+      print Html::a(Html::img(\Yii::$app->imagemanager->getImagePath($model->ImageManager_image_id, 720, 405, "outbound")), ['/recipe/' . $model->id]);
       ?>
     </div>
 
