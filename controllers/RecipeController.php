@@ -120,11 +120,6 @@ class RecipeController extends Controller {
       $recipe->name = $model->name;
       $recipe->save();
 
-      // Get image
-      if ($model->image_url != NULL) {
-        $recipe->attachImage($model->image_url);
-      }
-
       // Create ingredients
       $ingredients = explode("\n", $model->ingredients);
       foreach ($ingredients as $i) {
@@ -177,13 +172,6 @@ class RecipeController extends Controller {
 
     // Validate and save.
     if ($model->load(Yii::$app->request->post()) && $model->save()) {
-
-      if ($model->image != NULL) {
-        $model->removeImages();
-        $model->attachImage($model->image);
-        $model->image = NULL;
-        $model->save();
-      }
 
       // Save ingredients.
       if (RecipeIngredient::loadMultiple($ingredients, Yii::$app->request->post(), 'RecipeIngredient')) {

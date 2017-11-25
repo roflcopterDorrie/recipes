@@ -58,12 +58,23 @@ $config = [
       // Disable index.php
       //'showScriptName' => false,
       // Disable r= routes
-      'enablePrettyUrl' => TRUE,
+      'enablePrettyUrl' => true,
       'rules' => [
         '<controller:\w+>/<id:\d+>' => '<controller>/view',
         '<controller:\w+>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
         '<controller:\w+>/<action:\w+>' => '<controller>/<action>',
       ],
+    ],
+    'imagemanager' => [
+      'class' => 'noam148\imagemanager\components\ImageManagerGetPath',
+      //set media path (outside the web folder is possible)
+      'mediaPath' => '/var/beetbox/docroot/web/images/imagemanager',
+      //path relative web folder to store the cache images
+      'cachePath' => 'assets/images',
+      //use filename (seo friendly) for resized images else use a hash
+      'useFilename' => true,
+      //show full url (for example in case of a API)
+      'absoluteUrl' => false,
     ],
   ],
   'modules' => [
@@ -96,6 +107,18 @@ $config = [
         Module::FORMAT_DATE => 'dd/MM/yyyy',
         Module::FORMAT_TIME => 'HH:mm:ss a',
         Module::FORMAT_DATETIME => 'dd-MM-yyyy HH:mm:ss a',
+      ],
+    ],
+    'imagemanager' => [
+      'class' => 'noam148\imagemanager\Module',
+      //set accces rules ()
+      'canUploadImage' => true,
+      'canRemoveImage' => function(){
+        return true;
+      },
+      //add css files (to use in media manage selector iframe)
+      'cssFiles' => [
+        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css',
       ],
     ],
   ],

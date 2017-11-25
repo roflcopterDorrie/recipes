@@ -32,7 +32,7 @@ class Recipe extends \yii\db\ActiveRecord {
     return [
       [['name', 'rating'], 'required'],
       [['name'], 'string', 'max' => 255],
-      [['image', 'popularity'], 'safe'],
+      [['ImageManager_image_id', 'popularity'], 'safe'],
     ];
   }
 
@@ -45,6 +45,7 @@ class Recipe extends \yii\db\ActiveRecord {
       'name' => 'Name',
       'image' => 'Replace Image - URL',
       'popularity' => 'Popularity',
+      'ImageManager_image_id' => 'Image id',
     ];
   }
 

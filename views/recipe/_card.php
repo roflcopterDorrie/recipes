@@ -9,7 +9,9 @@ use yii\helpers\Html;
 
     <div class="card-image">
       <?php
-      print Html::a(Html::img('/images/placeHolder.png'), ['/recipe/' . $model->id]);
+      print Html::img(\Yii::$app->imagemanager->getImagePath($model->ImageManager_image_id, 400, 300, "inset"));
+
+      //print Html::a(Html::img('/images/placeHolder.png'), ['/recipe/' . $model->id]);
       ?>
     </div>
 
