@@ -68,7 +68,7 @@ $config = [
     'imagemanager' => [
       'class' => 'noam148\imagemanager\components\ImageManagerGetPath',
       //set media path (outside the web folder is possible)
-      'mediaPath' => '/var/beetbox/docroot/web/images/imagemanager',
+      'mediaPath' => 'web/images/imagemanager',
       //path relative web folder to store the cache images
       'cachePath' => 'assets/images',
       //use filename (seo friendly) for resized images else use a hash
