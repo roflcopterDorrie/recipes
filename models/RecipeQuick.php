@@ -13,48 +13,50 @@ use Yii;
  */
 class RecipeQuick extends \yii\db\ActiveRecord {
 
-    /**
-     * @var UploadedFile|Null file attribute
-     */
-    public $ingredients;
-    public $steps;
-    public $image_url;
+  /**
+   * @var UploadedFile|Null file attribute
+   */
+  public $ingredients;
 
-    /**
-     * @inheritdoc
-     */
-    public static function tableName() {
-        return 'recipe';
-    }
+  public $steps;
 
-    /**
-     * @inheritdoc
-     */
-    public function rules() {
-        return [
-            [['name', 'ingredients', 'steps'], 'required'],
-            [['description', 'ingredients', 'steps', 'image_url'], 'string'],
-            [['name'], 'string', 'max' => 255],
-        ];
-    }
+  public $image_url;
 
-    /**
-     * @inheritdoc
-     */
-    public function attributeLabels() {
-        return [
-            'id' => 'ID',
-            'name' => 'Name',
-            'description' => 'Description',
-        ];
-    }
+  /**
+   * @inheritdoc
+   */
+  public static function tableName() {
+    return 'recipe';
+  }
 
-    public function behaviors() {
-        return [
-            'image' => [
-                'class' => 'rico\yii2images\behaviors\ImageBehave',
-            ]
-        ];
-    }
+  /**
+   * @inheritdoc
+   */
+  public function rules() {
+    return [
+      [['name', 'ingredients', 'steps'], 'required'],
+      [['description', 'ingredients', 'steps', 'image_url'], 'string'],
+      [['name'], 'string', 'max' => 255],
+    ];
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function attributeLabels() {
+    return [
+      'id' => 'ID',
+      'name' => 'Name',
+      'description' => 'Description',
+    ];
+  }
+
+  public function behaviors() {
+    return [
+      'image' => [
+        'class' => 'rico\yii2images\behaviors\ImageBehave',
+      ],
+    ];
+  }
 
 }

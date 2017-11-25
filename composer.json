@@ -19,7 +19,6 @@
         "yiisoft/yii2-bootstrap": "*",
         "yiisoft/yii2-swiftmailer": "*",
         "robregonm/yii2-auth": "*",
-        "costa-rico/yii2-images": "dev-master",
         "kartik-v/yii2-widget-fileinput": "*",
         "kartik-v/yii2-widget-typeahead": "*",
         "kartik-v/yii2-datecontrol": "dev-master",
@@ -33,7 +32,11 @@
         "yiisoft/yii2-faker": "*"
     },
     "config": {
-        "process-timeout": 1800
+        "process-timeout": 1800,
+        "fxp-asset.installer-paths": {
+            "npm-asset-library": "vendor/npm",
+            "bower-asset-library": "vendor/bower"
+        }
     },
     "scripts": {
         "post-create-project-cmd": [
@@ -52,10 +55,6 @@
             "generateCookieValidationKey": [
                 "config/web.php"
             ]
-        },
-        "asset-installer-paths": {
-            "npm-asset-library": "vendor/npm",
-            "bower-asset-library": "vendor/bower"
         }
     }
 }

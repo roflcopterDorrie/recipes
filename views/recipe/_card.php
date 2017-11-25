@@ -9,13 +9,7 @@ use yii\helpers\Html;
 
     <div class="card-image">
       <?php
-      $image = $model->getImage();
-      if ($image) {
-        print Html::a(Html::img($image->getUrl('350x200')), ['/recipe/' . $model->id]);
-      }
-      else {
-        print Html::a(Html::img('/images/placeHolder.png'), ['/recipe/' . $model->id]);
-      }
+      print Html::a(Html::img('/images/placeHolder.png'), ['/recipe/' . $model->id]);
       ?>
     </div>
 

@@ -11,37 +11,34 @@ use Yii;
  * @property integer $recipe_id
  * @property string $step
  */
-class RecipeStep extends \yii\db\ActiveRecord
-{
-    /**
-     * @inheritdoc
-     */
-    public static function tableName()
-    {
-        return 'recipe_step';
-    }
+class RecipeStep extends \yii\db\ActiveRecord {
 
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [
-            [['recipe_id', 'step'], 'required'],
-            [['recipe_id'], 'integer'],
-            [['step'], 'string']
-        ];
-    }
+  /**
+   * @inheritdoc
+   */
+  public static function tableName() {
+    return 'recipe_step';
+  }
 
-    /**
-     * @inheritdoc
-     */
-    public function attributeLabels()
-    {
-        return [
-            'id' => 'ID',
-            'recipe_id' => 'Recipe ID',
-            'step' => 'Step',
-        ];
-    }
+  /**
+   * @inheritdoc
+   */
+  public function rules() {
+    return [
+      [['recipe_id', 'step'], 'required'],
+      [['recipe_id'], 'integer'],
+      [['step'], 'string'],
+    ];
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function attributeLabels() {
+    return [
+      'id' => 'ID',
+      'recipe_id' => 'Recipe ID',
+      'step' => 'Step',
+    ];
+  }
 }

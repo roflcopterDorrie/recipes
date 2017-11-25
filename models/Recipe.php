@@ -18,59 +18,57 @@ use \yii\data\ActiveDataProvider;
  */
 class Recipe extends \yii\db\ActiveRecord {
 
-    public $image;
+  /**
+   * @inheritdoc
+   */
+  public static function tableName() {
+    return 'recipe';
+  }
 
-    /**
-     * @inheritdoc
-     */
-    public static function tableName() {
-        return 'recipe';
-    }
+  /**
+   * @inheritdoc
+   */
+  public function rules() {
+    return [
+      [['name', 'rating'], 'required'],
+      [['name'], 'string', 'max' => 255],
+      [['image', 'popularity'], 'safe'],
+    ];
+  }
 
-    /**
-     * @inheritdoc
-     */
-    public function rules() {
-        return [
-            [['name', 'rating'], 'required'],
-            [['name'], 'string', 'max' => 255],
-            [['image', 'popularity'], 'safe']
-        ];
-    }
+  /**
+   * @inheritdoc
+   */
+  public function attributeLabels() {
+    return [
+      'id' => 'ID',
+      'name' => 'Name',
+      'image' => 'Replace Image - URL',
+      'popularity' => 'Popularity',
+    ];
+  }
 
-    /**
-     * @inheritdoc
-     */
-    public function attributeLabels() {
-        return [
-            'id' => 'ID',
-            'name' => 'Name',
-            'image' => 'Replace Image - URL',
-            'popularity' => 'Popularity'
-        ];
-    }
+  public function attributes() {
+    return array_merge(parent::attributes(), ['popularity']);
+  }
 
-    public function attributes() {
-      return array_merge(parent::attributes(), ['popularity']);
-    }
+  /**
+   * @return \yii\db\ActiveQuery
+   */
+  public function getRecipeIngredients() {
+    return $this->hasMany(RecipeIngredient::className(), ['recipe_id' => 'id']);
+  }
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getRecipeIngredients() {
-        return $this->hasMany(RecipeIngredient::className(), ['recipe_id' => 'id']);
-    }
+  /**
+   * @return \yii\db\ActiveQuery
+   */
+  public function getRecipePlanners() {
+    return $this->hasMany(RecipePlanner::className(), ['recipe_id' => 'id']);
+  }
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getRecipePlanners() {
-        return $this->hasMany(RecipePlanner::className(), ['recipe_id' => 'id']);
-    }
-
-    public function search($params) {
-      $query = $this->find()
-        ->select("*, id AS tmp_recipe_id,
+  public function search($params) {
+    $query = $this->find()
+      ->select("*, id AS tmp_recipe_id,
           FLOOR((SELECT COUNT(recipe_id) AS count FROM recipe
           LEFT JOIN recipe_planner ON recipe.id = recipe_planner.recipe_id
           WHERE recipe.id = tmp_recipe_id
@@ -81,29 +79,21 @@ class Recipe extends \yii\db\ActiveRecord {
           LEFT JOIN recipe_planner ON recipe.id = recipe_planner.recipe_id
           GROUP BY recipe.id
           ORDER BY count DESC LIMIT 1) * 100 / 33) AS popularity")
-        ->orderBy($params['sort']->orders);
+      ->orderBy($params['sort']->orders);
 
-      unset($params['sort']);
-      $params['query'] = $query;
+    unset($params['sort']);
+    $params['query'] = $query;
 
-      $dataProvider = new ActiveDataProvider($params);
+    $dataProvider = new ActiveDataProvider($params);
 
-      return $dataProvider;
+    return $dataProvider;
+  }
+
+  public function getRating() {
+    if ($this->rating == NULL) {
+      $this->rating = 0;
     }
-
-    public function getRating() {
-      if ($this->rating == null) {
-        $this->rating = 0;
-      }
-      return $this->rating;
-    }
-
-    public function behaviors() {
-        return [
-            'image' => [
-                'class' => 'rico\yii2images\behaviors\ImageBehave',
-            ]
-        ];
-    }
+    return $this->rating;
+  }
 
 }

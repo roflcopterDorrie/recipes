@@ -12,43 +12,39 @@ use Yii;
  *
  * @property Ingredient[] $ingredients
  */
-class IngredientStoreSection extends \yii\db\ActiveRecord
-{
-    /**
-     * @inheritdoc
-     */
-    public static function tableName()
-    {
-        return 'ingredient_store_section';
-    }
+class IngredientStoreSection extends \yii\db\ActiveRecord {
 
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [
-            [['name'], 'required'],
-            [['name'], 'string', 'max' => 255]
-        ];
-    }
+  /**
+   * @inheritdoc
+   */
+  public static function tableName() {
+    return 'ingredient_store_section';
+  }
 
-    /**
-     * @inheritdoc
-     */
-    public function attributeLabels()
-    {
-        return [
-            'id' => 'ID',
-            'name' => 'Name',
-        ];
-    }
+  /**
+   * @inheritdoc
+   */
+  public function rules() {
+    return [
+      [['name'], 'required'],
+      [['name'], 'string', 'max' => 255],
+    ];
+  }
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getIngredients()
-    {
-        return $this->hasMany(Ingredient::className(), ['ingredient_store_section_id' => 'id']);
-    }
+  /**
+   * @inheritdoc
+   */
+  public function attributeLabels() {
+    return [
+      'id' => 'ID',
+      'name' => 'Name',
+    ];
+  }
+
+  /**
+   * @return \yii\db\ActiveQuery
+   */
+  public function getIngredients() {
+    return $this->hasMany(Ingredient::className(), ['ingredient_store_section_id' => 'id']);
+  }
 }

@@ -15,58 +15,52 @@ use Yii;
  * @property Recipe $recipe
  * @property RecipePlannerIngredient[] $recipePlannerIngredients
  */
-class RecipePlanner extends \yii\db\ActiveRecord
-{
+class RecipePlanner extends \yii\db\ActiveRecord {
 
-    public $count;
+  public $count;
 
-    /**
-     * @inheritdoc
-     */
-    public static function tableName()
-    {
-        return 'recipe_planner';
-    }
+  /**
+   * @inheritdoc
+   */
+  public static function tableName() {
+    return 'recipe_planner';
+  }
 
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [
-            [['recipe_id'], 'required'],
-            [['recipe_id'], 'integer'],
-            [['date'], 'safe'],
-            [['timeofday'], 'string', 'max' => 25]
-        ];
-    }
+  /**
+   * @inheritdoc
+   */
+  public function rules() {
+    return [
+      [['recipe_id'], 'required'],
+      [['recipe_id'], 'integer'],
+      [['date'], 'safe'],
+      [['timeofday'], 'string', 'max' => 25],
+    ];
+  }
 
-    /**
-     * @inheritdoc
-     */
-    public function attributeLabels()
-    {
-        return [
-            'id' => 'ID',
-            'recipe_id' => 'Recipe ID',
-            'date' => 'Date',
-            'timeofday' => 'Timeofday',
-        ];
-    }
+  /**
+   * @inheritdoc
+   */
+  public function attributeLabels() {
+    return [
+      'id' => 'ID',
+      'recipe_id' => 'Recipe ID',
+      'date' => 'Date',
+      'timeofday' => 'Timeofday',
+    ];
+  }
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getRecipe()
-    {
-        return $this->hasOne(Recipe::className(), ['id' => 'recipe_id']);
-    }
+  /**
+   * @return \yii\db\ActiveQuery
+   */
+  public function getRecipe() {
+    return $this->hasOne(Recipe::className(), ['id' => 'recipe_id']);
+  }
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getRecipePlannerIngredients()
-    {
-        return $this->hasMany(RecipePlannerIngredient::className(), ['recipe_planner_id' => 'id']);
-    }
+  /**
+   * @return \yii\db\ActiveQuery
+   */
+  public function getRecipePlannerIngredients() {
+    return $this->hasMany(RecipePlannerIngredient::className(), ['recipe_planner_id' => 'id']);
+  }
 }

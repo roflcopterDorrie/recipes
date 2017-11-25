@@ -9,88 +9,83 @@ use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
 
-class SiteController extends Controller
-{
-    public function behaviors()
-    {
-        return [
-            'access' => [
-                'class' => AccessControl::className(),
-                'only' => ['logout'],
-                'rules' => [
-                    [
-                        'actions' => ['logout'],
-                        'allow' => true,
-                        'roles' => ['@'],
-                    ],
-                ],
-            ],
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'logout' => ['post'],
-                ],
-            ],
-        ];
+class SiteController extends Controller {
+
+  public function behaviors() {
+    return [
+      'access' => [
+        'class' => AccessControl::className(),
+        'only' => ['logout'],
+        'rules' => [
+          [
+            'actions' => ['logout'],
+            'allow' => TRUE,
+            'roles' => ['@'],
+          ],
+        ],
+      ],
+      'verbs' => [
+        'class' => VerbFilter::className(),
+        'actions' => [
+          'logout' => ['post'],
+        ],
+      ],
+    ];
+  }
+
+  public function actions() {
+    return [
+      'error' => [
+        'class' => 'yii\web\ErrorAction',
+      ],
+      'captcha' => [
+        'class' => 'yii\captcha\CaptchaAction',
+        'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : NULL,
+      ],
+    ];
+  }
+
+  public function actionIndex() {
+    return $this->redirect(['/recipe/index/']);
+  }
+
+  public function actionLogin() {
+    if (!\Yii::$app->user->isGuest) {
+      return $this->goHome();
     }
 
-    public function actions()
-    {
-        return [
-            'error' => [
-                'class' => 'yii\web\ErrorAction',
-            ],
-            'captcha' => [
-                'class' => 'yii\captcha\CaptchaAction',
-                'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
-            ],
-        ];
+    $model = new LoginForm();
+    if ($model->load(Yii::$app->request->post()) && $model->login()) {
+      return $this->goBack();
     }
-
-    public function actionIndex()
-    {
-        return $this->redirect(['/recipe/index/']);
+    else {
+      return $this->render('login', [
+        'model' => $model,
+      ]);
     }
+  }
 
-    public function actionLogin()
-    {
-        if (!\Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
+  public function actionLogout() {
+    Yii::$app->user->logout();
 
-        $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
-        } else {
-            return $this->render('login', [
-                'model' => $model,
-            ]);
-        }
+    return $this->goHome();
+  }
+
+  public function actionContact() {
+    $model = new ContactForm();
+    if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
+      Yii::$app->session->setFlash('contactFormSubmitted');
+
+      return $this->refresh();
     }
-
-    public function actionLogout()
-    {
-        Yii::$app->user->logout();
-
-        return $this->goHome();
+    else {
+      return $this->render('contact', [
+        'model' => $model,
+      ]);
     }
+  }
 
-    public function actionContact()
-    {
-        $model = new ContactForm();
-        if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
-            Yii::$app->session->setFlash('contactFormSubmitted');
-
-            return $this->refresh();
-        } else {
-            return $this->render('contact', [
-                'model' => $model,
-            ]);
-        }
-    }
-
-    public function actionAbout()
-    {
-        return $this->render('about');
-    }
+  public function actionAbout() {
+    return $this->render('about');
+  }
 }
