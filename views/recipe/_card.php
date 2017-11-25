@@ -32,7 +32,7 @@ use yii\helpers\Html;
       for ($i = 0; $i < $model->rating; $i++) {
         print '<i class="fa fa-star" aria-hidden="true"></i>';
       }
-      for ($i = $model->rating; $i <= (5 - $model->rating); $i++) {
+      for ($i = 0; $i < (5 - $model->rating); $i++) {
         print '<i class="fa fa-star-o" aria-hidden="true"></i>';
       }
       ?></div><?php
