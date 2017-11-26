@@ -20,22 +20,21 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <div class="recipe-view">
 
+    <div class="actions">
+      <?= Html::a('<i class="fa fa-pencil icon-blue" aria-hidden="true"></i>', ['update', 'id' => $model->id]) ?>
+      <?=
+      Html::a('<i class="fa fa-trash" aria-hidden="true"></i>', ['delete', 'id' => $model->id], [
+        'data' => [
+          'confirm' => 'Are you sure you want to delete this item?',
+          'method' => 'post',
+        ],
+      ])
+      ?>
+      <?= Html::a('<i class="fa fa-play-circle" aria-hidden="true"></i>', ['#'], ['class' => 'button-cook-mode']) ?>
+    </div>
+
     <h1><?= Html::encode($model->name) ?></h1>
 
-
-    <div class="actions">
-        <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?=
-        Html::a('Delete', ['delete', 'id' => $model->id], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
-                'method' => 'post',
-            ],
-        ])
-        ?>
-        <?= Html::a('Cook mode!', ['#'], ['class' => 'btn btn-success button-cook-mode']) ?>
-    </div>
 
     <div class="ingredients">
         <h2>Ingredients</h2>

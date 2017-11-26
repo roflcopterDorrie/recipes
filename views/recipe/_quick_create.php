@@ -40,6 +40,7 @@ use app\models\IngredientStoreSection;
 
   <?= $form->field($model, 'ingredients')->textarea(['rows' => 6]) ?>
 
+    Try to keep each step to under 240 characters.
   <?= $form->field($model, 'steps')->textarea(['rows' => 6]); ?>
 
     <div class="form-group">

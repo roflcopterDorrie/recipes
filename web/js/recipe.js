@@ -78,16 +78,29 @@ jQuery(document).ready(function () {
     e.preventDefault();
     $('body').addClass('cook-mode');
     $('.steps li').first().addClass('active');
-    $('.container').removeClass('container');
+    //$('.content').removeClass('container');
+    //$('.content').addClass('container-fluid');
   });
 
   $('.steps li').click(function() {
     if ($(this).hasClass('active')) {
       $(this).removeClass('active');
       $(this).addClass('inactive');
+
+
+      var $next = $('.steps li:not(.inactive)').first();
+      if ($next.length > 0) {
+        $next.addClass('active');
+        $('html,body').animate({scrollTop: $(this).offset().top - 50});
+      }
+      else {
+        $('body').removeClass('cook-mode');
+        //$('.content').addClass('container');
+        $('html,body').animate({scrollTop: 0});
+        $('.steps li').removeClass('inactive');
+      }
     }
 
-    $('.steps li:not(.inactive)').first().addClass('active');
   });
 
   $()

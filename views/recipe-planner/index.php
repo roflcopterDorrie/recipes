@@ -11,7 +11,7 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="recipe-planner-index">
 
-    <h1><?= Html::encode($this->title) ?></h1>
+    <h1>Planner</h1>
 
     <h2>
       <?= Html::a('<i class="fa fa-chevron-circle-left" aria-hidden="true"></i>', [
@@ -50,7 +50,7 @@ $this->params['breadcrumbs'][] = $this->title;
     </h2>
 
 
-    <div class="recipe-planner">
+    <div class="recipe-planner col-sm-6 col-md-4">
 
         <?php
         foreach ($dates as $day => $date) {

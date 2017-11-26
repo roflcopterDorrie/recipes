@@ -70,12 +70,7 @@ AppAsset::register($this);
   NavBar::end();
   ?>
 
-    <div class="container">
-      <?=
-      Breadcrumbs::widget([
-        'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
-      ])
-      ?>
+    <div class="container content">
       <?php
       foreach (Yii::$app->session->getAllFlashes() as $key => $message) {
         echo '<div class="alert alert-' . $key . '">' . $message . '</div>';

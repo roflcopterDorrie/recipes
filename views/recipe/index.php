@@ -11,11 +11,11 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="recipe-index">
 
-    <h2>Recipes</h2>
-    
-    <p>
-        <?= Html::a('Create Recipe', ['create'], ['class' => 'btn btn-success']) ?>
-    </p>
+    <div class="actions">
+      <?= Html::a('<i class="fa fa-plus-circle" aria-hidden="true"></i>', ['create']) ?>
+    </div>
+
+    <h1>Recipes</h1>
 
     <?= $sort->link('popularity') . ' | ' . $sort->link('rating') . ' | ' . $sort->link('name'); ?>
 
