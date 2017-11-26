@@ -2,6 +2,8 @@
 
 use yii\helpers\Html;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
+use yii\web\View;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Recipe */
@@ -10,11 +12,18 @@ $this->title = $model->name;
 $this->params['breadcrumbs'][] = ['label' => 'Recipes', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
+
+<?php $this->registerJsFile(Url::to('/js/recipe.js'), [
+  'depends' => [\yii\web\JqueryAsset::className()],
+  'position' => View::POS_END,
+]); ?>
+
 <div class="recipe-view">
 
     <h1><?= Html::encode($model->name) ?></h1>
 
-    <p>
+
+    <div class="actions">
         <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
         <?=
         Html::a('Delete', ['delete', 'id' => $model->id], [
@@ -25,20 +34,17 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
         ])
         ?>
-    </p>
+        <?= Html::a('Cook mode!', ['#'], ['class' => 'btn btn-success button-cook-mode']) ?>
+    </div>
 
-    <?php
-    /*$image = $model->getImage();
-    if ($image) {
-        echo '<div style="width: 500px">';
-        echo Html::img('/' . $image->getPath('500x300'));
-        echo '</div>';
-    }*/
-    ?>
-    <h2>Ingredients</h2>
-    <?= Html::ul(ArrayHelper::map($ingredients, 'id', 'ingredient'));?>
-    
-    <h2>Steps</h2>
-    <?= Html::ol(ArrayHelper::map($steps, 'id', 'step'), ['encode' => false]); ?>
+    <div class="ingredients">
+        <h2>Ingredients</h2>
+        <?= Html::ul(ArrayHelper::map($ingredients, 'id', 'ingredient'));?>
+    </div>
+
+    <div class="steps">
+        <h2>Steps</h2>
+        <?= Html::ol(ArrayHelper::map($steps, 'id', 'step'), ['encode' => false]); ?>
+    </div>
 
 </div>

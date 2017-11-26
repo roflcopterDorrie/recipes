@@ -14,10 +14,10 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <h2>
-      <?= Html::a('Prev', [
+      <?= Html::a('<i class="fa fa-chevron-circle-left" aria-hidden="true"></i>', [
         '/recipe-planner/',
         'date' => $prev->format('Ymd'),
-      ], ['class' => 'btn btn-primary']); ?>
+      ]); ?>
       <?php
       $now = new \DateTime();
       $thisWeek = $now->format('W');
@@ -43,10 +43,10 @@ $this->params['breadcrumbs'][] = $this->title;
       }
       echo '</abbr>';
       ?>
-      <?= Html::a('Next', [
+      <?= Html::a('<i class="fa fa-chevron-circle-right" aria-hidden="true"></i>', [
         '/recipe-planner/',
         'date' => $next->format('Ymd'),
-      ], ['class' => 'btn btn-primary']); ?>
+      ]); ?>
     </h2>
 
 

@@ -4,7 +4,7 @@ namespace app\controllers;
 
 use Yii;
 use app\models\RecipePlannerIngredient;
-use yii\data\ActiveDataProvider;
+use app\models\RecipePlanner;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -32,21 +32,83 @@ class ShoppingListController extends Controller {
    * @return mixed
    */
   public function actionIndex() {
+
+    $get = Yii::$app->request->get();
+    if (isset($get['date'])) {
+      $date = \DateTime::createFromFormat('Ymd', $get['date']);
+    }
+    else {
+      $date = new \DateTime();
+    }
+
+    $week = $date->format('W');
+
+    $day = $date->format('w');
+    $date->sub(new \DateInterval('P' . $day . 'D'));
+    $dates = [];
+    for ($i = 0; $i < 7; $i++) {
+      $date->add(new \DateInterval('P1D'));
+      $dates[$date->format('l')] = $date->format('Y-m-d');
+    }
+
+    $prev = \DateTime::createFromFormat('Y-m-d', $dates['Monday']);
+    $prev->sub(new \DateInterval('P7D'));
+
+    $next = \DateTime::createFromFormat('Y-m-d', $dates['Monday']);
+    $next->add(new \DateInterval('P7D'));
+
+
+    $plannerIds = [];
+
+    $planner = RecipePlanner::find()
+      ->where([
+          'between',
+          'date',
+          $dates['Monday'],
+          $dates['Sunday'],
+        ])
+      ->all();
+
+    foreach($planner as $plan) {
+      $plannerIds[] = $plan->id;
+    }
+
     $shoppingList = RecipePlannerIngredient::find()
       ->indexBy('id')
-      ->where(['collected' => 0])
+      ->where(['collected' => 0, 'recipe_planner_id' => $plannerIds])
       ->all();
 
     if (RecipePlannerIngredient::loadMultiple($shoppingList, Yii::$app->request->post()) && RecipePlannerIngredient::validateMultiple($shoppingList)) {
       foreach ($shoppingList as $item) {
         $item->save(FALSE);
       }
+      $plannerIds = [];
+
+      $planner = RecipePlanner::find()
+        ->where([
+          'between',
+          'date',
+          $dates['Monday'],
+          $dates['Sunday'],
+        ])
+        ->all();
+
+      foreach($planner as $plan) {
+        $plannerIds[] = $plan->id;
+      }
+
       $shoppingList = RecipePlannerIngredient::find()
         ->indexBy('id')
-        ->where(['collected' => 0])
+        ->where(['collected' => 0, 'recipe_planner_id' => $plannerIds])
         ->all();
     }
-    return $this->render('update', ['shoppingList' => self::sortShoppingList($shoppingList)]);
+    return $this->render('update', [
+      'shoppingList' => self::sortShoppingList($shoppingList),
+      'dates' => $dates,
+      'week' => $week,
+      'prev' => $prev,
+      'next' => $next,
+    ]);
   }
 
   private function sortShoppingList($shoppingList) {

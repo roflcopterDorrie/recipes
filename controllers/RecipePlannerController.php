@@ -33,10 +33,6 @@ class RecipePlannerController extends Controller {
    */
   public function actionIndex() {
 
-    $reciplePlannerDP = new ActiveDataProvider([
-      'query' => RecipePlanner::find(),
-    ]);
-
     $get = Yii::$app->request->get();
     if (isset($get['date'])) {
       $date = \DateTime::createFromFormat('Ymd', $get['date']);
@@ -69,7 +65,6 @@ class RecipePlannerController extends Controller {
     ])->all();
 
     return $this->render('index', [
-      'reciplePlannerDP' => $reciplePlannerDP,
       'planner' => $planner,
       'dates' => $dates,
       'week' => $week,

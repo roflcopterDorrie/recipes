@@ -162,3 +162,43 @@ form {
 abbr {
   text-decoration: none;
 }
+
+/* COOK MODE */
+body.cook-mode h1,
+body.cook-mode h2,
+body.cook-mode .actions,
+body.cook-mode .ingredients,
+body.cook-mode .breadcrumb
+{
+  display: none;
+}
+
+body.cook-mode .steps {
+  padding-top: 70px;
+}
+
+body.cook-mode .steps ol {
+  margin: 0;
+  padding: 0;
+}
+
+body.cook-mode .steps li {
+  font-size: 1.5em;
+  padding: 10px 40px;
+  list-style: none;
+}
+
+body.cook-mode .steps li.active {
+  font-size: 2em;
+  background-color: #79c7ff;
+  padding: 30px 40px;
+  cursor: pointer;
+}
+
+body.cook-mode .steps li.inactive {
+  font-size: 1em;
+  color: grey;
+  padding: 5px 40px;
+}
+
+

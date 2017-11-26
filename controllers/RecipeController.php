@@ -91,7 +91,7 @@ class RecipeController extends Controller {
         $ingId = $split[1];
         if (is_numeric($ingId)) {
           $ingredient = RecipeIngredient::findOne($ingId);
-          $step->step = str_replace($match, '<span class="ingredient" style="color:blue">' . $ingredient->ingredient . '</span>', $step->step);
+          $step->step = str_replace($match, '<span class="ingredient">' . $ingredient->ingredient . '</span>', $step->step);
         }
       }
     }

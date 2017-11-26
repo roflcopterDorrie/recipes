@@ -14,6 +14,42 @@ $this->params['breadcrumbs'][] = 'Shopping List';
 
     <h1><?= Html::encode($this->title) ?></h1>
 
+    <h2>
+      <?= Html::a('<i class="fa fa-chevron-circle-left" aria-hidden="true"></i>', [
+        '/shopping-list/',
+        'date' => $prev->format('Ymd'),
+      ]); ?>
+      <?php
+      $now = new \DateTime();
+      $thisWeek = $now->format('W');
+      echo '<abbr title="' . DateTime::createFromFormat('Y-m-d', $dates['Monday'])
+          ->format('l jS F') ?>
+        - <?= DateTime::createFromFormat('Y-m-d', $dates['Sunday'])
+        ->format('l jS F') . '">';
+      if ($week == $thisWeek) {
+        echo 'This week';
+      }
+      else {
+        if ($week + 1 == $thisWeek) {
+          echo 'Last week';
+        }
+        else {
+          if ($week - 1 == $thisWeek) {
+            echo 'Next week';
+          }
+          else {
+            echo $week - $thisWeek . ' weeks away';
+          }
+        }
+      }
+      echo '</abbr>';
+      ?>
+      <?= Html::a('<i class="fa fa-chevron-circle-right" aria-hidden="true"></i>', [
+        '/shopping-list/',
+        'date' => $next->format('Ymd'),
+      ]); ?>
+    </h2>
+
 
     <div class="recipe-planner-ingredient-form">
 
