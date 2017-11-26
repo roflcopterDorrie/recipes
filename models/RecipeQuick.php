@@ -10,6 +10,8 @@ use Yii;
  * @property integer $id
  * @property string $name
  * @property string $description
+ * @property integer $rating
+ * @property integer $ImageManager_image_id
  */
 class RecipeQuick extends \yii\db\ActiveRecord {
 
@@ -17,10 +19,9 @@ class RecipeQuick extends \yii\db\ActiveRecord {
    * @var UploadedFile|Null file attribute
    */
   public $ingredients;
-
   public $steps;
-
-  public $image_url;
+  public $rating;
+  public $ImageManager_image_id;
 
   /**
    * @inheritdoc
@@ -34,8 +35,9 @@ class RecipeQuick extends \yii\db\ActiveRecord {
    */
   public function rules() {
     return [
-      [['name', 'ingredients', 'steps'], 'required'],
-      [['description', 'ingredients', 'steps', 'image_url'], 'string'],
+      [['name', 'ingredients', 'steps', 'rating'], 'required'],
+      [['ingredients', 'steps'], 'string'],
+      [['ImageManager_image_id', 'rating'], 'integer'],
       [['name'], 'string', 'max' => 255],
     ];
   }
@@ -47,15 +49,8 @@ class RecipeQuick extends \yii\db\ActiveRecord {
     return [
       'id' => 'ID',
       'name' => 'Name',
-      'description' => 'Description',
-    ];
-  }
-
-  public function behaviors() {
-    return [
-      'image' => [
-        'class' => 'rico\yii2images\behaviors\ImageBehave',
-      ],
+      'ImageManager_image_id' => 'Image',
+      'rating' => 'Rating',
     ];
   }
 

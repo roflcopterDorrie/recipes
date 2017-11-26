@@ -118,6 +118,8 @@ class RecipeController extends Controller {
       // Create recipe
       $recipe = new Recipe();
       $recipe->name = $model->name;
+      $recipe->rating = $model->rating;
+      $recipe->ImageManager_image_id = $model->ImageManager_image_id;
       $recipe->save();
 
       // Create ingredients

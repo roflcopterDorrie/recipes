@@ -14,20 +14,38 @@ use app\models\IngredientStoreSection;
 
 <div class="recipe-form">
 
-    <?php $form = ActiveForm::begin(); ?>
+  <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'name')->textInput(['maxlength' => 255]) ?>
+  <?= $form->field($model, 'name')->textInput(['maxlength' => 255]) ?>
 
-    <?= $form->field($model, 'ingredients')->textarea(['rows' => 6]) ?>
-    
-    <?= $form->field($model, 'steps')->textarea(['rows' => 6]) ; ?>
-    
-    <?= $form->field($model, 'image_url') ?>
-    
+  <?= $form->field($model, 'rating')->dropDownList([
+    1 => '1 star',
+    2 => '2 star',
+    3 => '3 star',
+    4 => '4 star',
+    5 => '5 star',
+  ]) ?>
+
+  <?= $form->field($model, 'ImageManager_image_id')
+    ->widget(\noam148\imagemanager\components\ImageManagerInputWidget::className(), [
+      'aspectRatio' => (16 / 9),
+      //set the aspect ratio
+      'cropViewMode' => 1,
+      //crop mode, option info: https://github.com/fengyuanchen/cropper/#viewmode
+      'showPreview' => TRUE,
+      //false to hide the preview
+      'showDeletePickedImageConfirm' => FALSE,
+      //on true show warning before detach image
+    ]); ?>
+
+  <?= $form->field($model, 'ingredients')->textarea(['rows' => 6]) ?>
+
+  <?= $form->field($model, 'steps')->textarea(['rows' => 6]); ?>
+
     <div class="form-group">
-        <?= Html::submitButton('Create', ['class' => 'btn btn-success']) ?>
+      <?= Html::submitButton('Create', ['class' => 'btn btn-success']) ?>
     </div>
 
-    <?php ActiveForm::end(); ?>
+  <?php ActiveForm::end(); ?>
 
 </div>

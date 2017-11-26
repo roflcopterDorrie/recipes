@@ -141,3 +141,7 @@ i.fa-star, i.fa-star-o {
     color: red;
     margin:1px;
 }
+
+.form-group {
+  width: 50em;
+}
