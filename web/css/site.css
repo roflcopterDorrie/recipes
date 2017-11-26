@@ -81,7 +81,7 @@ a.desc:after {
   margin-bottom: 10px;
 }
 /* Recipe card */
-.card {
+.card, .card__mini {
   position: relative;
   border: 1px solid #b1b1b1;
   box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.15);
@@ -89,10 +89,10 @@ a.desc:after {
   overflow: hidden;
   height: 202px;
 }
-.card img {
+.card img, .card__mini img {
     width: 100%;
 }
-.card-summary {
+.card-summary, .card__mini-summary {
   position: absolute;
   bottom: 0px;
   font-weight: 300;
@@ -104,7 +104,7 @@ a.desc:after {
 
 }
 
-.card-summary a {
+.card-summary a, .card__mini-summary a {
   color: black;
 }
 
@@ -130,6 +130,10 @@ a.desc:after {
     background: rgba(255, 255, 255, 0.75);
 }
 
+.card__mini {
+  height: 196px;
+}
+
 i.fa-fire {
   font-size: 1em;
   margin: 3px;
@@ -142,6 +146,6 @@ i.fa-star, i.fa-star-o {
     margin:1px;
 }
 
-.form-group {
-  width: 50em;
+form {
+  max-width: 50em;
 }

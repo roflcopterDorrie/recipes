@@ -12,32 +12,28 @@ use kartik\date\DatePicker;
 
 <div class="recipe-planner-form">
 
-    <?php $form = ActiveForm::begin(); ?>
+  <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'recipe_id')->hiddenInput()->label(false); ?>
+  <?= $form->field($model, 'recipe_id')->hiddenInput()->label(FALSE); ?>
 
-    <?php
-    echo DatePicker::widget([
-        'name' => 'RecipePlanner[date]',
-        'options' => ['placeholder' => 'Select cooking date'],
-        'pluginOptions' => [
-            'todayHighlight' => true,
-            'format' => 'yyyy-mm-dd',
-            'autoclose' => true,
-        ]
-    ]);
-    
-    $timeofday = ['Breakfast' => 'Breakfast', 'Lunch' => 'Lunch', 'Dinner' => 'Dinner'];
-    echo $form->field($model, "timeofday")->dropDownList(
-                $timeofday, array('prompt' => '-- Select --')
-        );
-    ?>
+  <?php
+  echo DatePicker::widget([
+    'name' => 'RecipePlanner[date]',
+    'options' => ['placeholder' => 'Select cooking date'],
+    'pluginOptions' => [
+      'todayHighlight' => TRUE,
+      'format' => 'yyyy-mm-dd',
+      'autoclose' => TRUE,
+    ],
+  ]);
+  echo $form->field($model, "timeofday")->dropDownList(['Dinner' => 'Dinner']);
+  ?>
 
     <div class="form-group">
-        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+      <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
     </div>
 
-    <?php ActiveForm::end(); ?>
+  <?php ActiveForm::end(); ?>
 
 </div>
 

@@ -46,7 +46,7 @@ class RecipePlanner extends \yii\db\ActiveRecord {
       'id' => 'ID',
       'recipe_id' => 'Recipe ID',
       'date' => 'Date',
-      'timeofday' => 'Timeofday',
+      'timeofday' => 'What meal?',
     ];
   }
 
