@@ -152,7 +152,7 @@ class RecipePlannerController extends Controller {
     // Delete.
     $model->delete();
 
-    return $this->redirect(['/recipe/index']);
+    return $this->redirect(['/recipe-planner/index']);
   }
 
   /**

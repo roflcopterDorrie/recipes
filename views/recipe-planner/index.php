@@ -55,7 +55,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <?php
         foreach ($dates as $day => $date) {
 
-          echo '<div class="col-sm-12 col-md-4">';
+          echo '<div class="recipe-planner-card">';
 
           echo '<h3>' . $day . '</h3>';
 
@@ -66,9 +66,7 @@ $this->params['breadcrumbs'][] = $this->title;
             foreach ($planner as $plan) {
               if ($plan->date == $date && $plan->timeofday == $tod) {
                 $recipe = $plan->getRecipe()->one();
-                print $this->render('_mini_card', ['model' => $recipe]);
-              } else {
-                print 'Empty';
+                print $this->render('_mini_card', ['model' => $recipe, 'recipePlanner' => $plan]);
               }
             }
           }

@@ -132,6 +132,7 @@ a.desc:after {
 
 .card__mini {
   height: 196px;
+  margin-top: -11px;
 }
 
 i.fa-fire {
@@ -146,6 +147,18 @@ i.fa-star, i.fa-star-o {
     margin:1px;
 }
 
+.recipe-planner {
+  max-width: 25em;
+}
+.recipe-planner-card h3 {
+  border-bottom: 1px solid #8080804f;
+  padding-bottom: 15px;
+}
+
 form {
   max-width: 50em;
+}
+
+abbr {
+  text-decoration: none;
 }
