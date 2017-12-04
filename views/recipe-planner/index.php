@@ -9,15 +9,23 @@ use yii\grid\GridView;
 $this->title = 'Recipe Planners';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="recipe-planner-index">
+<div class="recipe-planner-index row">
 
-    <h1>Planner</h1>
+    <h1 class="col-sm-12">Planner</h1>
 
-    <h2>
-      <?= Html::a('<i class="fa fa-chevron-circle-left" aria-hidden="true"></i>', [
+    <h2 class="col-sm-12">
+      <?php
+      $linkParams = [
         '/recipe-planner/',
-        'date' => $prev->format('Ymd'),
-      ]); ?>
+        'date' => $prev->format('Ymd')
+      ];
+      if ($recipeId) {
+        $linkParams['recipeId'] = $recipeId;
+      }
+      ?>
+
+
+      <?= Html::a('<i class="fa fa-chevron-circle-left" aria-hidden="true"></i>', $linkParams); ?>
       <?php
       $now = new \DateTime();
       $thisWeek = $now->format('W');
@@ -42,11 +50,10 @@ $this->params['breadcrumbs'][] = $this->title;
         }
       }
       echo '</abbr>';
+
+      $linkParams['date'] = $next->format('Ymd');
       ?>
-      <?= Html::a('<i class="fa fa-chevron-circle-right" aria-hidden="true"></i>', [
-        '/recipe-planner/',
-        'date' => $next->format('Ymd'),
-      ]); ?>
+      <?= Html::a('<i class="fa fa-chevron-circle-right" aria-hidden="true"></i>', $linkParams); ?>
     </h2>
 
 
@@ -57,20 +64,42 @@ $this->params['breadcrumbs'][] = $this->title;
 
           echo '<div class="recipe-planner-card">';
 
-          echo '<h3>' . $day . '</h3>';
+          echo '<h3 ' . (!$recipeId ? ' class="border"' : '') . '>' . $day . '</h3>';
 
-          $date .= ' 00:00:00';
+          $found = FALSE;
+
+          $date_full = $date . ' 00:00:00';
 
           $timeofday = ['Dinner'];
           foreach ($timeofday as $tod) {
             foreach ($planner as $plan) {
-              if ($plan->date == $date && $plan->timeofday == $tod) {
+              if ($plan->date == $date_full && $plan->timeofday == $tod) {
                 $recipe = $plan->getRecipe()->one();
                 print $this->render('_mini_card', ['model' => $recipe, 'recipePlanner' => $plan]);
+                $found = TRUE;
               }
             }
           }
 
+          if (!$found && $recipeId) {
+            print Html::a('<i class="fa fa-plus" aria-hidden="true"></i>',
+              [
+                'recipe-planner/create/',
+                'recipeId' => $recipeId,
+              ], [
+                'data' => [
+                  'method' => 'post',
+                  'params' => [
+                    'RecipePlanner[date]' => $date,
+                    'RecipePlanner[timeofday]' => 'Dinner',
+                    'RecipePlanner[recipeId]' => $recipeId,
+                    'date' => $monday->format('Ymd')
+                  ]
+                ],
+                'class' => 'empty-spot'
+              ]
+            );
+          }
           echo '</div>';
         }
         ?>

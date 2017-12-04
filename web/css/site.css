@@ -150,12 +150,6 @@ h1:first-of-type {
     background: rgba(255, 255, 255, 0.75);
 }
 
-.card__mini {
-  margin-top: -11px;
-}
-
-
-
 i.fa-fire {
   font-size: 1em;
   margin: 3px;
@@ -169,10 +163,31 @@ i.fa-star, i.fa-star-o {
 }
 
 
-.recipe-planner-card h3 {
-  border-bottom: 1px solid #8080804f;
-  padding-bottom: 15px;
+/* PLANNER */
+.recipe-planner-card .border {
+    border-bottom: 1px solid #b1b1b1;
+    margin-bottom: 23px;
+    padding-bottom: 7px;
 }
+.empty-spot {
+    height: 50px;
+    border: 3px dashed #cecece;
+    color: #cecece;
+    text-align: center;
+    padding-top: 8px;
+    font-size: 1.5em;
+    display: block;
+    border-radius:5px;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+}
+.empty-spot:hover {
+    border-color: #7dce83;
+    color: #7dce83;
+    cursor: pointer;
+    background: #7dce8330;
+}
+
 
 form {
   max-width: 50em;
@@ -216,5 +231,3 @@ body.cook-mode .steps li.inactive {
   font-size: 1em;
   color: lightgrey;
 }
-
-

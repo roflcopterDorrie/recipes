@@ -78,8 +78,6 @@ jQuery(document).ready(function () {
     e.preventDefault();
     $('body').addClass('cook-mode');
     $('.steps li').first().addClass('active');
-    //$('.content').removeClass('container');
-    //$('.content').addClass('container-fluid');
   });
 
   $('.steps li').click(function() {
@@ -95,7 +93,6 @@ jQuery(document).ready(function () {
       }
       else {
         $('body').removeClass('cook-mode');
-        //$('.content').addClass('container');
         $('html,body').animate({scrollTop: 0});
         $('.steps li').removeClass('inactive');
       }

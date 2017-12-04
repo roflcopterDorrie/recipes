@@ -43,7 +43,7 @@ use yii\helpers\Html;
       <?php
       print Html::a($model->name, ['/recipe/' . $model->id]);
       print Html::a('<i class="fa fa-calendar-plus-o" aria-hidden="true"></i>', [
-        'recipe-planner/create',
+        'recipe-planner/index',
         'recipeId' => $model->id,
       ], ['class' => 'card-action']);
       ?>

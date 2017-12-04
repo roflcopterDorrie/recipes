@@ -38,10 +38,18 @@ class RecipePlannerController extends Controller {
       $date = \DateTime::createFromFormat('Ymd', $get['date']);
     }
     else {
+      // Get Monday of this week.
       $date = new \DateTime();
+      $date->setTime(0, 0, 0);
+
+      if ($date->format('N') != 1) {
+        $date->modify('last monday');
+      }
     }
 
     $week = $date->format('W');
+
+    $monday = clone $date;
 
     $day = $date->format('w');
     $date->sub(new \DateInterval('P' . $day . 'D'));
@@ -64,12 +72,20 @@ class RecipePlannerController extends Controller {
       $dates['Sunday'],
     ])->all();
 
+    // Get recipe ID from url
+    $recipeId = FALSE;
+    if (isset($get['recipeId'])) {
+      $recipeId = $get['recipeId'];
+    }
+
     return $this->render('index', [
       'planner' => $planner,
       'dates' => $dates,
+      'monday' => $monday,
       'week' => $week,
       'prev' => $prev,
       'next' => $next,
+      'recipeId' => $recipeId
     ]);
   }
 
@@ -120,7 +136,7 @@ class RecipePlannerController extends Controller {
           Yii::$app->session->setFlash('error', 'Could not validate all the ingredients for saving.');
         }
 
-        return $this->redirect(['recipe/index']);
+        return $this->redirect(['recipe-planner/index', 'date' => Yii::$app->request->post()['date']]);
       }
     }
 
