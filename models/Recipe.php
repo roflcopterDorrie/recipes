@@ -90,11 +90,4 @@ class Recipe extends \yii\db\ActiveRecord {
     return $dataProvider;
   }
 
-  public function getRating() {
-    if ($this->rating == NULL) {
-      $this->rating = 0;
-    }
-    return $this->rating;
-  }
-
 }
