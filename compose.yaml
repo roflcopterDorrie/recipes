@@ -1,0 +1,64 @@
+services:
+  server:
+    restart: unless-stopped
+    build:
+      context: .
+    ports:
+      - 9000:80
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_HOST=db
+      - DB_NAME=recipes
+      - DB_USER=root
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /var/www/html
+  db:
+    image: mariadb
+    restart: unless-stopped
+    user: root
+    volumes:
+      - db-data:/var/lib/mysql
+    environment:
+      - MARIADB_ROOT_PASSWORD=admin
+      - MARIADB_DATABASE=example
+    expose:
+      - 3306
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "/usr/local/bin/healthcheck.sh",
+          "--su-mysql",
+          "--connect",
+          "--innodb_initialized",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - 9001:80
+    depends_on:
+      - db
+    environment:
+      - PMA_HOST=db
+  proxymanager:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+volumes:
+  db-data:
+
+
