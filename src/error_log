@@ -1,0 +1,1 @@
+[25-Nov-2017 05:39:23 UTC] PHP Fatal error:  Call to undefined method Composer\Package\RootPackage::getConfig() in /home/roflcopt/.composer/vendor/fxp/composer-asset-plugin/Config/ConfigBuilder.php on line 111

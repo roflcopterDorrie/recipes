@@ -1,1 +1,0 @@
-ALTER TABLE `recipe` ADD `quick_meal` BOOLEAN NOT NULL DEFAULT FALSE AFTER `ImageManager_image_id`;
