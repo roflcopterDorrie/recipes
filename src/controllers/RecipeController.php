@@ -45,7 +45,7 @@ class RecipeController extends Controller {
         'rating',
         'name',
       ],
-      'defaultOrder' => ['popularity' => SORT_DESC],
+      'defaultOrder' => ['name' => SORT_ASC],
     ]);
 
     $recipe = new Recipe();
@@ -183,6 +183,14 @@ class RecipeController extends Controller {
         // Check for deletions.
         foreach ($ingredients as $delta => $ingredient) {
           if ($ingredient->ingredient == NULL) {
+            // Check if the ingredient also needs to be removed from the shopping list before deleting.
+            $plannerIngredients = RecipePlannerIngredient::find()
+              ->where(['recipe_ingredient_id' => $ingredient->id])
+              ->all();
+            foreach ($plannerIngredients as $delta => $plannerIngredient) {
+              $plannerIngredient->delete();
+            }
+
             $ingredient->delete();
             unset($ingredients[$delta]);
           }
