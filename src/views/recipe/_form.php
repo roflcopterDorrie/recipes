@@ -5,6 +5,8 @@ use yii\helpers\ArrayHelper;
 use yii\widgets\ActiveForm;
 use yii\web\View;
 use app\models\IngredientStoreSection;
+use app\models\Tag;
+use app\models\RecipeTag;
 use yii\helpers\Url;
 
 /* @var $this yii\web\View */
@@ -48,11 +50,14 @@ use yii\helpers\Url;
 
     <h2>Ingredients</h2>
     <table id="ingredients">
-        <tr>
-            <th>Ingredient</th>
-            <th>Store Section</th>
-            <th>Insert into step</th>
-        </tr>
+        <thead>
+          <tr>
+              <th>Ingredient</th>
+              <th>Store Section</th>
+              <th>Insert into step</th>
+          </tr>
+        </thead>
+        <tbody>
       <?php
       $typeaheadIds = [];
       $storeSection = ArrayHelper::map(IngredientStoreSection::find()
@@ -77,6 +82,7 @@ use yii\helpers\Url;
         echo '</td></tr>';
       }
       ?>
+      </tbody>
     </table>
 
     <div class="form-group">
@@ -88,6 +94,7 @@ use yii\helpers\Url;
 
     <h2>Steps</h2>
     <table id="steps">
+      <tbody>
       <?php
       $typeaheadIds = [];
       foreach ($steps as $index => $step) {
@@ -99,6 +106,7 @@ use yii\helpers\Url;
         echo '</td></tr>';
       }
       ?>
+      </tbody>
     </table>
 
     <div class="form-group">
@@ -107,6 +115,28 @@ use yii\helpers\Url;
         'id' => 'add-step',
       ]) ?>
     </div>
+
+    <h2>Tags</h2>
+
+    <?php
+      $availableTags = Tag::find()
+        ->orderBy('tag')
+        ->all();
+      $plainTags = [];
+      foreach($availableTags as $delta => $tag) {
+        $plainTags[] = ["value" => $tag->tag, "id" => $tag->id];
+      }
+     
+      echo "<script>var tags = " . json_encode($plainTags) . ";</script>";
+
+      $currentTags = $model->recipeTags;
+      $currentTagsTagify = [];
+      foreach($currentTags as $delta => $recipeTag) {
+        $currentTagsTagify[] = ["value" => $recipeTag->tag->tag, "id" => $recipeTag->tag->id];
+      }
+    ?>
+
+    <input class="tagify--outside" name='tags' value='<?= json_encode($currentTagsTagify); ?>' autofocus>
 
     <div class="form-group">
       <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>

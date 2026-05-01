@@ -14,6 +14,8 @@ use app\models\RecipeIngredient;
 use app\models\RecipeQuick;
 use app\models\RecipeStep;
 use app\models\RecipePlanner;
+use app\models\Tag;
+use app\models\RecipeTag;
 
 
 /**
@@ -38,27 +40,26 @@ class RecipeController extends Controller {
    * @return mixed
    */
   public function actionIndex() {
-    // Sort by popularity by default.
-    $sort = new Sort([
-      'attributes' => [
-        'popularity',
-        'rating',
-        'name',
-      ],
-      'defaultOrder' => ['name' => SORT_ASC],
+    
+    $query = Recipe::find();
+
+    $provider = new ActiveDataProvider([
+        'query' => $query,
+        'pagination' => [
+            'pageSize' => 1000,
+        ],
+        'sort' => [
+            'defaultOrder' => [
+                'name' => SORT_ASC,
+            ]
+        ],
     ]);
 
-    $recipe = new Recipe();
-    $dataProvider = $recipe->search([
-      'pagination' => [
-        'pageSize' => 1000,
-      ],
-      'sort' => $sort,
-    ]);
+    // returns an array of Post objects
+    //$recipes = $provider->getModels();
 
     return $this->render('index', [
-      'dataProvider' => $dataProvider,
-      'sort' => $sort,
+      'dataProvider' => $provider,
     ]);
   }
 
@@ -160,6 +161,7 @@ class RecipeController extends Controller {
    * @return mixed
    */
   public function actionUpdate($id) {
+
     $model = $this->findModel($id);
 
     // Load ingredients.
@@ -174,8 +176,16 @@ class RecipeController extends Controller {
       ->indexBy('id')
       ->all();
 
+    // Load tags.
+    $tags = RecipeTag::find()
+      ->where(['recipe_id' => $id])
+      ->indexBy('id')
+      ->all();
+
     // Validate and save.
     if ($model->load(Yii::$app->request->post()) && $model->save()) {
+
+      
 
       // Save ingredients.
       if (RecipeIngredient::loadMultiple($ingredients, Yii::$app->request->post(), 'RecipeIngredient')) {
@@ -242,21 +252,69 @@ class RecipeController extends Controller {
         }
       }
 
-      // New ingredients.
-      $newIngredients = Yii::$app->request->post('RecipeStep', []);
-      if (isset($newIngredients['new'])) {
-        foreach ($newIngredients['new'] as $ni) {
-          $ni['recipe_id'] = $id;
-          $ing = new RecipeStep();
-          $ing->setAttributes($ni);
-          if ($ing->validate()) {
-            $ing->save();
+      // New steps.
+      $newSteps = Yii::$app->request->post('RecipeStep', []);
+      if (isset($newSteps['new'])) {
+        foreach ($newSteps['new'] as $newStep) {
+          $newStep['recipe_id'] = $id;
+          $recipeStep = new RecipeStep();
+          $recipeStep->setAttributes($newStep);
+          if ($recipeStep->validate()) {
+            $recipeStep->save();
           }
         }
       }
 
-      // Reload ingredients.
+      // Reload steps.
       $steps = RecipeStep::find()
+        ->where(['recipe_id' => $id])
+        ->indexBy('id')
+        ->all();
+
+      
+      // New tags.
+      $tagIdsToSave = [];
+
+      // See if we need to create new tags.
+      if (!empty(Yii::$app->request->post()['tags'])) {
+        $tagsPosted = json_decode(Yii::$app->request->post()['tags']);
+        foreach($tagsPosted as $delta => $tagPosted) {
+          if (!isset($tagPosted->id)) {
+            // Create a new tag.
+            $tag = new Tag();
+            $tag->isNewRecord = true;
+            $tag->setAttribute("tag", $tagPosted->value);
+            if ($tag->validate()) {
+              $tag->save();
+              $tagIdsToSave[] = $tag->id;
+            }
+          } else {
+            $tagIdsToSave[] = $tagPosted->id;
+          }
+        }
+      }
+
+      // Remove all the recipeTags relationships and recreate them.
+      // This is so that any deleted tags are removed.
+      RecipeTag::deleteAll(['recipe_id' => $id]);
+
+      // Save new tag relationships.
+      if (!empty($tagIdsToSave)) {
+        foreach ($tagIdsToSave as $tagId) {
+          $recipeTagData = [
+            'recipe_id' => $id,
+            'tag_id' => $tagId,
+          ];
+          $recipeTag = new RecipeTag();
+          $recipeTag->setAttributes($recipeTagData);
+          if ($recipeTag->validate()) {
+            $recipeTag->save();
+          }
+        }
+      }
+
+      // Reload tags.
+      $tags = RecipeTag::find()
         ->where(['recipe_id' => $id])
         ->indexBy('id')
         ->all();
@@ -266,6 +324,7 @@ class RecipeController extends Controller {
         'model' => $model,
         'ingredients' => $ingredients,
         'steps' => $steps,
+        'tags' => $tags,
       ]);
 
 
@@ -279,6 +338,7 @@ class RecipeController extends Controller {
         'model' => $model,
         'ingredients' => $ingredients,
         'steps' => $steps,
+        'tags' => $tags,
       ]);
     }
   }

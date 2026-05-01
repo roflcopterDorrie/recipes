@@ -235,3 +235,41 @@ body.cook-mode .steps li.inactive {
 body.cook-mode .steps li.active .ingredient {
   font-weight: bold;
 }
+
+.tagify--outside {
+    border: 0;
+}
+
+.tagify--outside .tagify__input {
+    order: -1;
+    flex: 100%;
+    border: 1px solid var(--tags-border-color);
+    margin-bottom: 1em;
+    transition: .1s;
+}
+
+.tagify--outside .tagify__input:hover {
+    border-color: var(--tags-hover-border-color);
+}
+
+.tagify--outside.tagify--focus .tagify__input {
+    transition: 0s;
+    border-color: var(--tags-focus-border-color);
+}
+
+.card-tags {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+
+.card-tag {
+  font-size: 10px;
+  background-color: #4f6dab;
+  color: white;
+  border-radius: 300px;
+  padding-left: 7px;
+  padding-right: 7px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+}

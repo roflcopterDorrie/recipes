@@ -17,8 +17,6 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1>Recipes</h1>
 
-    <?= $sort->link('popularity') . ' | ' . $sort->link('rating') . ' | ' . $sort->link('name'); ?>
-
     <?=
     ListView::widget([
         'dataProvider' => $dataProvider,

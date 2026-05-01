@@ -8,36 +8,19 @@ use yii\helpers\Html;
   <div class="card">
 
     <div class="card-image">
-      <?php
-      print Html::a(Html::img(\Yii::$app->imagemanager->getImagePath($model->ImageManager_image_id, 720, 405, "outbound")), ['/recipe/' . $model->id]);
-      //print Html::a(Html::img('/images/placeHolder.png', ['width'=>360, 'height'=>202]), ['/recipe/' . $model->id]);
-      ?>
+      <?= Html::a(Html::img(\Yii::$app->imagemanager->getImagePath($model->ImageManager_image_id, 720, 405, "outbound")), ['/recipe/' . $model->id]);?>
     </div>
 
-    <?php
-    if ($model->popularity > 0) {
+    <div class="card-tags">
+      
+      <?php 
+      foreach($model->getTagNames() as $tag) {
+        echo "<span class='card-tag'>";
+        echo $tag->tag;
+        echo "</span>";
+      }
       ?>
-      <div class="card-popularity"><?php
-      for ($i = 0; $i < $model->popularity; $i++) {
-        print '<i class="fa fa-fire" aria-hidden="true"></i>';
-      }
-      ?></div><?php
-    }
-    ?>
-
-    <?php
-    if ($model->rating) {
-      ?>
-      <div class="card-rating"><?php
-      for ($i = 0; $i < $model->rating; $i++) {
-        print '<i class="fa fa-star" aria-hidden="true"></i>';
-      }
-      for ($i = 0; $i < (5 - $model->rating); $i++) {
-        print '<i class="fa fa-star-o" aria-hidden="true"></i>';
-      }
-      ?></div><?php
-    }
-    ?>
+    </div>
 
     <div class="card-summary">
       <?php

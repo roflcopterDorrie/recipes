@@ -27,7 +27,6 @@ jQuery(document).ready(function () {
     stepCount++;
   });
 
-
   var textArea;
   $('#steps textarea').on('blur', function () {
     textArea = $(this).attr('id');
@@ -100,5 +99,20 @@ jQuery(document).ready(function () {
 
   });
 
-  $()
+  // Tagify.
+  var whitelist = [];
+  if (typeof tags !== 'undefined') {
+    whitelist = tags;
+  }
+
+  var input = document.querySelector('input[name=tags]');
+
+  var tagify = new Tagify(input, {
+      focusable: false,
+      dropdown: {
+          position: 'input',
+          enabled: 0 // always opens dropdown when input gets focus
+      },
+      whitelist: whitelist
+  });
 });

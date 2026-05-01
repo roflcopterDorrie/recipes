@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use \yii\data\ActiveDataProvider;
+use \yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "recipe".
@@ -14,6 +15,7 @@ use \yii\data\ActiveDataProvider;
  * @property integer $popularity
  *
  * @property RecipeIngredient[] $recipeIngredients
+ * @property RecipeTag[] $recipeTags
  * @property RecipePlanner[] $recipePlanners
  */
 class Recipe extends \yii\db\ActiveRecord {
@@ -67,27 +69,17 @@ class Recipe extends \yii\db\ActiveRecord {
     return $this->hasMany(RecipePlanner::className(), ['recipe_id' => 'id']);
   }
 
-  public function search($params) {
-    $query = $this->find()
-      ->select("*, id AS tmp_recipe_id,
-          FLOOR((SELECT COUNT(recipe_id) AS count FROM recipe
-          LEFT JOIN recipe_planner ON recipe.id = recipe_planner.recipe_id
-          WHERE recipe.id = tmp_recipe_id
-          GROUP BY recipe.id
-          ORDER BY count DESC LIMIT 1)
-          /
-          (SELECT COUNT(recipe_id) AS count FROM recipe
-          LEFT JOIN recipe_planner ON recipe.id = recipe_planner.recipe_id
-          GROUP BY recipe.id
-          ORDER BY count DESC LIMIT 1) * 100 / 33) AS popularity")
-      ->orderBy($params['sort']->orders);
-
-    unset($params['sort']);
-    $params['query'] = $query;
-
-    $dataProvider = new ActiveDataProvider($params);
-
-    return $dataProvider;
+   /**
+   * @return \yii\db\ActiveQuery
+   */
+  public function getRecipeTags() {
+    return $this->hasMany(RecipeTag::class, ['recipe_id' => 'id']);
   }
 
+  public function getTagNames() {
+    $recipeTags = $this->hasMany(RecipeTag::className(), ['recipe_id' => 'id'])->all();
+    return ArrayHelper::getColumn($recipeTags, function ($element) {
+      return $element->tag;
+    });
+  }
 }

@@ -15,15 +15,18 @@ AppAsset::register($this);
 <!DOCTYPE html>
 <html lang="<?= Yii::$app->language ?>">
 <head>
-    <meta charset="<?= Yii::$app->charset ?>">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-  <?= Html::csrfMetaTags() ?>
-    <meta name="robots" content="noindex">
-    <title><?= Html::encode($this->title) ?></title>
-    <script src="https://use.fontawesome.com/eceed754ce.js"></script>
-  <?php $this->head() ?>
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400"
-          rel="stylesheet">
+  <meta charset="<?= Yii::$app->charset ?>">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+<?= Html::csrfMetaTags() ?>
+  <meta name="robots" content="noindex">
+  <title><?= Html::encode($this->title) ?></title>
+  <script src="https://use.fontawesome.com/eceed754ce.js"></script>
+<?php $this->head() ?>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400"
+        rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
 
 </head>
 <body>
@@ -56,6 +59,10 @@ AppAsset::register($this);
           [
             'label' => 'Assign ingredient to section',
             'url' => ['recipe-ingredient/index'],
+          ],
+          [
+            'label' => 'Tags',
+            'url' => ['tag/index'],
           ],
         ],
       ],
