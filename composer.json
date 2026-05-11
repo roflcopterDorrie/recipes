@@ -1,7 +1,7 @@
 {
-    "name": "custom/recipes",
-    "description": "Recipes module",
-    "type": "drupal-module",
+    "name": "roflcopterdorrie/recipe-manager",
+    "description": "A recipe module for Drupal that allows users to quickly create and manage recipes.",
+    "type": "drupal-custom-module",
     "require": {
         "opis/json-schema": "^2.0",
         "doctrine/inflector": "^2.0",
