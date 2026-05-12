@@ -8,6 +8,9 @@ dependencies:
     - media.type.recipes_image
   module:
     - image
+  enforced:
+    module:
+      - recipes
 id: media.recipes_image.default
 targetEntityType: media
 bundle: recipes_image

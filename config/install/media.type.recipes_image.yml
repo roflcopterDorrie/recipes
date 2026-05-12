@@ -1,7 +1,10 @@
 uuid: 6ffe4ba3-a087-4b73-a06a-0b83ed252b8d
 langcode: en
 status: true
-dependencies: {  }
+dependencies:
+  enforced:
+    module:
+      - recipes
 id: recipes_image
 label: 'Recipe image'
 description: ''

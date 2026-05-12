@@ -5,6 +5,9 @@ dependencies:
   config:
     - field.storage.node.field_recipes_ingredient_extra
     - node.type.recipes_ingredient
+  enforced:
+    module:
+      - recipes
 id: node.recipes_ingredient.field_recipes_ingredient_extra
 field_name: field_recipes_ingredient_extra
 entity_type: node

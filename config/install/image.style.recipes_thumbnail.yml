@@ -4,6 +4,9 @@ status: true
 dependencies:
   module:
     - focal_point
+  enforced:
+    module:
+      - recipes
 name: recipes_thumbnail
 label: 'Recipes thumbnail'
 effects:

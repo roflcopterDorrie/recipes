@@ -9,6 +9,9 @@ dependencies:
   module:
     - focal_point
     - path
+  enforced:
+    module:
+      - recipes
 id: media.recipes_image.default
 targetEntityType: media
 bundle: recipes_image
