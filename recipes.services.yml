@@ -1,4 +1,19 @@
 services:
-  recipes.recipe_data_validator:
-    class: Drupal\recipes\Validation\RecipeDataValidator
+  recipes.data_validator:
+    class: Drupal\recipes\Services\RecipesDataValidator
     arguments: ['@config.factory']
+  recipes.data_extractor:
+    class: Drupal\recipes\Services\RecipesDataExtractor
+    arguments: ['@config.factory']
+  recipes.entity_events:
+    class: '\Drupal\recipes\EventSubscriber\RecipesEntitySubscriber'
+    tags:
+      - { name: 'event_subscriber' }
+  recipes.form_events:
+    class: '\Drupal\recipes\EventSubscriber\RecipesFormSubscriber'
+    tags:
+      - { name: 'event_subscriber' }
+  recipes.views_events:
+    class: '\Drupal\recipes\EventSubscriber\RecipesViewsSubscriber'
+    tags:
+      - { name: 'event_subscriber' }

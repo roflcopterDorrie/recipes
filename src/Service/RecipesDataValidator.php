@@ -1,12 +1,12 @@
 <?php
 
-namespace Drupal\recipes\Validation;
+namespace Drupal\recipes\Services;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Opis\JsonSchema\ValidationResult;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 
-class RecipeDataValidator
+class RecipesDataValidator
 {
 
   use DependencySerializationTrait;
@@ -33,13 +33,6 @@ class RecipeDataValidator
     return file_get_contents($schemaFile);
   }
 
-  public function extract(string $extractedRecipeText, string $schema = 'recipe.schema.json'): object
-  {
-    // Get the schema to test against.
-    $schemaData = json_decode($this->getSchema($schema));
-    return json_decode($extractedRecipeText);
-  }
-
   /**
    * Validates the structure of the AI-extracted recipe JSON.
    *
@@ -49,10 +42,10 @@ class RecipeDataValidator
    * @return bool|object
    *   Returns the decoded object if valid, or FALSE if validation fails.
    */
-  public function validate(object $dataToValidate, string $schemaData): ValidationResult
+  public function validate(object $json_object, string $schema_data): ValidationResult
   {
     // Run the validation.
     $validator = new \Opis\JsonSchema\Validator();
-    return $validator->validate($dataToValidate, $schemaData);
+    return $validator->validate($dataToValidate, $schema_data);
   }
 }

@@ -12,3 +12,9 @@ recipes.settings:
     _form: 'Drupal\recipes\Form\SettingsForm'
   requirements:
     _permission: 'administer site configuration'
+recipes.ingredient_preview:
+  path: '/recipes/ingredient-preview/{ingredient_id}'
+  defaults:
+    _controller: '\Drupal\recipes\Controller\IngredientPreviewController::preview'
+  requirements:
+    _permission: 'access content'

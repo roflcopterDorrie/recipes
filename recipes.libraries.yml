@@ -1,0 +1,8 @@
+recipes:
+  js:
+    js/plugins/addingredient/plugin.js: { attributes: { type: module } }
+
+recipes.admin:
+  css:
+    theme:
+      css/recipes.admin.css: {}

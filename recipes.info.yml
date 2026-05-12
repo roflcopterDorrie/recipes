@@ -11,5 +11,6 @@ dependencies:
   - ai:ai
   - inline_entity_form:inline_entity_form
   - drupal:focal_point
+  - drupal:ckeditor5
 
 php: 8.2

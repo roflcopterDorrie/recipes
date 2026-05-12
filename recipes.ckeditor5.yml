@@ -1,0 +1,14 @@
+recipes:
+  ckeditor5:
+    plugins:
+      - recipes.AddIngredient
+  drupal:
+    label: Add ingredient
+    library: recipes/addingredient
+    elements:
+      - <ingredient>
+    toolbar_items:
+      myWidget:
+        label: Add ingredient
+    admin_library: recipes/recipes.admin
+    
