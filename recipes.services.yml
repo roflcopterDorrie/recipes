@@ -1,10 +1,14 @@
 services:
   recipes.data_validator:
     class: Drupal\recipes\Services\RecipesDataValidator
-    arguments: ['@config.factory']
   recipes.data_extractor:
     class: Drupal\recipes\Services\RecipesDataExtractor
-    arguments: ['@config.factory']
+    arguments:
+      - '@recipes.data_validator'
+      - '@config.factory'
+      - '@ai.provider'
+      - '@entity_type.manager'
+      - '@http_client_factory'
   recipes.entity_events:
     class: '\Drupal\recipes\EventSubscriber\RecipesEntitySubscriber'
     tags:

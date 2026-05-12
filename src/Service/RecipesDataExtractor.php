@@ -8,7 +8,6 @@ use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 
 class RecipesDataExtractor
 {
-
   use DependencySerializationTrait;
 
   protected ImmutableConfig $config = NULL;
@@ -26,17 +25,6 @@ class RecipesDataExtractor
     $this->config_factory = $config_factory;
     $this->ai_provider = $ai_provider;
     $this->config = $this->config_factory->get('recipes.settings');
-  }
-
-  public static function create(ContainerInterface $container)
-  {
-    return new static(
-      $container->get('recipes.data_validator'),
-      $container->get('config.factory'),
-      $container->get('ai.provider'),
-      $container->get('entity_type.manager'),
-      $container->get('http_client_factory')
-    );
   }
 
   protected function chat(ChatInput $messages) {

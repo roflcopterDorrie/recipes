@@ -12,7 +12,6 @@ class RecipesDataValidator
   use DependencySerializationTrait;
 
   public function __construct(
-    ConfigFactoryInterface $config_factory
   ) {}
 
 
