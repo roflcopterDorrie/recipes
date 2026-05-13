@@ -2,8 +2,10 @@
 
 namespace Drupal\recipes\EventSubscriber;
 
-use Drupal\Core\Form\FormEvents;
-use Drupal\Core\Form\Event\FormAlterEvent;
+use Drupal\core_event_dispatcher\Event\Form\FormAlterEvent;
+use Drupal\core_event_dispatcher\Event\Form\FormBaseAlterEvent;
+use Drupal\core_event_dispatcher\Event\Form\FormIdAlterEvent;
+use Drupal\core_event_dispatcher\FormHookEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -15,23 +17,20 @@ class RecipesFormSubscriber implements EventSubscriberInterface {
 
   /**
    * {@inheritdoc}
-   *
-   * @return array
-   *   The event names to listen for, and the methods that should be executed.
    */
-  public static function getSubscribedEvents() : array {
+  public static function getSubscribedEvents(): array {
     return [
-      FormEvents::ALTER => 'recipeEditForm',
+      FormHookEvents::FORM_ALTER => 'recipeEditForm',
     ];
   }
 
   /**
-   * Get Recipe ingredients for use in Add Ingredient widget.
+   * Alter form.
    *
-   * @param \Drupal\Core\Entity\FormAlterEvent $event
-   *   Entity type event.
+   * @param \Drupal\core_event_dispatcher\Event\Form\FormAlterEvent $event
+   *   The event.
    */
-  public function recipeEditForm(FormAlterEvent $event) {
+  public function recipeEditForm(FormAlterEvent $event): void {
     $form = &$event->getForm();
     $form_state = $event->getFormState();
 

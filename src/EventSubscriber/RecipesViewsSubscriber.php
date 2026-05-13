@@ -2,12 +2,13 @@
 
 namespace Drupal\recipes\EventSubscriber;
 
-use Drupal\views\ViewEvents;
-use Drupal\views\Event\ViewsQueryAlterEvent;
+use Drupal\views\Plugin\views\query\Sql;
+use Drupal\views_event_dispatcher\Event\Views\ViewsQueryAlterEvent;
+use Drupal\views_event_dispatcher\ViewsHookEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Class EntityTypeSubscriber.
+ * Class RecipesViewsSubscriber.
  *
  * @package Drupal\recipes\RecipesViewsSubscriber
  */
@@ -15,23 +16,20 @@ class RecipesViewsSubscriber implements EventSubscriberInterface {
 
   /**
    * {@inheritdoc}
-   *
-   * @return array
-   *   The event names to listen for, and the methods that should be executed.
    */
-  public static function getSubscribedEvents() : array {
+  public static function getSubscribedEvents(): array {
     return [
-      ViewEvents::QUERY_ALTER => 'removeIngredientsFromViews',
+      ViewsHookEvents::VIEWS_QUERY_ALTER => 'removeIngredientsFromViews',
     ];
   }
 
   /**
-   * Remove all ingredients from admin content listings.
+   * Query alter event handler.
    *
-   * @param \Drupal\views\Event\ViewsQueryAlterEvent $event
-   *   Entity type event.
+   * @param \Drupal\views_event_dispatcher\Event\Views\ViewsQueryAlterEvent $event
+   *   The event.
    */
-  public function removeIngredientsFromViews(ViewsQueryAlterEvent $event) {
+  public function removeIngredientsFromViews(ViewsQueryAlterEvent $event): void {
     $view = $event->getView();  
   
     // Remove ingredients from the main admin content listing.

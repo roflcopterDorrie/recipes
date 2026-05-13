@@ -12,7 +12,5 @@ dependencies:
   - inline_entity_form:inline_entity_form
   - drupal:focal_point
   - drupal:ckeditor5
-  - drupal:media_library
-  - drupal:tagify
 
 php: 8.2

@@ -2,36 +2,33 @@
 
 namespace Drupal\recipes\EventSubscriber;
 
-use Drupal\Core\Entity\EntityTypeEvent;
-use Drupal\Core\Entity\EntityEvents;
+use Drupal\core_event_dispatcher\EntityHookEvents;
+use Drupal\core_event_dispatcher\Event\Entity\EntityPredeleteEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Class EntityTypeSubscriber.
+ * Class RecipesEntitySubscriber.
  *
  * @package Drupal\recipes\RecipesEntitySubscriber
  */
-class RecipesEntitySubscriber implements EventSubscriberInterface {
+class RecipesEntitySubscriber implements EventSubscriberInterface  {
 
   /**
    * {@inheritdoc}
-   *
-   * @return array
-   *   The event names to listen for, and the methods that should be executed.
    */
-  public static function getSubscribedEvents() : array {
+  public static function getSubscribedEvents(): array {
     return [
-      EntityEvents::PREDELETE => 'recipeDelete',
+      EntityHookEvents::ENTITY_PRE_DELETE => 'onEntityDelete',
     ];
   }
 
   /**
-   * React to a recipe being deleted.
+   * Entity pre delete.
    *
-   * @param \Drupal\Core\Entity\EntityTypeEvent $event
-   *   Entity type event.
+   * @param \Drupal\core_event_dispatcher\Event\Entity\EntityPredeleteEvent $event
+   *   The event.
    */
-  public function recipeDelete(EntityTypeEvent $event) {
+  public function onEntityDelete(EntityPredeleteEvent $event): void {
     // Remove all the ingredients associated with a recipe.
 
     // Only act if we are deleting a 'recipe' node.

@@ -7,17 +7,9 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\Node;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\recipes\Validation\RecipeDataValidator;
-use Drupal\Core\Config\ImmutableConfig;
-use Drupal\ai\Provider\ProviderPluginManager;
+use Drupal\recipes\Services\RecipesDataExtractor;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\ai\OperationType\Chat\ChatInput;
-use Drupal\ai\OperationType\Chat\ChatMessage;
-use Drupal\ai\AiProviderPluginManager;
-use Drupal\ai\Plugin\ProviderProxy;
-use Drupal\Core\Http\ClientFactory;
-use DOMDocument;
 use Drupal\taxonomy\Entity\Term;
 use Doctrine\Inflector\InflectorFactory;
 use PhpUnitsOfMeasure\PhysicalQuantity\Mass;
@@ -36,7 +28,7 @@ class QuickCreate extends FormBase
   ) {
     $this->recipes_data_extractor = $recipes_data_extractor;
     $this->config_factory = $config_factory;
-    $this->config = $this->config_factory->get('recipes.settings');
+    $this->entity_type_manager = $entity_type_manager;
   }
 
   public static function create(ContainerInterface $container)
@@ -182,7 +174,7 @@ class QuickCreate extends FormBase
 
   public function submitExtract(array &$form, FormStateInterface $form_state)
   {
-    if ($extracted_recipe = $this->recipes_data_extractor->extractRecipeFromUrl($form_state->getValue('url') !== FALSE) {
+    if ($extracted_recipe = $this->recipes_data_extractor->extractRecipeFromUrl($form_state->getValue('url')) !== FALSE) {
       $form_state->set('extracted_recipe', $extracted_recipe);
       $form_state->set('step', 2);
     }
