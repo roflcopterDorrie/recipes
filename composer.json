@@ -1,5 +1,5 @@
 {
-    "name": "roflcopterdorrie/recipe-manager",
+    "name": "roflcopterdorrie/recipes",
     "description": "A recipe module for Drupal that allows users to quickly create and manage recipes.",
     "type": "drupal-custom-module",
     "require": {
