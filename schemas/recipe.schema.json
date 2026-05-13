@@ -9,12 +9,12 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["amount", "ingredient", "category"],
+        "required": ["amount", "name", "category"],
         "properties": {
           "amount": {
             "type": ["string", "number", "null"]
           },
-          "ingredient": {
+          "name": {
             "type": "string"
           },
           "extra": {

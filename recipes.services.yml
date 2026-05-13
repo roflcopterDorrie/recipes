@@ -9,6 +9,7 @@ services:
       - '@ai.provider'
       - '@entity_type.manager'
       - '@http_client_factory'
+      - '@messenger'
   recipes.entity_events:
     class: '\Drupal\recipes\EventSubscriber\RecipesEntitySubscriber'
     tags:

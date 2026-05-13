@@ -102,6 +102,7 @@ class QuickCreate extends FormBase
         '#type' => 'details',
         '#title' => $this->t('Ingredients'),
         '#tree' => TRUE,
+        '#open' => TRUE,
       ];
 
       foreach ($extracted_recipe->ingredients as $delta => $data) {
@@ -117,8 +118,8 @@ class QuickCreate extends FormBase
           ],
           'name' => [
             '#type' => 'textfield',
-            '#title' => $this->t('Ingredient'),
-            '#default_value' => $data->ingredient ?? '',
+            '#title' => $this->t('Name'),
+            '#default_value' => $data->name ?? '',
             '#size' => 7,
           ],
           'extra' => [
@@ -141,6 +142,7 @@ class QuickCreate extends FormBase
         '#type' => 'details',
         '#title' => $this->t('Steps'),
         '#tree' => TRUE,
+        '#open' => TRUE,
       ];
 
       foreach ($extracted_recipe->steps as $delta => $data) {
@@ -153,6 +155,23 @@ class QuickCreate extends FormBase
           ],
         ];
       }
+
+      $form['debug'] = [
+        '#type' => 'details',
+        '#title' => $this->t('Debug'),
+        '#open' => FALSE, // Collapsed by default
+      ];
+
+      $form['debug']['json'] = [
+        '#type' => 'item',
+        '#title' => $this->t('json'),
+        '#markup' => json_encode($extracted_recipe)
+      ];
+      $form['debug']['prompt'] = [
+        '#type' => 'item',
+        '#title' => $this->t('Prompt'),
+        '#markup' => $form_state->get('debug_prompt')
+      ];
 
       $form['actions']['save'] = [
         '#type' => 'submit',
@@ -174,9 +193,11 @@ class QuickCreate extends FormBase
 
   public function submitExtract(array &$form, FormStateInterface $form_state)
   {
-    if ($extracted_recipe = $this->recipes_data_extractor->extractRecipeFromUrl($form_state->getValue('url')) !== FALSE) {
+   
+    if (($extracted_recipe = $this->recipes_data_extractor->extractRecipeFromUrl($form_state->getValue('url'))) !== FALSE) {
       $form_state->set('extracted_recipe', $extracted_recipe);
       $form_state->set('step', 2);
+      $form_state->set('debug_prompt', $this->recipes_data_extractor->generatePrompt($form_state->getValue('url')));
     }
 
     return $form_state->setRebuild();
