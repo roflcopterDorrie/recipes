@@ -1,1 +1,3 @@
-# recipe-manager
+# recipes
+
+`composer require roflcopterdorrie/recipes`
