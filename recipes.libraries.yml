@@ -1,8 +1,15 @@
-recipes:
-  js:
-    js/plugins/addingredient/plugin.js: { attributes: { type: module } }
+# This adds the plugin JavaScript to the page.
+# cSpell:ignore simplebox demobox
 
-recipes.admin:
+demobox:
+  js:
+    js/build/demoPlugin.js: { preprocess: false, minified: true }
+  dependencies:
+    - core/ckeditor5
+
+# Loaded in the text format configuration form to provide styling for the icon
+# used in toolbar config.
+admin.demobox:
   css:
     theme:
-      css/recipes.admin.css: {}
+      css/demobox.admin.css: { }
