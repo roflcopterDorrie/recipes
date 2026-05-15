@@ -27,7 +27,7 @@ export default class InsertSimpleBoxCommand extends Command {
     // currently containing the cursor.
     const allowedIn = model.schema.findAllowedParent(
       selection.getFirstPosition(),
-      'simpleBox',
+      'ingredient',
     );
 
     // If the cursor is not in a location where a simpleBox can be added, return
@@ -37,9 +37,7 @@ export default class InsertSimpleBoxCommand extends Command {
 }
 
 function createSimpleBox(writer) {
-  // Create instances of the three elements registered with the editor in
-  // simpleboxediting.js.
-  const simpleBox = writer.createElement('ingredient');
+  const simpleBox = writer.createElement( 'ingredient', { id: '5', class: 'ingredient', label: "POTATOES" });
 
   // Return the element to be added to the editor.
   return simpleBox;

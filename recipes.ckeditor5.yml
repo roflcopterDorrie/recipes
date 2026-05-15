@@ -35,7 +35,9 @@ recipes_demo_simplebox:
       # (f.e. `<h2>`) and the attribute being added to the tag
       # (f.e. `<h2 class="simple-box-title">`).
       - <ingredient>
-      - <ingredient data-id>
+      - <ingredient data-ingredient-id>
+      - <span>
+      - <span class data-ingredient-id label>
     # *Additional configuration properties*
     # conditions: for setting additional criteria that must be met for the
     #   plugin to be active.

@@ -57,10 +57,12 @@ export default class SimpleBoxEditing extends Plugin {
     const schema = this.editor.model.schema;
 
     schema.register('ingredient', {
-      // Behaves like a self-contained object (e.g., an image).
+      // Allows the ingredient to be inserted into paragraphs, headings, etc.
+      allowWhere: '$text',
+      allowIn: '$block',
+      // This makes the entire span behave as a single uneditable unit
       isObject: true,
-      // Allow in places where other blocks are allowed (e.g., directly in the root).
-      allowWhere: '$block',
+      allowAttributes: ['id', 'label'],
     });
 
   }
@@ -80,44 +82,61 @@ export default class SimpleBoxEditing extends Plugin {
     // processed by CKEditor, then CKEditor recognizes and loads it as a
     // <simpleBox> model.
     conversion.for('upcast').elementToElement({
-      model: 'ingredient',
-      view: {
-        name: 'span',
-        classes: 'ingredient' 
-      },
-    });
-
-
-    // Data Downcast Converters: converts stored model data into HTML.
-    // These trigger when content is saved.
-    //
-    // Instances of <simpleBox> are saved as
-    // <section class="simple-box">{{inner content}}</section>.
-    conversion.for('dataDowncast').elementToElement({
-      model: 'ingredient',
       view: {
         name: 'span',
         classes: 'ingredient',
+        attributes: {
+          'data-ingredient-id': true
+        }
       },
+      model: (viewElement, { writer }) => {
+        const id = viewElement.getAttribute('data-ingredient-id');
+        // We grab the inner text "Potatoes" to use as our label
+        const label = viewElement.getChild(0).data;
+
+        return writer.createElement('ingredient', { id, label });
+      },
+      // Use high priority to ensure this runs before any generic span converters
+      converterPriority: 'high'
     });
 
-
-    // Editing Downcast Converters. These render the content to the user for
-    // editing, i.e., this determines what gets seen in the editor. These trigger
-    // after the Data Upcast Converters and are re-triggered any time there
-    // are changes to any of the models' properties.
-    //
-    // Convert the <simpleBox> model into a container widget in the editor UI.
     conversion.for('editingDowncast').elementToElement({
       model: 'ingredient',
-      view: (modelElement, { writer: viewWriter }) => {
-        const section = viewWriter.createContainerElement('span', {
-          class: 'ingredient',
+      view: (modelElement, { writer }) => {
+        const id = modelElement.getAttribute('id');
+        const label = modelElement.getAttribute('label');
+
+        const span = writer.createContainerElement('span', {
+          'class': 'ingredient',
+          'data-ingredient-id': id
         });
 
-        return toWidget(section, viewWriter, { label: 'simple box widget' });
-      },
+        // Insert the text "Potatoes" inside the span for the UI
+        writer.insert(writer.createPositionAt(span, 0), writer.createText(label));
+
+        // toWidget makes it a single selectable unit (the "badge" behavior)
+        return toWidget(span, writer, { label: 'ingredient widget' });
+      }
     });
 
+    conversion.for('downcast').elementToElement({
+      model: 'ingredient',
+      view: (modelElement, { writer }) => {
+        const id = modelElement.getAttribute('id');
+        const label = modelElement.getAttribute('label');
+
+        const span = writer.createContainerElement('span', {
+          'class': 'ingredient',
+          'data-ingredient-id': id
+        });
+
+        // Insert the text "Potatoes" inside the span for the UI
+        writer.insert(writer.createPositionAt(span, 0), writer.createText(label));
+
+        // toWidget makes it a single selectable unit (the "badge" behavior)
+        return toWidget(span, writer, { label: 'ingredient widget' });
+      }
+    });
   }
+
 }
