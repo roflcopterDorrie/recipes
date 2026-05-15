@@ -37,8 +37,10 @@ export default class InsertSimpleBoxCommand extends Command {
 }
 
 function createSimpleBox(writer) {
-  const simpleBox = writer.createElement( 'ingredient', { id: '5', class: 'ingredient', label: "POTATOES" });
+  const simpleBox = writer.createElement( 'ingredient', { id, class: 'ingredient', label });
 
   // Return the element to be added to the editor.
   return simpleBox;
 }
+
+
