@@ -14,6 +14,7 @@ use Drupal\Core\Http\ClientFactory;
 use DOMDocument;
 use Drupal\Core\Messenger\MessengerInterface;
 use Opis\JsonSchema\Errors\ErrorFormatter;
+use Drupal\ai\Dto\StructuredOutputSchema;
 
 class RecipesDataExtractor
 {
@@ -93,15 +94,17 @@ class RecipesDataExtractor
 
     $input = new ChatInput([new ChatMessage('user', $prompt)]);
 
-    /* // Force the AI to use a structured output. This is having issues on the Gemini provider so it is commented out.
-    $schema_text = $this->recipes_data_validator->getSchema();
-    $schema = new StructuredOutputSchema(
-      name: 'json',
-      description: 'Structured json data',
-      strict: TRUE,
-      json_schema: json_decode($schema_text, TRUE),
-    );
-    $input->setChatStructuredJsonSchema($schema);*/
+    if ($this->config->get('use_structured_json_ai_response')) {
+      //Force the AI to use a structured output. This is having issues on the Gemini provider so it is commented out.
+      $schema_text = $this->recipes_data_validator->getSchema();
+      $schema = new StructuredOutputSchema(
+        name: 'json',
+        description: 'Structured json data',
+        strict: TRUE,
+        json_schema: json_decode($schema_text, TRUE),
+      );
+      $input->setChatStructuredJsonSchema($schema);
+    }
 
     $response = $this->chat($input);
     $return_message = $response->getNormalized();
