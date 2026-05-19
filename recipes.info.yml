@@ -1,6 +1,6 @@
 name: Recipes
 description: Create and cook recipes.
-package: Custom
+package: Contrib
 
 type: module
 core_version_requirement: ^10 | ^11
