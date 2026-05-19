@@ -1,0 +1,27 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - image
+    - media
+  enforced:
+    module:
+      - recipes
+id: media.field_media_image
+field_name: field_media_image
+entity_type: media
+type: image
+settings:
+  target_type: file
+  display_field: false
+  display_default: false
+  uri_scheme: public
+module: image
+locked: false
+cardinality: 1
+translatable: true
+indexes:
+  target_id:
+    - target_id
+persisted: true
+provider: image
