@@ -1,7 +1,7 @@
 {
     "name": "roflcopterdorrie/recipe-manager",
     "description": "A recipe module for Drupal that allows users to quickly create and manage recipes.",
-    "type": "drupal-custom-module",
+    "type": "drupal-module",
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
