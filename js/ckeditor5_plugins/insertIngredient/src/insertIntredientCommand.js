@@ -6,15 +6,15 @@
 // eslint-disable-next-line
 import { Command } from 'ckeditor5/src/core';
 
-export default class InsertSimpleBoxCommand extends Command {
-  execute() {
+export default class InsertIngredientCommand extends Command {
+  execute( options = {} ) {
+
+    const { id, label } = options;
     const { model } = this.editor;
 
     model.change((writer) => {
-      // Insert <simpleBox>*</simpleBox> at the current selection position
-      // in a way that will result in creating a valid model structure.
-      // eslint-disable-next-line
-      model.insertContent(createSimpleBox(writer));
+      const ingredientElement = writer.createElement( 'ingredient', { id, class: 'ingredient', label });
+      model.insertContent(ingredientElement);
     });
   }
 
@@ -35,12 +35,4 @@ export default class InsertSimpleBoxCommand extends Command {
     this.isEnabled = allowedIn !== null;
   }
 }
-
-function createSimpleBox(writer) {
-  const simpleBox = writer.createElement( 'ingredient', { id, class: 'ingredient', label });
-
-  // Return the element to be added to the editor.
-  return simpleBox;
-}
-
 

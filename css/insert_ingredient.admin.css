@@ -1,0 +1,12 @@
+ingredient, .ingredient {
+    display: inline-block;
+    padding: 0px 9px;
+    background: #747474;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 9px;
+
+    .ck-widget__type-around {
+      display: inline;
+    }
+}

@@ -11,16 +11,14 @@
 // The contents of SimpleBoxUI and SimpleBox editing could be included in this
 // file, but it is recommended to separate these concerns in different files.
 // eslint-disable-next-line
-import SimpleBoxEditing from './simpleboxediting';
-import SimpleBoxUI from './simpleboxui';
+import InsertIngredientEditing from './insertIngredientEditing';
+import InsertIngredientUI from './insertIngredientUi';
 // eslint-disable-next-line
 import { Plugin } from 'ckeditor5/src/core';
 
-export default class SimpleBox extends Plugin {
-  // Note that SimpleBoxEditing and SimpleBoxUI also extend `Plugin`, but these
-  // are not seen as individual plugins by CKEditor 5. CKEditor 5 will only
-  // discover the plugins explicitly exported in index.js.
+export default class InsertIngredient extends Plugin {
   static get requires() {
-    return [SimpleBoxEditing, SimpleBoxUI];
+    return [InsertIngredientEditing, InsertIngredientUI];
   }
 }
+

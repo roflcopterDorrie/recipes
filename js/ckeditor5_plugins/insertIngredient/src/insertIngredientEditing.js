@@ -4,7 +4,7 @@ import { Plugin } from 'ckeditor5/src/core';
 import { toWidget, toWidgetEditable } from 'ckeditor5/src/widget';
 // eslint-disable-next-line
 import { Widget } from 'ckeditor5/src/widget';
-import InsertSimpleBoxCommand from './insertsimpleboxcommand';
+import InsertIngredientCommand from './insertIntredientCommand';
 
 // cSpell:ignore simplebox insertsimpleboxcommand
 
@@ -13,22 +13,10 @@ import InsertSimpleBoxCommand from './insertsimpleboxcommand';
  * plugin-specific data models that are then converted to markup that
  * is inserted in the DOM.
  *
- * CKEditor 5 internally interacts with simpleBox as this model:
- * <simpleBox>
- *    <simpleBoxTitle></simpleBoxTitle>
- *    <simpleBoxDescription></simpleBoxDescription>
- * </simpleBox>
- *
- * Which is converted for the browser/user as this markup
- * <section class="simple-box">
- *   <h2 class="simple-box-title"></h2>
- *   <div class="simple-box-description"></div>
- * </section>
- *
  * This file has the logic for defining the simpleBox model and for how it is
  * converted to standard DOM markup.
  */
-export default class SimpleBoxEditing extends Plugin {
+export default class InsertIngredientEditing extends Plugin {
   static get requires() {
     return [Widget];
   }
@@ -37,8 +25,8 @@ export default class SimpleBoxEditing extends Plugin {
     this._defineSchema();
     this._defineConverters();
     this.editor.commands.add(
-      'insertSimpleBox',
-      new InsertSimpleBoxCommand(this.editor),
+      'insertIngredient',
+      new InsertIngredientCommand(this.editor),
     );
   }
 

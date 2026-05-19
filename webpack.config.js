@@ -60,7 +60,20 @@ getDirectories(path.resolve(__dirname, './js/ckeditor5_plugins')).forEach((dir) 
     },
   };
 
-  const dev = {...bc, mode: 'development', optimization: {...bc.optimization, minimize: false}, devtool: false};
+  const dev = {
+    ...bc,
+    mode: 'development',
+    devtool: 'eval-cheap-module-source-map', // Enables readable, unminified source code mapping
+    optimization: {
+      minimize: false, // Fully disables minification
+      moduleIds: 'named',
+      chunkIds: 'named',
+    },
+    output: {
+      ...bc.output,
+      pathinfo: true, // Includes path comments in the bundle for easier debugging
+    }
+  };
 
   prodPluginBuilds.push(bc);
   devPluginBuilds.push(dev);
