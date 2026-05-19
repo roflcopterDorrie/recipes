@@ -4,6 +4,9 @@ dependencies:
   module:
     - media
     - image
+  enforced:
+    module:
+      - recipes
 id: media.field_recipes_image
 field_name: field_recipes_image
 entity_type: media
