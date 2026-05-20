@@ -4,17 +4,13 @@ import { Plugin } from 'ckeditor5/src/core';
 import { toWidget, toWidgetEditable } from 'ckeditor5/src/widget';
 // eslint-disable-next-line
 import { Widget } from 'ckeditor5/src/widget';
-import InsertIngredientCommand from './insertIntredientCommand';
+import InsertIngredientCommand from './insertIngredientCommand';
 
-// cSpell:ignore simplebox insertsimpleboxcommand
 
 /**
  * CKEditor 5 plugins do not work directly with the DOM. They are defined as
  * plugin-specific data models that are then converted to markup that
  * is inserted in the DOM.
- *
- * This file has the logic for defining the simpleBox model and for how it is
- * converted to standard DOM markup.
  */
 export default class InsertIngredientEditing extends Plugin {
   static get requires() {
@@ -30,29 +26,33 @@ export default class InsertIngredientEditing extends Plugin {
     );
   }
 
-  /*
-   * This registers the structure that will be seen by CKEditor 5 as
-   * <simpleBox>
-   *    <simpleBoxTitle></simpleBoxTitle>
-   *    <simpleBoxDescription></simpleBoxDescription>
-   * </simpleBox>
-   *
-   * The logic in _defineConverters() will determine how this is converted to
-   * markup.
-   */
   _defineSchema() {
-    // Schemas are registered via the central `editor` object.
     const schema = this.editor.model.schema;
 
     schema.register('ingredient', {
-      // Allows the ingredient to be inserted into paragraphs, headings, etc.
       allowWhere: '$text',
       allowIn: '$block',
-      // This makes the entire span behave as a single uneditable unit
       isObject: true,
-      allowAttributes: ['id', 'label'],
+      allowAttributes: ['id'],
     });
 
+    // Inner amount span - Un-commented and changed content rule to match inline elements
+    schema.register('ingredientAmount', {
+      allowIn: 'ingredient',
+      allowContentOf: '$block'
+    });
+
+    // Inner name span - Un-commented and changed content rule to match inline elements
+    schema.register('ingredientName', {
+      allowIn: 'ingredient',
+      allowContentOf: '$block'
+    });
+
+    // Inner extra details span - Un-commented and changed content rule to match inline elements
+    schema.register('ingredientExtra', {
+      allowIn: 'ingredient',
+      allowContentOf: '$block'
+    });
   }
 
   /**
@@ -60,71 +60,74 @@ export default class InsertIngredientEditing extends Plugin {
    * vice versa.
    */
   _defineConverters() {
-    // Converters are registered via the central editor object.
-    const { conversion } = this.editor;
+    const conversion = this.editor.conversion;
 
-    // Upcast Converters: determine how existing HTML is interpreted by the
-    // editor. These trigger when an editor instance loads.
-    //
-    // If <section class="simple-box"> is present in the existing markup
-    // processed by CKEditor, then CKEditor recognizes and loads it as a
-    // <simpleBox> model.
+    // --- 1. Main Ingredient Wrapper ---
     conversion.for('upcast').elementToElement({
-      view: {
-        name: 'span',
-        classes: 'ingredient',
-        attributes: {
-          'data-ingredient-id': true
-        }
-      },
+      view: { name: 'span', classes: 'ingredient' },
       model: (viewElement, { writer }) => {
-        const id = viewElement.getAttribute('data-ingredient-id');
-        // We grab the inner text "Potatoes" to use as our label
-        const label = viewElement.getChild(0).data;
-
-        return writer.createElement('ingredient', { id, label });
-      },
-      // Use high priority to ensure this runs before any generic span converters
-      converterPriority: 'high'
+        return writer.createElement('ingredient', {
+          id: viewElement.getAttribute('data-ingredient-id')
+        });
+      }
     });
 
+    // DB Output: Clean HTML
+    conversion.for('dataDowncast').elementToElement({
+      model: 'ingredient',
+      view: (modelElement, { writer }) => {
+        return writer.createContainerElement('span', {
+          class: 'ingredient',
+          'data-ingredient-id': modelElement.getAttribute('id')
+        });
+      }
+    });
+
+    // Editor UI View: FIXED to use toWidget instead of toWidgetEditable
     conversion.for('editingDowncast').elementToElement({
       model: 'ingredient',
       view: (modelElement, { writer }) => {
-        const id = modelElement.getAttribute('id');
-        const label = modelElement.getAttribute('label');
-
         const span = writer.createContainerElement('span', {
-          'class': 'ingredient',
-          'data-ingredient-id': id
+          class: 'ingredient',
+          'data-ingredient-id': modelElement.getAttribute('id')
         });
-
-        // Insert the text "Potatoes" inside the span for the UI
-        writer.insert(writer.createPositionAt(span, 0), writer.createText(label));
-
-        // toWidget makes it a single selectable unit (the "badge" behavior)
         return toWidget(span, writer, { label: 'ingredient widget' });
       }
     });
 
+    // --- 2. Children (Updated for Editing UI mapping) ---
+    this._registerChildConverter('ingredientAmount', 'ingredient__amount');
+    this._registerChildConverter('ingredientName', 'ingredient__name');
+    this._registerChildConverter('ingredientExtra', 'ingredient__extra');
+  }
+
+  _registerChildConverter(modelName, className) {
+    const conversion = this.editor.conversion;
+
+    conversion.for('upcast').elementToElement({
+      view: { name: 'span', classes: className },
+      model: (viewElement, { writer }) => {
+        return writer.createElement(modelName);
+      }
+    });
+
+    // 2. Downcast: Dynamically swap element types based on text presence
     conversion.for('downcast').elementToElement({
-      model: 'ingredient',
+      model: modelName,
       view: (modelElement, { writer }) => {
-        const id = modelElement.getAttribute('id');
-        const label = modelElement.getAttribute('label');
+        // If the model node has no text inside it, render an EmptyElement
+        if (modelElement.childCount === 0) {
+          return writer.createEmptyElement('span', {
+            class: `${className} is-empty`
+          });
+        }
 
-        const span = writer.createContainerElement('span', {
-          'class': 'ingredient',
-          'data-ingredient-id': id
-        });
-
-        // Insert the text "Potatoes" inside the span for the UI
-        writer.insert(writer.createPositionAt(span, 0), writer.createText(label));
-
-        // toWidget makes it a single selectable unit (the "badge" behavior)
-        return toWidget(span, writer, { label: 'ingredient widget' });
+        // If it has text, render a standard container element
+        return writer.createContainerElement('span', { class: className });
       }
     });
   }
+
+
 
 }

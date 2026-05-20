@@ -19,7 +19,7 @@ export default class InsertIngredientUI extends Plugin {
 
       // 1. Setup the button look
       dropdownView.buttonView.set({
-        label: 'Insert Ingredient',
+        label: 'Ingredient',
         withText: true,
         tooltip: true
       });
@@ -30,13 +30,15 @@ export default class InsertIngredientUI extends Plugin {
       const availableIngredients = drupalSettings.recipes.ingredients;
 
       availableIngredients.forEach(ingredient => {
-        console.log(ingredient);
         items.add({
           type: 'button',
           model: new UIModel({
             withText: true,
-            label: ingredient.label,
-            id: ingredient.id // Store our data here
+            label: ingredient.name,
+            id: ingredient.id,
+            amount: ingredient.amount,
+            name: ingredient.name,
+            extra: ingredient.extra
           })
         });
       });
@@ -46,8 +48,8 @@ export default class InsertIngredientUI extends Plugin {
 
       // 4. Listen to the execution
       this.listenTo(dropdownView, 'execute', eventInfo => {
-        const { id, label } = eventInfo.source;
-        editor.execute('insertIngredient', { id, label: label });
+        const { id, amount, name, extra } = eventInfo.source;
+        editor.execute('insertIngredient', { id, amount, name, extra });
         editor.editing.view.focus();
       });
 

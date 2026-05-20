@@ -34,7 +34,7 @@ class RecipesFormSubscriber implements EventSubscriberInterface {
     $form = &$event->getForm();
     $form_state = $event->getFormState();
 
-    if ($event->getFormId() == 'node_recipe_form') {
+    if ($event->getFormId() == 'node_recipes_recipe_edit_form') {
 
       /** @var \Drupal\node\NodeInterface $node */
       $node = $form_state->getFormObject()->getEntity();
@@ -45,17 +45,11 @@ class RecipesFormSubscriber implements EventSubscriberInterface {
 
       $ingredients = [];
       foreach ($node->get('field_recipes_ingredients')->referencedEntities() as $ingredient) {
-        // Create a nice label.
-        $parts = array_filter([
-          $ingredient->get('field_recipes_ingredient_amount')->value ?? NULL,
-          $ingredient->get('field_recipes_ingredient_ingredient')->value ?? NULL,
-          $ingredient->get('field_recipes_ingredient_extra')->value ?? NULL,
-        ]);
-
-        $label = implode(' ', $parts);
         $ingredients[] = [
           'id' => $ingredient->id(),
-          'label' => $label,
+          'name' => $ingredient->get('field_recipes_ingredient')->entity->getName() ?? NULL,
+          'amount' => $ingredient->get('field_recipes_ingredient_amount')->value ?? NULL,
+          'extra' => $ingredient->get('field_recipes_ingredient_extra')->value ? '(' . $ingredient->get('field_recipes_ingredient_extra')->value . ')' : NULL
         ];
       }
 
