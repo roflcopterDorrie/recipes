@@ -1,0 +1,20 @@
+uuid: 9ef76ba7-4f86-4a2a-8d8b-e4e022be9462
+langcode: en
+status: true
+dependencies: 
+  enforced:
+    module:
+      - recipes
+name: 'Recipe step'
+format: recipes_step
+weight: 0
+filters:
+  filter_html:
+    id: filter_html
+    provider: filter
+    status: true
+    weight: -10
+    settings:
+      allowed_html: '<br> <p> <strong> <ingredient data-ingredient-id> <span class data-ingredient-id label>'
+      filter_html_help: true
+      filter_html_nofollow: false

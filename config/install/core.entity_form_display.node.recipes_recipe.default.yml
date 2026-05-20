@@ -17,7 +17,7 @@ dependencies:
     module:
       - recipes
 _core:
-  default_config_hash: WKiW1iZhgRgQg3f7w9f7_MGWLm4xNaT0Ap2rR-YbJM4
+  default_config_hash: sTHe_H8NxBueCLHdj598yqr7n55KOX5luygMaQBdhj0
 id: node.recipes_recipe.default
 targetEntityType: node
 bundle: recipes_recipe
@@ -38,7 +38,7 @@ content:
     third_party_settings: {  }
   field_recipes_ingredients:
     type: inline_entity_form_simple
-    weight: 6
+    weight: 7
     region: content
     settings:
       form_mode: default
@@ -51,7 +51,7 @@ content:
     third_party_settings: {  }
   field_recipes_steps:
     type: text_textarea
-    weight: 7
+    weight: 6
     region: content
     settings:
       rows: 5

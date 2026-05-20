@@ -13,7 +13,7 @@ dependencies:
     module:
       - recipes
 _core:
-  default_config_hash: QsrzVz8T_fVuFylU52XpryCdqQlURUAxfp0rUURiQAM
+  default_config_hash: 9AmKgF9VF3DNQav6Xk98A8KYxv0QvqR_IBpl36zEYDM
 id: node.recipes_ingredient.default
 targetEntityType: node
 bundle: recipes_ingredient
@@ -21,11 +21,11 @@ mode: default
 content:
   field_recipes_ingredient:
     type: tagify_entity_reference_autocomplete_widget
-    weight: 2
+    weight: 1
     region: content
     settings:
       match_operator: CONTAINS
-      match_limit: 10
+      match_limit: 0
       placeholder: ''
       suggestions_dropdown: 1
       show_entity_id: 0
@@ -34,18 +34,10 @@ content:
       parent_selection: 1
     third_party_settings: {  }
   field_recipes_ingredient_aisle:
-    type: tagify_entity_reference_autocomplete_widget
-    weight: 1
+    type: options_select
+    weight: 2
     region: content
-    settings:
-      match_operator: CONTAINS
-      match_limit: 10
-      placeholder: ''
-      suggestions_dropdown: 1
-      show_entity_id: 0
-      show_info_label: 0
-      info_label: ''
-      parent_selection: 1
+    settings: {  }
     third_party_settings: {  }
   field_recipes_ingredient_amount:
     type: string_textfield

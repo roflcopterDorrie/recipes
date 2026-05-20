@@ -8,15 +8,14 @@ dependencies:
       - recipes
 third_party_settings:
   menu_ui:
-    available_menus:
-      - main
-    parent: 'main:'
+    available_menus: {  }
+    parent: ''
 _core:
-  default_config_hash: c8Pby049xIpb1yIYH5fExFQzC0ZlIl1wW2CXi6ARx6o
+  default_config_hash: Yc6t6F48zDWCUthkPhqAUrECPxJ2Pf18NEPTD45Tt1Q
 name: Ingredient
 type: recipes_ingredient
 description: null
 help: null
 new_revision: true
 preview_mode: 1
-display_submitted: true
+display_submitted: false
