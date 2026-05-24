@@ -6,16 +6,10 @@ type: module
 core_version_requirement: ^10 | ^11
 
 dependencies:
-  - drupal:link
-  - drupal:views
   - ai:ai
-  - inline_entity_form:inline_entity_form
-  - drupal:focal_point
-  - drupal:ckeditor5
   - hook_event_dispatcher:hook_event_dispatcher
   - core_event_dispatcher:core_event_dispatcher
   - views_event_dispatcher:views_event_dispatcher
   - media_library:media_library
-  - tagify:tagify
 
 php: 8.2
