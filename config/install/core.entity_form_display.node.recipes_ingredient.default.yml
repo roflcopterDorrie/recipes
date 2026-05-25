@@ -18,7 +18,7 @@ mode: default
 content:
   field_recipes_ingredient:
     type: entity_reference_autocomplete_tags
-    weight: 1
+    weight: 2
     region: content
     settings:
       match_operator: CONTAINS
@@ -28,13 +28,13 @@ content:
     third_party_settings: {  }
   field_recipes_ingredient_aisle:
     type: options_select
-    weight: 2
+    weight: 3
     region: content
     settings: {  }
     third_party_settings: {  }
   field_recipes_ingredient_amount:
     type: string_textfield
-    weight: 0
+    weight: 1
     region: content
     settings:
       size: 60
@@ -42,7 +42,15 @@ content:
     third_party_settings: {  }
   field_recipes_ingredient_extra:
     type: string_textfield
-    weight: 3
+    weight: 4
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  title:
+    type: string_textfield
+    weight: 0
     region: content
     settings:
       size: 60
@@ -54,5 +62,4 @@ hidden:
   promote: true
   status: true
   sticky: true
-  title: true
   uid: true

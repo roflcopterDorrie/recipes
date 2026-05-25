@@ -1,6 +1,7 @@
 <?php
 
-use Drupal\node\Entity\Node;
+use Drupal\Core\Render\Element;
+use Drupal\user\UserInterface;
 
 /**
  * Implements hook_theme().
@@ -13,25 +14,14 @@ function recipes_theme($existing, $type, $theme, $path) {
       ],
       'template' => 'recipe-preview',
     ],
-    'recipes_ingredient_summary' => [
-      'template' => 'recipes--ingredient--summary',
+    'add_to_list_button' => [
       'variables' => [
-        'node' => NULL,
-        'content' => NULL,
+        'label' => NULL,
+        'id' => NULL,
+        'attributes' => [],
       ],
-      'path' => \Drupal::service('extension.list.module')->getPath('recipes') . '/templates',
+      'template' => 'form/add-to-list-button',
     ],
+    'recipes_recipe_list' => ['render element' => 'elements'],
   ];
-}
-
-
-function recipes_preprocess_recipes_ingredient_summary(&$variables) {
-  /** @var \Drupal\node\Entity\Node $node */
-  $node = $variables['node'];  
-
-  $variables['amount'] = $node->get('field_recipes_ingredient_amount')->value;
-
-  $name = $node->get('field_recipes_ingredient')->referencedEntities();
-  $variables['name'] = reset($name)->get('name')->value;
-  $variables['extra'] = $node->get('field_recipes_ingredient_extra')->value;
 }

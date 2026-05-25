@@ -5,6 +5,7 @@ recipes.quick_create:
     _form: '\Drupal\recipes\Form\QuickCreate'
   requirements:
     _permission: 'access content'
+
 recipes.settings:
   path: '/admin/config/services/recipes'
   defaults:
@@ -12,9 +13,11 @@ recipes.settings:
     _form: 'Drupal\recipes\Form\SettingsForm'
   requirements:
     _permission: 'administer site configuration'
-recipes.ingredient_preview:
-  path: '/recipes/ingredient-preview/{ingredient_id}'
+
+recipes.add_to_list:
+  path: '/recipes/add-to-list/{recipe_id}'
   defaults:
-    _controller: '\Drupal\recipes\Controller\IngredientPreviewController::preview'
+    _controller: '\Drupal\recipes\Controller\RecipeListController::AddToList'
   requirements:
-    _permission: 'access content'
+    _permission: 'create recipes_list content'
+

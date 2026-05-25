@@ -8,6 +8,7 @@ dependencies:
     - field.field.node.recipes_recipe.field_recipes_tags
     - node.type.recipes_recipe
   module:
+    - inline_entity_form
     - media_library
     - path
     - text
@@ -34,14 +35,17 @@ content:
       media_types: {  }
     third_party_settings: {  }
   field_recipes_ingredients:
-    type: entity_reference_autocomplete_tags
+    type: inline_entity_form_simple
     weight: 7
     region: content
     settings:
-      match_operator: CONTAINS
-      match_limit: 10
-      size: 60
-      placeholder: ''
+      form_mode: default
+      override_labels: false
+      label_singular: ''
+      label_plural: ''
+      collapsible: false
+      collapsed: false
+      revision: false
     third_party_settings: {  }
   field_recipes_steps:
     type: text_textarea

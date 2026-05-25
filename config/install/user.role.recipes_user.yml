@@ -2,12 +2,14 @@ langcode: en
 status: true
 dependencies:
   config:
+    - filter.format.recipes_step
     - media.type.recipes_image
     - node.type.recipes_ingredient
     - node.type.recipes_recipe
     - taxonomy.vocabulary.recipes_ingredient
     - taxonomy.vocabulary.tags
   module:
+    - filter
     - media
     - node
     - taxonomy
@@ -36,6 +38,7 @@ permissions:
   - 'edit own recipes_recipe content'
   - 'revert recipes_ingredient revisions'
   - 'revert recipes_recipe revisions'
+  - 'use text format recipes_step'
   - 'view any recipes_image media revisions'
   - 'view own unpublished content'
   - 'view own unpublished media'
