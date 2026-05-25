@@ -12,6 +12,7 @@
         "drupal/hook_event_dispatcher": "^4.2",
         "drupal/core_event_dispatcher": "^4.2",
         "drupal/views_event_dispatcher": "^4.2",
-        "drupal/pathauto": "^1.15"
+        "drupal/pathauto": "^1.15",
+        "drupal/inline_entity_form": "^3.0@RC"
     }
 }

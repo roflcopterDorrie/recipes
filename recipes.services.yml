@@ -12,6 +12,8 @@ services:
       - '@messenger'
   recipes.entity_events:
     class: '\Drupal\recipes\EventSubscriber\RecipesEntitySubscriber'
+    arguments: 
+      - '@entity_type.manager'
     tags:
       - { name: 'event_subscriber' }
   recipes.form_events:

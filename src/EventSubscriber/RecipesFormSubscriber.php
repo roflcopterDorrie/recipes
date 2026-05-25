@@ -55,6 +55,8 @@ class RecipesFormSubscriber implements EventSubscriberInterface {
 
       $form['#attached']['drupalSettings']['recipes']['ingredients'] = $ingredients;
 
+    } else if ($event->getFormId() == "node_recipes_recipe_form") {
+      $form['#attached']['drupalSettings']['recipes']['ingredients'] = [];
     }
   }
 

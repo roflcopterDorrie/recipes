@@ -6,6 +6,7 @@ use Drupal\core_event_dispatcher\EntityHookEvents;
 use Drupal\core_event_dispatcher\Event\Entity\EntityPredeleteEvent;
 use Drupal\core_event_dispatcher\Event\Entity\EntityViewAlterEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
  * Class RecipesEntitySubscriber.
@@ -14,6 +15,14 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class RecipesEntitySubscriber implements EventSubscriberInterface
 {
+
+
+  protected EntityTypeManagerInterface $entityTypeManager;
+
+  public function __construct(EntityTypeManagerInterface $entityTypeManager) {
+    $this->entityTypeManager = $entityTypeManager;
+  }
+
 
   /**
    * {@inheritdoc}
@@ -50,7 +59,7 @@ class RecipesEntitySubscriber implements EventSubscriberInterface
       }
 
       // Remove recipe from any lists.
-      $storage = \Drupal::entityTypeManager()->getStorage('recipes_recipe_list');
+      $storage = $this->entityTypeManager->getStorage('recipes_recipe_list');
       $lists = $storage->loadMultiple();
       foreach ($lists as $list) {
         foreach ($list->get('recipes')->referencedEntities() as $delta => $recipe) {
