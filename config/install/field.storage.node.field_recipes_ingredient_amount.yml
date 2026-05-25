@@ -7,7 +7,6 @@ dependencies:
     module:
       - recipes
 _core:
-  default_config_hash: kfxFsw_o4Qmx2L9QywOO4JKmNC0IStyyd3wHwW-hGC8
 id: node.field_recipes_ingredient_amount
 field_name: field_recipes_ingredient_amount
 entity_type: node

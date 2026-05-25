@@ -9,7 +9,6 @@ dependencies:
     module:
       - recipes
 _core:
-  default_config_hash: VcUPcQA2PWKsQ6PFfvwAxhzuCMCkGIm-EqsMHD_KQJ4
 id: media.field_recipes_image
 field_name: field_recipes_image
 entity_type: media

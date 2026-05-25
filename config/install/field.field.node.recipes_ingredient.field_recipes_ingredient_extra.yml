@@ -7,6 +7,7 @@ dependencies:
   enforced:
     module:
       - recipes
+_core:
 id: node.recipes_ingredient.field_recipes_ingredient_extra
 field_name: field_recipes_ingredient_extra
 entity_type: node

@@ -5,7 +5,6 @@ dependencies:
     module:
       - recipes
 _core:
-  default_config_hash: fRNBNiC_hWrQhKJS6lh6V9a8ZRWb0MrC5tVTpCPByOo
 name: 'Ingredient aisle'
 vid: recipes_ingredient_aisle
 description: null

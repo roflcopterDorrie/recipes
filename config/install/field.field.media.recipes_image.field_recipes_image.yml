@@ -9,6 +9,7 @@ dependencies:
   enforced:
     module:
       - recipes
+_core:
 id: media.recipes_image.field_recipes_image
 field_name: field_recipes_image
 entity_type: media

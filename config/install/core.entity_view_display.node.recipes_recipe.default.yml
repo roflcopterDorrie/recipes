@@ -16,7 +16,6 @@ dependencies:
     module:
       - recipes
 _core:
-  default_config_hash: noYlUZXOp8rBdSHnelL8-eO_N08_izRpGjMdMPi7PCA
 id: node.recipes_recipe.default
 targetEntityType: node
 bundle: recipes_recipe

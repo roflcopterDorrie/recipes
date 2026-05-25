@@ -11,7 +11,6 @@ third_party_settings:
     available_menus: {  }
     parent: ''
 _core:
-  default_config_hash: Yc6t6F48zDWCUthkPhqAUrECPxJ2Pf18NEPTD45Tt1Q
 name: Ingredient
 type: recipes_ingredient
 description: null

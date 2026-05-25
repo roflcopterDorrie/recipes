@@ -7,24 +7,23 @@ dependencies:
     - image.style.large
     - media.type.recipes_image
   module:
-    - focal_point
+    - image
   enforced:
     module:
       - recipes
+_core:
 id: media.recipes_image.media_library
 targetEntityType: media
 bundle: recipes_image
 mode: media_library
 content:
   field_recipes_image:
-    type: image_focal_point
+    type: image_image
     weight: 0
     region: content
     settings:
       progress_indicator: throbber
       preview_image_style: large
-      preview_link: true
-      offsets: '50,50'
     third_party_settings: {  }
 hidden:
   created: true

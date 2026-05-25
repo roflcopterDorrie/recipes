@@ -8,6 +8,7 @@ dependencies:
   enforced:
     module:
       - recipes
+_core:
 id: user_remove_role_action.recipes_user
 label: 'Remove the Recipe user role from the selected user(s)'
 type: user

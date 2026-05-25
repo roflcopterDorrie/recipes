@@ -11,5 +11,6 @@ dependencies:
   - core_event_dispatcher:core_event_dispatcher
   - views_event_dispatcher:views_event_dispatcher
   - media_library:media_library
+  - pathauto:pathauto
 
 php: 8.2

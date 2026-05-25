@@ -8,7 +8,6 @@ dependencies:
     module:
       - recipes
 _core:
-  default_config_hash: UgSCSSInoN9IixO4ljf2ZNfjCiMqlyW_6IudIbSpINE
 id: node.field_recipes_tags
 field_name: field_recipes_tags
 entity_type: node

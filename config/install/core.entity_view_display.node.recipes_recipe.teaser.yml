@@ -1,4 +1,3 @@
-uuid: 5d085c58-713d-4015-966f-a9adbea43379
 langcode: en
 status: true
 dependencies:
@@ -17,7 +16,6 @@ dependencies:
     module:
       - recipes
 _core:
-  default_config_hash: nIkq77VtfKhApYi6PAzgHtpnboBC2_saCASQmj4TgO0
 id: node.recipes_recipe.teaser
 targetEntityType: node
 bundle: recipes_recipe

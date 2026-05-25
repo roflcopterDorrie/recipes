@@ -8,7 +8,6 @@ dependencies:
     module:
       - recipes
 _core:
-  default_config_hash: lGA_2iq5EYqVpq62Bh3XaEq0ASI6EUmc1U92WROFnUw
 id: node.field_recipes_image
 field_name: field_recipes_image
 entity_type: node

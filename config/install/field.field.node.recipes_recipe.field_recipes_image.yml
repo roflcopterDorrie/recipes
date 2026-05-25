@@ -9,7 +9,6 @@ dependencies:
     module:
       - recipes
 _core:
-  default_config_hash: oMWoUtaZt41WPS5trORQGQplSlM-6WKre25Gyxxn-h0
 id: node.recipes_recipe.field_recipes_image
 field_name: field_recipes_image
 entity_type: node

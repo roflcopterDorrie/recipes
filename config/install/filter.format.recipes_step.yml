@@ -1,10 +1,10 @@
-uuid: 9ef76ba7-4f86-4a2a-8d8b-e4e022be9462
 langcode: en
 status: true
-dependencies: 
+dependencies:
   enforced:
     module:
       - recipes
+_core:
 name: 'Recipe step'
 format: recipes_step
 weight: 0

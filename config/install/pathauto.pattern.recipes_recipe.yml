@@ -8,6 +8,7 @@ dependencies:
   enforced:
     module:
       - recipes
+_core:
 id: recipes_recipe
 label: Recipe
 type: 'canonical_entities:node'

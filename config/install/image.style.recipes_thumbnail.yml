@@ -1,19 +1,18 @@
 langcode: en
 status: true
 dependencies:
-  module:
-    - focal_point
   enforced:
     module:
       - recipes
+_core:
 name: recipes_thumbnail
 label: 'Recipes thumbnail'
 effects:
-  cee1509c-3adc-4c9b-8fcd-de940c242a74:
-    uuid: cee1509c-3adc-4c9b-8fcd-de940c242a74
-    id: focal_point_scale_and_crop
-    weight: 2
+  583ac0c1-2bbb-43a4-9ba2-e090414b8405:
+    uuid: 583ac0c1-2bbb-43a4-9ba2-e090414b8405
+    id: image_scale_and_crop
+    weight: 1
     data:
-      width: 800
+      width: 850
       height: 450
-      crop_type: focal_point
+      anchor: center-center

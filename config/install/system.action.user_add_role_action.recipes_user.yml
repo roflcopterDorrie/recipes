@@ -8,6 +8,7 @@ dependencies:
   enforced:
     module:
       - recipes
+_core:
 id: user_add_role_action.recipes_user
 label: 'Add the Recipe user role to the selected user(s)'
 type: user

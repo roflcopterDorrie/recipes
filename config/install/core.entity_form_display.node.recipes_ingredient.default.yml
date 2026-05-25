@@ -7,31 +7,24 @@ dependencies:
     - field.field.node.recipes_ingredient.field_recipes_ingredient_amount
     - field.field.node.recipes_ingredient.field_recipes_ingredient_extra
     - node.type.recipes_ingredient
-  module:
-    - tagify
   enforced:
     module:
       - recipes
 _core:
-  default_config_hash: 9AmKgF9VF3DNQav6Xk98A8KYxv0QvqR_IBpl36zEYDM
 id: node.recipes_ingredient.default
 targetEntityType: node
 bundle: recipes_ingredient
 mode: default
 content:
   field_recipes_ingredient:
-    type: tagify_entity_reference_autocomplete_widget
+    type: entity_reference_autocomplete_tags
     weight: 1
     region: content
     settings:
       match_operator: CONTAINS
       match_limit: 0
+      size: 60
       placeholder: ''
-      suggestions_dropdown: 1
-      show_entity_id: 0
-      show_info_label: 0
-      info_label: ''
-      parent_selection: 1
     third_party_settings: {  }
   field_recipes_ingredient_aisle:
     type: options_select
