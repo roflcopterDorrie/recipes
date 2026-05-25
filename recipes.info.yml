@@ -12,5 +12,6 @@ dependencies:
   - views_event_dispatcher:views_event_dispatcher
   - media_library:media_library
   - pathauto:pathauto
+  - inline_entity_form:inline_entity_form
 
 php: 8.2
