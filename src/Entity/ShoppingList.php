@@ -18,15 +18,14 @@ use Drupal\views\EntityViewsData;
  * Defines the recipe list entity class.
  */
 #[ContentEntityType(
-  id: 'recipes_recipe_list',
-  label: new TranslatableMarkup('Recipe List'),
-  label_collection: new TranslatableMarkup('Recipe Lists'),
-  label_singular: new TranslatableMarkup('recipe list'),
-  label_plural: new TranslatableMarkup('recipe lists'),
+  id: 'recipes_shopping_list',
+  label: new TranslatableMarkup('Shopping List'),
+  label_collection: new TranslatableMarkup('Shopping Lists'),
+  label_singular: new TranslatableMarkup('shopping list'),
+  label_plural: new TranslatableMarkup('shopping lists'),
   entity_keys: [
     'id' => 'id',
     'label' => 'name',
-    'recipes' => 'recipes',
     'owner' => 'uid',
     'uuid' => 'uuid',
   ],
@@ -34,13 +33,13 @@ use Drupal\views\EntityViewsData;
     'views_data' => EntityViewsData::class,
   ],
   admin_permission: 'administer recipes_recipe_list',
-  base_table: 'recipes_recipe_list',
+  base_table: 'recipes_shopping_list',
   label_count: [
-    'singular' => '@count recipe lists',
-    'plural' => '@count recipe lists',
+    'singular' => '@count shopping lists',
+    'plural' => '@count shopping lists',
   ],
 )]
-class RecipeList extends ContentEntityBase {
+class ShoppingList extends ContentEntityBase {
 
   use EntityChangedTrait;
   use EntityOwnerTrait;
@@ -62,32 +61,10 @@ class RecipeList extends ContentEntityBase {
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type): array {
 
     $fields = parent::baseFieldDefinitions($entity_type);
-
     
     $fields['name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Name'))
       ->setRequired(FALSE);
-
-
-    $fields['recipes'] = BaseFieldDefinition::create('entity_reference')
-      ->setLabel(t('Recipes'))
-      ->setDescription(t('Recipes in this meal plan.'))
-      ->setSetting('target_type', 'node')
-      ->setSetting('handler', 'default')
-      ->setSetting('handler_settings', [
-        'target_bundles' => ['recipes_recipe'],
-      ])
-      ->setCardinality(BaseFieldDefinition::CARDINALITY_UNLIMITED)
-      ->setDisplayOptions('form', [
-        'type' => 'entity_reference_autocomplete',
-        'weight' => 10,
-      ])
-      ->setDisplayOptions('view', [
-        'type' => 'entity_reference_label',
-        'weight' => 10,
-      ])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
 
     $fields['uid'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Author'))

@@ -23,29 +23,20 @@ class RecipeListController extends ControllerBase {
   public function AddToList(int $recipe_id) {
     // Get the users default list.
     $storage = $this->entityTypeManager()->getStorage('recipes_recipe_list');
-    $query = $storage->getQuery()
-      ->condition('uid', $this->current_user->id())
-      ->accessCheck(true);
-
-    $ids = $query->execute();
-
-    $recipe_list_node_id = reset($ids);
-
-    $recipe_list = null;
+    $entities = $storage->loadByProperties([
+      'uid' => $this->current_user->id(),
+    ]);
+    $recipe_list = reset($entities) ?: NULL;
     
-    if (empty($ids)) { // Create a list since one doesn't exist.
+    if (!$recipe_list) { // Create a list since one doesn't exist.
       $recipe_list = RecipeList::create([
         'label' => 'Recipe list for user ' . $this->current_user->id(),
         'uid' => $this->current_user->id(),
       ]);
-      if ($recipe_list->save()) {
-        $recipe_list_node_id = $recipe_list->id();
-      }
-    } else { // Load the current list.
-      $recipe_list = $storage->load($recipe_list_node_id);
+      $recipe_list->save();
     }
     
-    if (isset($recipe_list)) {
+    if ($recipe_list) {
     
       // Add recipe to the list.
       $recipe_list->get('recipes')->appendItem([
@@ -66,8 +57,24 @@ class RecipeListController extends ControllerBase {
   }
 
   public function RemoveFromList($recipe_id) {
-    // Check that list exists first.
+    // Get the users default list.
+    $storage = $this->entityTypeManager()->getStorage('recipes_recipe_list');
+    $entities = $storage->loadByProperties([
+      'uid' => $this->current_user->id(),
+    ]);
+    $recipe_list = reset($entities) ?: NULL;
+    
+    if ($recipe_list) { 
+      foreach($recipe_list->get('recipes')->referencedEntities() as $delta => $recipe) {
+        if ($recipe->id() == $recipe_id) {
+          $recipe_list->get('recipes')->removeItem($delta);
+          $recipe_list->save();
+          break;
+        }
+      }
+      return ['#markup' => 'Recipe removed from list.'];
+    }
 
-    // Remove from list.
+    return ['#markup' => 'Could not remove recipe from list.'];
   }
 }

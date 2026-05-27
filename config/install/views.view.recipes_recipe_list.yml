@@ -6,6 +6,7 @@ dependencies:
   enforced:
     module:
       - recipes
+_core:
 id: recipes_recipe_list
 label: 'Recipe list'
 module: views
@@ -165,7 +166,18 @@ display:
           replica: false
           query_tags: {  }
       relationships: {  }
-      header: {  }
+      header:
+        area_text_custom:
+          id: area_text_custom
+          table: views
+          field: area_text_custom
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: text_custom
+          empty: false
+          content: '<a href="/recipes/make-shopping-list">Make shopping list</a>'
+          tokenize: false
       footer: {  }
       display_extenders: {  }
     cache_metadata:

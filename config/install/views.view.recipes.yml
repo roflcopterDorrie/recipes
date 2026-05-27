@@ -255,6 +255,10 @@ display:
           error_message: true
       style:
         type: default
+        options:
+          row_class: ''
+          default_row_class: false
+          uses_fields: false
       row:
         type: 'entity:node'
         options:
@@ -287,6 +291,7 @@ display:
           admin_label: Ingredient
           plugin_id: standard
           required: true
+      css_class: recipes-card-list
       group_by: true
       header:
         area:

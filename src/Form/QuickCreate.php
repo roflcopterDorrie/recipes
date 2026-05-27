@@ -45,7 +45,7 @@ class QuickCreate extends FormBase
    */
   public function getFormId()
   {
-    return 'quick_create_form';
+    return 'recipes_quick_create_form';
   }
 
   public function buildForm(array $form, FormStateInterface $form_state)

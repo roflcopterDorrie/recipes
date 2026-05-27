@@ -22,6 +22,14 @@ function recipes_theme($existing, $type, $theme, $path) {
       ],
       'template' => 'form/add-to-list-button',
     ],
+    'remove_from_list_button' => [
+      'variables' => [
+        'label' => NULL,
+        'id' => NULL,
+        'attributes' => [],
+      ],
+      'template' => 'form/remove-from-list-button',
+    ],
     'recipes_recipe_list' => ['render element' => 'elements'],
   ];
 }

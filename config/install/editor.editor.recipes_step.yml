@@ -8,6 +8,7 @@ dependencies:
   enforced:
     module:
       - recipes
+_core:
 format: recipes_step
 editor: ckeditor5
 settings:

@@ -14,6 +14,7 @@ services:
     class: '\Drupal\recipes\EventSubscriber\RecipesEntitySubscriber'
     arguments: 
       - '@entity_type.manager'
+      - '@current_user'
     tags:
       - { name: 'event_subscriber' }
   recipes.form_events:
@@ -23,4 +24,9 @@ services:
   recipes.views_events:
     class: '\Drupal\recipes\EventSubscriber\RecipesViewsSubscriber'
     tags:
-      - { name: 'event_subscriber' }
+      - { name: 'event_subscriber' }    
+  recipes.uninstall_validator:
+    class: Drupal\recipes\Validator\RecipesUninstallValidator
+    tags:
+      - { name: module_install.uninstall_validator }
+
