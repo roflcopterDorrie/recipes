@@ -31,5 +31,47 @@ function recipes_theme($existing, $type, $theme, $path) {
       'template' => 'form/remove-from-list-button',
     ],
     'recipes_recipe_list' => ['render element' => 'elements'],
+    'form_element_label__shopping_list__checkbox' => [
+      'base hook' => 'form_element_label',
+      'path' => $path . '/templates/form',
+      'render element' => 'element',
+    ],
   ];
+}
+
+/**
+ * Implements hook_preprocess_form_element().
+ */
+function recipes_preprocess_form_element(array &$variables) {
+  $element = $variables['element'];
+
+  // Ensure we are targetting an element inside our specific form
+  if (isset($element['#form_id']) && $element['#form_id'] === 'recipes_shopping_list_form') {
+    // Check if the form element itself is a checkbox
+    if (isset($element['#type']) && $element['#type'] === 'checkbox') {
+      // Inject a theme suggestion directly into the inner label's render array
+      $variables['label']['#theme'] = 'form_element_label__shopping_list__checkbox';
+
+      $variables['label']['#context'] = [
+        'amount' => $element['#amount'] ?? '',
+        'ingredient' => $element['#ingredient'] ?? '',
+        'extra' => $element['#extra'] ?? '',
+      ];
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_THEME_HOOK() for your custom label template.
+ */
+function recipes_preprocess_form_element_label__shopping_list__checkbox(array &$variables) {
+  // Grab the element object from this current context layer
+  $element = $variables['element'];
+  
+  // Flatten the values from context so they are neat in our twig.
+  if (isset($element['#context'])) {
+    $variables['amount'] = $element['#context']['amount'];
+    $variables['ingredient'] = $element['#context']['ingredient'];
+    $variables['extra'] = $element['#context']['extra'];
+  }
 }

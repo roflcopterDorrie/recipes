@@ -1,0 +1,12 @@
+<label {{attributes.addClass('item')}}>
+  <span class="item-text">
+    <span class="marker">-</span>
+    <span class="ingredient">{{ingredient}}</span>
+    <span class="marker">-</span>
+    <span class="amount">{{amount}}</span>
+
+    {% if extra %}
+    <span class="extra">({{extra}})</span>
+    {% endif %}
+  </span>
+</label>

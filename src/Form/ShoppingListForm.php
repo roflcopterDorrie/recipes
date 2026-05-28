@@ -62,6 +62,8 @@ class ShoppingListForm extends FormBase
       $form['shopping_list_items'] = [
         '#type' => 'container',
         '#tree' => TRUE,
+        '#prefix' => '<div class="recipes-shopping-list">',
+        '#suffix' => '</div>',
       ];
 
       $grouped = [];
@@ -70,18 +72,17 @@ class ShoppingListForm extends FormBase
         $ingredient = $shopping_list_item->get('recipes_ingredient_id')->referencedEntities();
         $ingredient = reset($ingredient);
         $ingredient_term = $ingredient->get('field_recipes_ingredient')->referencedEntities();
-        $label = array_filter([
-          $ingredient->get('field_recipes_ingredient_amount')->value ?: NULL,
-          reset($ingredient_term)->getName() ?: NULL,
-          $ingredient->get('field_recipes_ingredient_extra')->value ? '(' . $ingredient->get('field_recipes_ingredient_extra')->value . ')' : NULL,
-        ]);
 
         $aisle = $ingredient->get('field_recipes_ingredient_aisle')->referencedEntities();
 
         $grouped[reset($aisle)->getName()][$shopping_list_item->id()] = [
           '#type' => 'checkbox',
-          '#title' => implode(" ", $label),
-          '#default_value' => $shopping_list_item->get("collected")->value
+          '#title' => 'checkbox',
+          '#default_value' => $shopping_list_item->get("collected")->value,
+          '#form_id' => $this->getFormId(),
+          '#amount' => $ingredient->get('field_recipes_ingredient_amount')->value ?: NULL,
+          '#ingredient' => reset($ingredient_term)->getName() ?: NULL,
+          '#extra' => $ingredient->get('field_recipes_ingredient_extra')->value ?: NULL
         ];
       }
 
