@@ -188,12 +188,13 @@ display:
         - url
         - user
       tags: {  }
-  page_1:
-    id: page_1
-    display_title: Page
+  list:
+    id: list
+    display_title: List
     display_plugin: page
     position: 1
     display_options:
+      display_description: ''
       display_extenders: {  }
       path: recipes/my-list
     cache_metadata:
