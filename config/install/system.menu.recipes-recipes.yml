@@ -4,6 +4,7 @@ dependencies:
   enforced:
     module:
       - recipes
+_core:
 id: recipes-recipes
 label: Recipes
 description: ''
