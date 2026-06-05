@@ -16,6 +16,7 @@ use Drupal\Core\Messenger\MessengerInterface;
 use Opis\JsonSchema\Errors\ErrorFormatter;
 use Drupal\ai\Dto\StructuredOutputSchema;
 
+
 class RecipesDataExtractor
 {
   use DependencySerializationTrait;
@@ -29,13 +30,12 @@ class RecipesDataExtractor
     protected AiProviderPluginManager $ai_provider,
     protected EntityTypeManagerInterface $entity_type_manager,
     protected ClientFactory $httpClient,
-    protected MessengerInterface $messenger
+    protected MessengerInterface $messenger,
   ) {
     $this->config = $this->config_factory->get('recipes.settings');
   }
 
-  protected function chat(ChatInput $messages)
-  {
+  protected function chat(ChatInput $messages) {
     // Setup the AI model provider so we can use it.
     $ai_provider_settings = $this->ai_provider->getDefaultProviderForOperationType('chat');
     $ai_proxy_provider = $this->ai_provider->createInstance($ai_provider_settings['provider_id']);
@@ -43,27 +43,24 @@ class RecipesDataExtractor
     return $ai_proxy_provider->chat($messages, $ai_model_id);
   }
 
-  public function generatePrompt(string $url) : string
-  {
-    $ingredientAisles = [];
-    $ingredientAisleTerms = $this->entity_type_manager->getStorage('taxonomy_term')->loadByProperties(['vid' => 'recipes_ingredient_aisle']);
-    foreach ($ingredientAisleTerms as $ingredientAisle) {
-      $ingredientAisles[] = '- ' . $ingredientAisle->getName() . ': ' . PHP_EOL;
-    }
-
+  public function getDataFromUrl(string $url): string {
     $client = $this->httpClient->fromOptions();
+
+    $browser_user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36';
+
     $response = $client->request('GET', $url, [
       'timeout' => 10,
       'headers' => [
-        'User-Agent' => 'Drupal Recipe Scraper/1.0',
+        'User-Agent' => $browser_user_agent,
       ],
     ]);
 
-    $html = $response->getBody()->getContents();
+    return $response->getBody()->getContents();
+  }
 
+  public function getBodyText(string $html): string {
     $dom = new DOMDocument();
     @$dom->loadHTML($html);
-
     $removeTags = ['script', 'style', 'noscript'];
 
     foreach ($removeTags as $tagName) {
@@ -75,12 +72,36 @@ class RecipesDataExtractor
     }
 
     $body = $dom->getElementsByTagName('body')->item(0);
-    $recipe_website_text = $body->nodeValue;
+    return $body->nodeValue;
+  }
+
+  public function getMainImageUrl(string $html): ?string {
+    $dom = new DOMDocument();
+    @$dom->loadHTML($html);
+
+    $xpath = new \DOMXPath($dom);
+
+    $nodes = $xpath->query('//meta[@property="og:image"]');
+
+    if ($nodes->length == 0) {
+      return NULL;
+    }
+
+    return $nodes->item(0)->getAttribute('content');
+  }
+
+  public function generatePrompt(string $html): string
+  {
+    $ingredientAisles = [];
+    $ingredientAisleTerms = $this->entity_type_manager->getStorage('taxonomy_term')->loadByProperties(['vid' => 'recipes_ingredient_aisle']);
+    foreach ($ingredientAisleTerms as $ingredientAisle) {
+      $ingredientAisles[] = '- ' . $ingredientAisle->getName() . ': ' . PHP_EOL;
+    }
 
     $prompt = $this->config->get('prompt');
 
     $sanitisedPrompt = t($prompt, [
-      '@website_text' => $recipe_website_text,
+      '@website_text' => $html,
       '@ingredient_aisle_taxonomy' => implode(" ", $ingredientAisles),
       '@schema' => $this->recipes_data_validator->getSchema()
     ]);
@@ -90,7 +111,10 @@ class RecipesDataExtractor
 
   public function extractRecipeFromUrl(string $url): bool|object
   {
-    $prompt = $this->generatePrompt($url);
+    $html = $this->getDataFromUrl($url);
+    $main_image = $this->getMainImageUrl($html);
+    $body = $this->getBodyText($html);
+    $prompt = $this->generatePrompt($body);
 
     $input = new ChatInput([new ChatMessage('user', $prompt)]);
 
@@ -111,27 +135,32 @@ class RecipesDataExtractor
 
     $recipe_text = $return_message->getText();
 
-    //$recipe_text = '{"title":"Vegan Shepherd\u2019s Pie with Gravy","ingredients":[{"amount":"3 lb","name":"potatoes","extra":"peeled and chopped","category":"Fresh Fruits and Vegetables"},{"amount":"2 tbsp","name":"Earth Balance","extra":"or equivalent","category":"Baking Ingredients"},{"amount":"1\/3 cup + 2 tbsp","name":"non-dairy milk","extra":"I used soy","category":"Plant based Milk"},{"amount":"1 tsp","name":"kosher salt","extra":"or to taste","category":"Spices and Seasoning"},{"amount":null,"name":"black pepper","extra":"freshly ground, to taste","category":"Spices and Seasoning"},{"amount":"1\/2 tsp","name":"garlic powder","category":"Spices and Seasoning"},{"amount":"2 tbsp","name":"extra virgin olive oil","category":"Oils"},{"amount":"1","name":"yellow onion","extra":"finely chopped","category":"Fresh Fruits and Vegetables"},{"amount":"3 cloves","name":"garlic","extra":"minced","category":"Fresh Fruits and Vegetables"},{"amount":"4 medium","name":"carrots","extra":"peeled & small dice","category":"Fresh Fruits and Vegetables"},{"amount":"2","name":"parsnips","extra":"peeled & small dice","category":"Fresh Fruits and Vegetables"},{"amount":"4 stalks","name":"celery","extra":"small dice","category":"Fresh Fruits and Vegetables"},{"amount":"1 cup","name":"vegetable broth","extra":"full sodium","category":"Stock"},{"amount":"1\/4 cup","name":"red wine","category":"Condiments"},{"amount":"2 tsp","name":"dried thyme","category":"Herbs"},{"amount":"1\/2 tsp","name":"Italian seasoning","category":"Spices and Seasoning"},{"amount":"1\/2-3\/4 tsp","name":"kosher salt","extra":"to taste","category":"Spices and Seasoning"},{"amount":"3 tbsp","name":"flour","extra":"I used whole wheat","category":"Baking Ingredients"}],"steps":["Preheat oven to 425\u00b0F and lightly oil a 2.5 quart\/2.3 litre casserole dish.","Place peeled and chopped potatoes into a large pot and add water, 2 inches above potatoes. Bring to a boil and then simmer on low for about 30 minutes until very tender.","Meanwhile, prepare the vegetable filling. Chop the onion and mince the garlic and add to a skillet along with the oil. Cook on low for about 5-7 minutes. Now add in the chopped carrots, parsnip, and celery. Cook on medium-low heat for about 15 minutes.","When the potatoes are done cooking, drain and add back to the pot. Add the Earth Balance (or butter), milk, and seasonings and mash well. Set aside.","In a small bowl, whisk together the liquid ingredients (broth, red wine (optional), thyme, and flour). Add this liquid mixture to the vegetables in the skillet and stir well. Add your salt and pepper to taste. Cook for another 5-10 minutes or so until thickened. Season to taste.","Scoop vegetable mixture into casserole dish. Spread on the mashed potato mixture and garnish with paprika, ground pepper, and Thyme. Bake at 425\u00b0F for about 35 minutes, or until golden and bubbly.","Allow to cool for at least 10 minutes before serving."]}';
+    // DEBUG.
+    //$recipe_text = '{"title":"Vegan Shepherd\u2019s Pie with Gravy","ingredients":[{"amount":"3 lb.","name":"potatoes","extra":"peeled and chopped","category":"Fresh Fruits and Vegetables"},{"amount":"2 tbsp","name":"Earth Balance","extra":"or equivalent","category":"Oils"},{"amount":"1\/3 cup + 2 tbsp","name":"non-dairy milk","extra":"I used soy","category":"Plant based Milk"},{"amount":"1 tsp","name":"kosher salt","extra":"or to taste","category":"Spices and Seasoning"},{"amount":null,"name":"Freshly ground black pepper","extra":"to taste","category":"Spices and Seasoning"},{"amount":"1\/2 tsp","name":"garlic powder","category":"Spices and Seasoning"},{"amount":"2 tbsp","name":"extra virgin olive oil","category":"Oils"},{"amount":"1","name":"yellow onion","extra":"finely chopped","category":"Fresh Fruits and Vegetables"},{"amount":"3 cloves","name":"garlic","extra":"minced","category":"Fresh Fruits and Vegetables"},{"amount":"4 medium","name":"carrots","extra":"peeled & small dice","category":"Fresh Fruits and Vegetables"},{"amount":"2","name":"parsnips","extra":"peeled & small dice","category":"Fresh Fruits and Vegetables"},{"amount":"4","name":"celery stalks","extra":"small dice","category":"Fresh Fruits and Vegetables"},{"amount":"1 cup","name":"vegetable broth","extra":"full sodium","category":"Stock"},{"amount":"1\/4 cup","name":"red wine","category":"Condiments"},{"amount":"2 tsp","name":"dried thyme","category":"Herbs"},{"amount":"1\/2 tsp","name":"Italian seasoning","category":"Spices and Seasoning"},{"amount":"1\/2-3\/4 tsp","name":"kosher salt","extra":"to taste + black pepper","category":"Spices and Seasoning"},{"amount":"3 tbsp","name":"flour","extra":"I used whole wheat","category":"Baking Ingredients"}],"steps":["Preheat oven to 425\u00b0F and lightly oil a 2.5 quart\/2.3 litre casserole dish.","Place peeled and chopped potatoes into a large pot and add water, 2 inches above potatoes. Bring to a boil and then simmer on low for about 30 minutes until very tender.","Meanwhile, prepare the vegetable filling. Chop the onion and mince the garlic and add to a skillet along with the oil. Cook on low for about 5-7 minutes.","Now add in the chopped carrots, parsnip, and celery. Cook on medium-low heat for about 15 minutes.","When the potatoes are done cooking, drain and add back to the pot. Add the Earth Balance (or butter), milk, and seasonings and mash well. Set aside.","In a small bowl, whisk together the liquid ingredients (broth, red wine (optional), thyme, and flour). Add this liquid mixture to the vegetables in the skillet and stir well. Add your salt and pepper to taste. Cook for another 5-10 minutes or so until thickened. Season to taste.","Scoop vegetable mixture into casserole dish. Spread on the mashed potato mixture and garnish with paprika, ground pepper, and Thyme.","Bake at 425\u00b0F for about 35 minutes, or until golden and bubbly.","Allow to cool for at least 10 minutes before serving."],"image_url":""}';
+    //$main_image = 'https://ohsheglows.com/wp-content/uploads/2011/03/IMG_2913_2-scaled.jpg';
 
     if (($extracted_recipe = json_decode($recipe_text)) !== NULL) {
+
+      // Add in the image if available.
+      $extracted_recipe->image_url = $main_image;
+
       $result = $this->recipes_data_validator->validate($extracted_recipe, $this->recipes_data_validator->getSchema());
 
       if ($result->isValid()) {
         return $extracted_recipe;
       } else {
         $errors = new ErrorFormatter()->format($result->error());
-        foreach($errors as $error) {
+        foreach ($errors as $error) {
           $this->messenger->addError(t('Validation error: @msg', ['@msg' => $error[0]]));
         }
         $this->messenger->addError($recipe_text);
-        
       }
     } else {
       $this->messenger->addError(t('String returned from AI could not be json decoded: @ai_string', ['@ai_string' => $recipe_text]));
       $this->messenger->addError(t('Prompt: @prompt', ['@prompt' => $prompt]));
     }
 
-    
+
     return FALSE;
   }
 }

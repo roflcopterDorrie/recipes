@@ -21,10 +21,7 @@ class MakeShoppingList extends FormBase
   public function __construct(
     protected EntityTypeManagerInterface $entity_type_manager,
     protected AccountProxyInterface $current_user
-  ) {
-    $this->entity_type_manager = $entity_type_manager;
-    $this->current_user = $current_user;
-  }
+  ) {}
 
   public static function create(ContainerInterface $container)
   {

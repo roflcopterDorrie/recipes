@@ -13,6 +13,11 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\taxonomy\Entity\Term;
 use Doctrine\Inflector\InflectorFactory;
 use PhpUnitsOfMeasure\PhysicalQuantity\Mass;
+use Drupal\media\Entity\Media;
+use Drupal\file\FileRepository;
+use Drupal\Core\File\FileSystem;
+use Drupal\Core\File\FileExists;
+use Drupal\Core\Session\AccountProxyInterface;
 
 /**
  * Implements an example form.
@@ -25,11 +30,10 @@ class QuickCreate extends FormBase
     protected RecipesDataExtractor $recipes_data_extractor,
     protected ConfigFactoryInterface $config_factory,
     protected EntityTypeManagerInterface $entity_type_manager,
-  ) {
-    $this->recipes_data_extractor = $recipes_data_extractor;
-    $this->config_factory = $config_factory;
-    $this->entity_type_manager = $entity_type_manager;
-  }
+    protected FileSystem $file_system,
+    protected FileRepository $file_repository,
+    protected AccountProxyInterface $current_user
+  ) {}
 
   public static function create(ContainerInterface $container)
   {
@@ -37,6 +41,9 @@ class QuickCreate extends FormBase
       $container->get('recipes.data_extractor'),
       $container->get('config.factory'),
       $container->get('entity_type.manager'),
+      $container->get('file_system'),
+      $container->get('file.repository'),
+      $container->get('current_user'),
     );
   }
 
@@ -73,10 +80,6 @@ class QuickCreate extends FormBase
 
       $extracted_recipe = $form_state->get('extracted_recipe');
 
-      // $form['preview_recipe_json'] = [
-      //   '#markup' => json_encode($extracted_recipe)
-      // ];
-
       // Preview the recipe to the user before it is saved.
       $form['preview_recipe'] = [
         '#theme' => 'recipe_preview',
@@ -96,6 +99,12 @@ class QuickCreate extends FormBase
         '#type' => 'textfield',
         '#title' => $this->t('Title'),
         '#default_value' => $extracted_recipe->title,
+      ];
+
+      $form['edited_recipe']['edited_recipe_image'] = [
+        '#type' => 'textfield',
+        '#title' => $this->t('Image URL'),
+        '#default_value' => $extracted_recipe->image_url,
       ];
 
       $form['edited_recipe']['edited_ingredients_list'] = [
@@ -207,15 +216,13 @@ class QuickCreate extends FormBase
   public function submitSave(array &$form, FormStateInterface $form_state)
   {
 
-    // = $form_state->get('extracted_recipe');
-
-    // Generate and save the Recipe.
+    // Create Recipe.
     $recipe_node = Node::create([
       'type' => 'recipes_recipe',
       'title' => $form_state->getValue('edited_recipe_title'),
     ]);
 
-    // Ingredients.
+    // INGREDIENTS.
     $ingredient_references = [];
     foreach ($form_state->getValue('edited_ingredients_list') as $ingredient) {
 
@@ -282,7 +289,7 @@ class QuickCreate extends FormBase
     }
     $recipe_node->set('field_recipes_ingredients', $ingredient_references);
 
-    // Steps.
+    // STEPS.
     $step_data = [];
     $steps =  $form_state->getValue('edited_steps_list');
     foreach($steps as $step){
@@ -290,8 +297,40 @@ class QuickCreate extends FormBase
     }
     $recipe_node->set('field_recipes_steps', $step_data);
 
+    // IMAGE.
+    $image_url = $form_state->getValue('edited_recipe_image');
+    $image_data = $this->recipes_data_extractor->getDataFromUrl($image_url);
+
+    $filename = basename(parse_url($image_url, PHP_URL_PATH));
+
+    $directory = 'public://recipes';
+    $this->file_system->prepareDirectory($directory, FileSystem::CREATE_DIRECTORY);
+
+    /** @var \Drupal\file\FileInterface $file */
+    $file = $this->file_repository->writeData($image_data, "$directory/$filename", FileExists::Replace);
+
+    if (!$file) {
+      return null;
+    }
+
+    $media_image = Media::create([
+      'bundle' => 'recipes_image',
+      'uid' => $this->current_user->id(),
+      'name' => $filename,
+      'status' => 1,
+      'field_recipes_image' => [
+        'target_id' => $file->id(),
+        'alt' => 'Scraped Recipe Image',
+      ],
+    ]);
+
+    $media_image->save();
+    $recipe_node->set('field_recipes_image', $media_image);
+
+    // Save the recipe.
     $recipe_node->save();
 
+    // Redirect to the newly created recipe.
     $form_state->setRedirect('entity.node.canonical', ['node' => $recipe_node->id()]);
   }
 
