@@ -29,4 +29,10 @@ services:
     class: Drupal\recipes\Validator\RecipesUninstallValidator
     tags:
       - { name: module_install.uninstall_validator }
+  recipes.form_theme_negotiator:
+    class: Drupal\recipes\Theme\FormThemeNegotiator
+    arguments:
+      - '@config.factory'
+    tags:
+      - { name: theme_negotiator, priority: 1000 }
 

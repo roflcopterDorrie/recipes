@@ -109,13 +109,27 @@ class RecipesDataExtractor
     return $sanitisedPrompt->__toString();
   }
 
-  public function extractRecipeFromUrl(string $url): bool|object
-  {
+  public function extractRecipeFromUrl(string $url): bool|object {
     $html = $this->getDataFromUrl($url);
     $main_image = $this->getMainImageUrl($html);
     $body = $this->getBodyText($html);
-    $prompt = $this->generatePrompt($body);
+    $recipe_text = $this->useAiToExtractRecipe($body);
+    $recipe_text = $this->addImageToJson($recipe_text, $main_image);
+    $validation = $this->validateJson($recipe_text);
+    if ($validation === FALSE) {
+      $prompt = $this->generatePrompt($body);
+      $this->messenger->addError(t('Prompt: @prompt', ['@prompt' => $prompt]));
+    }
+    return $validation;
+  }
 
+  public function extractRecipeFromText(string $text): bool|object {
+    $recipe_text = $this->useAiToExtractRecipe($text);
+    return $this->validateJson($recipe_text);
+  }
+
+  private function useAiToExtractRecipe(string $original_recipe_text): string {
+    $prompt = $this->generatePrompt($original_recipe_text);
     $input = new ChatInput([new ChatMessage('user', $prompt)]);
 
     if ($this->config->get('use_structured_json_ai_response')) {
@@ -139,10 +153,20 @@ class RecipesDataExtractor
     //$recipe_text = '{"title":"Vegan Shepherd\u2019s Pie with Gravy","ingredients":[{"amount":"3 lb.","name":"potatoes","extra":"peeled and chopped","category":"Fresh Fruits and Vegetables"},{"amount":"2 tbsp","name":"Earth Balance","extra":"or equivalent","category":"Oils"},{"amount":"1\/3 cup + 2 tbsp","name":"non-dairy milk","extra":"I used soy","category":"Plant based Milk"},{"amount":"1 tsp","name":"kosher salt","extra":"or to taste","category":"Spices and Seasoning"},{"amount":null,"name":"Freshly ground black pepper","extra":"to taste","category":"Spices and Seasoning"},{"amount":"1\/2 tsp","name":"garlic powder","category":"Spices and Seasoning"},{"amount":"2 tbsp","name":"extra virgin olive oil","category":"Oils"},{"amount":"1","name":"yellow onion","extra":"finely chopped","category":"Fresh Fruits and Vegetables"},{"amount":"3 cloves","name":"garlic","extra":"minced","category":"Fresh Fruits and Vegetables"},{"amount":"4 medium","name":"carrots","extra":"peeled & small dice","category":"Fresh Fruits and Vegetables"},{"amount":"2","name":"parsnips","extra":"peeled & small dice","category":"Fresh Fruits and Vegetables"},{"amount":"4","name":"celery stalks","extra":"small dice","category":"Fresh Fruits and Vegetables"},{"amount":"1 cup","name":"vegetable broth","extra":"full sodium","category":"Stock"},{"amount":"1\/4 cup","name":"red wine","category":"Condiments"},{"amount":"2 tsp","name":"dried thyme","category":"Herbs"},{"amount":"1\/2 tsp","name":"Italian seasoning","category":"Spices and Seasoning"},{"amount":"1\/2-3\/4 tsp","name":"kosher salt","extra":"to taste + black pepper","category":"Spices and Seasoning"},{"amount":"3 tbsp","name":"flour","extra":"I used whole wheat","category":"Baking Ingredients"}],"steps":["Preheat oven to 425\u00b0F and lightly oil a 2.5 quart\/2.3 litre casserole dish.","Place peeled and chopped potatoes into a large pot and add water, 2 inches above potatoes. Bring to a boil and then simmer on low for about 30 minutes until very tender.","Meanwhile, prepare the vegetable filling. Chop the onion and mince the garlic and add to a skillet along with the oil. Cook on low for about 5-7 minutes.","Now add in the chopped carrots, parsnip, and celery. Cook on medium-low heat for about 15 minutes.","When the potatoes are done cooking, drain and add back to the pot. Add the Earth Balance (or butter), milk, and seasonings and mash well. Set aside.","In a small bowl, whisk together the liquid ingredients (broth, red wine (optional), thyme, and flour). Add this liquid mixture to the vegetables in the skillet and stir well. Add your salt and pepper to taste. Cook for another 5-10 minutes or so until thickened. Season to taste.","Scoop vegetable mixture into casserole dish. Spread on the mashed potato mixture and garnish with paprika, ground pepper, and Thyme.","Bake at 425\u00b0F for about 35 minutes, or until golden and bubbly.","Allow to cool for at least 10 minutes before serving."],"image_url":""}';
     //$main_image = 'https://ohsheglows.com/wp-content/uploads/2011/03/IMG_2913_2-scaled.jpg';
 
-    if (($extracted_recipe = json_decode($recipe_text)) !== NULL) {
+    return $recipe_text;
 
-      // Add in the image if available.
+  }
+
+  private function addImageToJson(string $recipe_text, string $main_image) : string {
+    if (($extracted_recipe = json_decode($recipe_text)) !== NULL) {
       $extracted_recipe->image_url = $main_image;
+    }
+    return json_encode($extracted_recipe);
+  }
+
+  private function validateJson(string $recipe_text) : bool|object {
+
+    if (($extracted_recipe = json_decode($recipe_text)) !== NULL) {
 
       $result = $this->recipes_data_validator->validate($extracted_recipe, $this->recipes_data_validator->getSchema());
 
@@ -157,10 +181,10 @@ class RecipesDataExtractor
       }
     } else {
       $this->messenger->addError(t('String returned from AI could not be json decoded: @ai_string', ['@ai_string' => $recipe_text]));
-      $this->messenger->addError(t('Prompt: @prompt', ['@prompt' => $prompt]));
     }
 
 
     return FALSE;
   }
+
 }

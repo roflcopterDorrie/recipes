@@ -68,7 +68,22 @@ class QuickCreate extends FormBase
       $form['url'] = [
         '#type' => 'url',
         '#title' => $this->t('Recipe URL'),
-        '#required' => TRUE,
+      ];
+
+      $form['or_markup'] = [
+        '#type' => 'markup',
+        '#markup' => " <h2>OR</h2>"
+      ];
+
+      $form['data'] = [
+        '#type' => 'textarea',
+        '#title' => $this->t('Recipe information'),
+      ];
+
+      $form['gen_ai_image'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t("Generate an image"),
+        '#default_value' => TRUE,
       ];
 
       $form['actions']['extract'] = [
@@ -85,7 +100,7 @@ class QuickCreate extends FormBase
         '#theme' => 'recipe_preview',
         '#recipe' => $extracted_recipe,
       ];
-      
+
       // I want to build up a form that the user can edit here in case the AI doesn't quite work.
 
       $form['edited_recipe'] = [
@@ -99,6 +114,7 @@ class QuickCreate extends FormBase
         '#type' => 'textfield',
         '#title' => $this->t('Title'),
         '#default_value' => $extracted_recipe->title,
+        '#required' => TRUE,
       ];
 
       $form['edited_recipe']['edited_recipe_image'] = [
@@ -118,7 +134,7 @@ class QuickCreate extends FormBase
         $form['edited_recipe']['edited_ingredients_list'][$delta] = [
           '#type' => 'container',
           '#attributes' => ['class' => ['container-inline']], // Keeps fields on one line
-          
+
           'amount' => [
             '#type' => 'textfield',
             '#title' => $this->t('Amount'),
@@ -199,14 +215,51 @@ class QuickCreate extends FormBase
     return $form;
   }
 
+  public function validateForm(array &$form, FormStateInterface $form_state)
+  {
+    $step = $form_state->get('step') ?: 1;
+    if ($step == 1) {
+      // Extract the submitted value using the field's machine name
+      $url = $form_state->getValue('url');
+
+      // If $url is empty, then we check if text has been filled out.
+      if (empty($url)) {
+        $data = $form_state->getValue('data');
+
+        if (empty($data)) {
+          $form_state->setErrorByName('url', $this->t('You must fill in either URL or Recipe information.'));
+        }
+      }
+    }
+  }
+
 
   public function submitExtract(array &$form, FormStateInterface $form_state)
   {
-   
-    if (($extracted_recipe = $this->recipes_data_extractor->extractRecipeFromUrl($form_state->getValue('url'))) !== FALSE) {
+
+    $url = $form_state->getValue('url');
+    $data = $form_state->getValue('data');
+    $extracted_recipe = NULL;
+
+    if (!empty($url)) {
+      $extracted_recipe = $this->recipes_data_extractor->extractRecipeFromUrl($url);
+      // DEBUG.
+      $debug_html = $this->recipes_data_extractor->getDataFromUrl($url);
+      $debug_recipe_text = $this->recipes_data_extractor->getBodyText($debug_html);
+    } elseif (!empty($data)) {
+      $extracted_recipe = $this->recipes_data_extractor->extractRecipeFromText($data);
+      // DEBUG.
+      $debug_recipe_text = $data;
+    }
+
+    if (isset($extracted_recipe) && $extracted_recipe !== FALSE) {
       $form_state->set('extracted_recipe', $extracted_recipe);
       $form_state->set('step', 2);
-      $form_state->set('debug_prompt', $this->recipes_data_extractor->generatePrompt($form_state->getValue('url')));
+
+      // DEBUG.
+      $prompt = $this->recipes_data_extractor->generatePrompt($debug_recipe_text);
+
+      $form_state->set('debug_prompt', $prompt);
     }
 
     return $form_state->setRebuild();
@@ -292,40 +345,42 @@ class QuickCreate extends FormBase
     // STEPS.
     $step_data = [];
     $steps =  $form_state->getValue('edited_steps_list');
-    foreach($steps as $step){
+    foreach ($steps as $step) {
       $step_data[] = $step['step'];
     }
     $recipe_node->set('field_recipes_steps', $step_data);
 
     // IMAGE.
     $image_url = $form_state->getValue('edited_recipe_image');
-    $image_data = $this->recipes_data_extractor->getDataFromUrl($image_url);
+    if (!empty($image_url)) {
+      $image_data = $this->recipes_data_extractor->getDataFromUrl($image_url);
 
-    $filename = basename(parse_url($image_url, PHP_URL_PATH));
+      $filename = basename(parse_url($image_url, PHP_URL_PATH));
 
-    $directory = 'public://recipes';
-    $this->file_system->prepareDirectory($directory, FileSystem::CREATE_DIRECTORY);
+      $directory = 'public://recipes';
+      $this->file_system->prepareDirectory($directory, FileSystem::CREATE_DIRECTORY);
 
-    /** @var \Drupal\file\FileInterface $file */
-    $file = $this->file_repository->writeData($image_data, "$directory/$filename", FileExists::Replace);
+      /** @var \Drupal\file\FileInterface $file */
+      $file = $this->file_repository->writeData($image_data, "$directory/$filename", FileExists::Replace);
 
-    if (!$file) {
-      return null;
+      if (!$file) {
+        return null;
+      }
+
+      $media_image = Media::create([
+        'bundle' => 'recipes_image',
+        'uid' => $this->current_user->id(),
+        'name' => $filename,
+        'status' => 1,
+        'field_recipes_image' => [
+          'target_id' => $file->id(),
+          'alt' => 'Scraped Recipe Image',
+        ],
+      ]);
+
+      $media_image->save();
+      $recipe_node->set('field_recipes_image', $media_image);
     }
-
-    $media_image = Media::create([
-      'bundle' => 'recipes_image',
-      'uid' => $this->current_user->id(),
-      'name' => $filename,
-      'status' => 1,
-      'field_recipes_image' => [
-        'target_id' => $file->id(),
-        'alt' => 'Scraped Recipe Image',
-      ],
-    ]);
-
-    $media_image->save();
-    $recipe_node->set('field_recipes_image', $media_image);
 
     // Save the recipe.
     $recipe_node->save();
