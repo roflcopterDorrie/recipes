@@ -1,0 +1,11 @@
+langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - recipes
+_core:
+id: recipes-recipes
+label: Recipes
+description: ''
+locked: false

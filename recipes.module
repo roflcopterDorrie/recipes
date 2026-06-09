@@ -1,6 +1,7 @@
 <?php
 
-use Drupal\node\Entity\Node;
+use Drupal\Core\Render\Element;
+use Drupal\user\UserInterface;
 
 /**
  * Implements hook_theme().
@@ -13,38 +14,64 @@ function recipes_theme($existing, $type, $theme, $path) {
       ],
       'template' => 'recipe-preview',
     ],
+    'add_to_list_button' => [
+      'variables' => [
+        'label' => NULL,
+        'id' => NULL,
+        'attributes' => [],
+      ],
+      'template' => 'form/add-to-list-button',
+    ],
+    'remove_from_list_button' => [
+      'variables' => [
+        'label' => NULL,
+        'id' => NULL,
+        'attributes' => [],
+      ],
+      'template' => 'form/remove-from-list-button',
+    ],
+    'recipes_recipe_list' => ['render element' => 'elements'],
+    'form_element_label__shopping_list__checkbox' => [
+      'base hook' => 'form_element_label',
+      'path' => $path . '/templates/form',
+      'render element' => 'element',
+    ],
   ];
 }
 
 /**
- * Implements hook_views_query_alter().
+ * Implements hook_preprocess_form_element().
  */
-function recipes_views_query_alter($view, $query) {
-  // Remove ingredients from the main admin content listing.
-  
-  if ($view->id() == 'content') {
-    // Add a condition to exclude your 'ingredient' machine name
-    $query->addWhere(1, 'node_field_data.type', 'recipes_ingredient', '!=');
+function recipes_preprocess_form_element(array &$variables) {
+  $element = $variables['element'];
+
+  // Ensure we are targetting an element inside our specific form
+  if (isset($element['#form_id']) && $element['#form_id'] === 'recipes_shopping_list_form') {
+    // Check if the form element itself is a checkbox
+    if (isset($element['#type']) && $element['#type'] === 'checkbox') {
+      // Inject a theme suggestion directly into the inner label's render array
+      $variables['label']['#theme'] = 'form_element_label__shopping_list__checkbox';
+
+      $variables['label']['#context'] = [
+        'amount' => $element['#amount'] ?? '',
+        'ingredient' => $element['#ingredient'] ?? '',
+        'extra' => $element['#extra'] ?? '',
+      ];
+    }
   }
 }
 
 /**
- * Implements hook_entity_predelete().
+ * Implements hook_preprocess_THEME_HOOK() for your custom label template.
  */
-function recipes_entity_predelete(\Drupal\Core\Entity\EntityInterface $entity) {
-  // Remove all the ingredients associated with a recipe.
-
-  // Only act if we are deleting a 'recipe' node.
-  if ($entity->getEntityTypeId() === 'node' && $entity->bundle() === 'recipes_recipe') {
-    
-    // Find all 'ingredient' nodes that reference this recipe.
-    $ingredients = $entity->get('field_recipes_ingredients')->referencedEntities();
-
-    if (!empty($ingredients)) {
-      // Delete the referenced ingredient nodes.
-      foreach ($ingredients as $ingredient) {
-        $ingredient->delete();
-      }
-    }
+function recipes_preprocess_form_element_label__shopping_list__checkbox(array &$variables) {
+  // Grab the element object from this current context layer
+  $element = $variables['element'];
+  
+  // Flatten the values from context so they are neat in our twig.
+  if (isset($element['#context'])) {
+    $variables['amount'] = $element['#context']['amount'];
+    $variables['ingredient'] = $element['#context']['ingredient'];
+    $variables['extra'] = $element['#context']['extra'];
   }
 }

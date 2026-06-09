@@ -1,15 +1,18 @@
 <div class="recipe-preview">
   <h2>{{ recipe.title }}</h2>
 
+  {% if recipe.image_url %}
+    <img class="recipes_image_preview" src="{{ recipe.image_url }}"/>
+  {% endif %}
+
   <h3>Ingredients</h3>
   <ul>
     {% for ingredient in recipe.ingredients %}
       <li>
-        {{ ingredient.amount }} {{ ingredient.ingredient }}
+        {{ ingredient.amount }} {{ ingredient.name }}
         {% if ingredient.extra %}
           ({{ ingredient.extra }})
         {% endif %}
-	      ({{ ingredient.category }})
       </li>
     {% endfor %}
   </ul>

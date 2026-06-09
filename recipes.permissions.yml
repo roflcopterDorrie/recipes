@@ -1,0 +1,3 @@
+administer recipes_recipe_list:
+  title: 'Administer recipe lists'
+  restrict access: true

@@ -9,11 +9,6 @@
 vendor/
 composer.lock
 
-# PHPUnit / Test artifacts
-.phpunit.result.cache
-coverage/
-build/
-
 # Node / frontend tooling (only if used)
 node_modules/
 npm-debug.log*

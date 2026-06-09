@@ -1,10 +1,11 @@
 recipes.quick_create:
-  path: '/admin/recipes/quick-create'
+  path: '/recipes/quick-create'
   defaults:
     _title: 'Quickly create recipe'
     _form: '\Drupal\recipes\Form\QuickCreate'
   requirements:
     _permission: 'access content'
+
 recipes.settings:
   path: '/admin/config/services/recipes'
   defaults:
@@ -12,3 +13,34 @@ recipes.settings:
     _form: 'Drupal\recipes\Form\SettingsForm'
   requirements:
     _permission: 'administer site configuration'
+
+recipes.add_to_list:
+  path: '/recipes/add-to-list/{recipe_id}'
+  defaults:
+    _controller: '\Drupal\recipes\Controller\RecipeListController::AddToList'
+  requirements:
+    _permission: 'create recipes_list content'
+
+recipes.remove_from_list:
+  path: '/recipes/remove-from-list/{recipe_id}'
+  defaults:
+    _controller: '\Drupal\recipes\Controller\RecipeListController::RemoveFromList'
+  requirements:
+    _permission: 'create recipes_list content'
+
+recipes.make_shopping_list:
+  path: '/recipes/make-shopping-list'
+  defaults:
+    _title: 'Make shopping list'
+    _form: '\Drupal\recipes\Form\MakeShoppingList'
+  requirements:
+    _permission: 'access content'
+
+recipes.shopping_list:
+  path: '/recipes/shopping-list'
+  defaults:
+    _title: 'Shopping list'
+    _form: '\Drupal\recipes\Form\ShoppingListForm'
+  requirements:
+    _permission: 'access content'
+

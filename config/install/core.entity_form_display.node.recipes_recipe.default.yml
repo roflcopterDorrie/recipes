@@ -1,4 +1,3 @@
-uuid: 030047ab-6ebd-4dd0-927f-511ee3feda81
 langcode: en
 status: true
 dependencies:
@@ -12,13 +11,11 @@ dependencies:
     - inline_entity_form
     - media_library
     - path
-    - tagify
     - text
   enforced:
     module:
       - recipes
 _core:
-  default_config_hash: WKiW1iZhgRgQg3f7w9f7_MGWLm4xNaT0Ap2rR-YbJM4
 id: node.recipes_recipe.default
 targetEntityType: node
 bundle: recipes_recipe
@@ -39,7 +36,7 @@ content:
     third_party_settings: {  }
   field_recipes_ingredients:
     type: inline_entity_form_simple
-    weight: 6
+    weight: 7
     region: content
     settings:
       form_mode: default
@@ -52,25 +49,21 @@ content:
     third_party_settings: {  }
   field_recipes_steps:
     type: text_textarea
-    weight: 7
+    weight: 6
     region: content
     settings:
       rows: 5
       placeholder: ''
     third_party_settings: {  }
   field_recipes_tags:
-    type: tagify_entity_reference_autocomplete_widget
+    type: entity_reference_autocomplete_tags
     weight: 8
     region: content
     settings:
       match_operator: CONTAINS
       match_limit: 10
+      size: 60
       placeholder: ''
-      suggestions_dropdown: 1
-      show_entity_id: 0
-      show_info_label: 0
-      info_label: ''
-      parent_selection: 1
     third_party_settings: {  }
   path:
     type: path

@@ -3,3 +3,36 @@ recipes.settings:
   parent: system.admin_config_services
   route_name: recipes.settings
   weight: 10
+
+recipes.browse:
+  title: 'Browse recipes'
+  description: 'View all the recipes.'
+  route_name: view.recipes.browse
+  menu_name: recipes-recipes
+  weight: 0
+
+recipes.quick_create:
+  title: 'Quick create'
+  description: 'Quickly create a recipe from another website'
+  route_name: recipes.quick_create
+  menu_name: recipes-recipes
+  weight: 1
+
+recipes.my_list:
+  title: 'My list'
+  description: 'View all the recipes.'
+  route_name: view.recipes_recipe_list.list
+  menu_name: recipes-recipes
+  weight: 2
+
+recipes.make_shopping_list:
+  title: 'Make shopping list'
+  route_name: recipes.make_shopping_list
+  menu_name: recipes-recipes
+  weight: 3
+
+recipes.shopping_list:
+  title: 'Shopping list'
+  route_name: recipes.shopping_list
+  menu_name: recipes-recipes
+  weight: 4

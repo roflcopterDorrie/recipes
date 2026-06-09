@@ -1,4 +1,38 @@
 services:
-  recipes.recipe_data_validator:
-    class: Drupal\recipes\Validation\RecipeDataValidator
-    arguments: ['@config.factory']
+  recipes.data_validator:
+    class: Drupal\recipes\Services\RecipesDataValidator
+  recipes.data_extractor:
+    class: Drupal\recipes\Services\RecipesDataExtractor
+    arguments:
+      - '@recipes.data_validator'
+      - '@config.factory'
+      - '@ai.provider'
+      - '@entity_type.manager'
+      - '@http_client_factory'
+      - '@messenger'
+  recipes.entity_events:
+    class: '\Drupal\recipes\EventSubscriber\RecipesEntitySubscriber'
+    arguments: 
+      - '@entity_type.manager'
+      - '@current_user'
+    tags:
+      - { name: 'event_subscriber' }
+  recipes.form_events:
+    class: '\Drupal\recipes\EventSubscriber\RecipesFormSubscriber'
+    tags:
+      - { name: 'event_subscriber' }
+  recipes.views_events:
+    class: '\Drupal\recipes\EventSubscriber\RecipesViewsSubscriber'
+    tags:
+      - { name: 'event_subscriber' }    
+  recipes.uninstall_validator:
+    class: Drupal\recipes\Validator\RecipesUninstallValidator
+    tags:
+      - { name: module_install.uninstall_validator }
+  recipes.form_theme_negotiator:
+    class: Drupal\recipes\Theme\FormThemeNegotiator
+    arguments:
+      - '@config.factory'
+    tags:
+      - { name: theme_negotiator, priority: 1000 }
+

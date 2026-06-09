@@ -1,8 +1,10 @@
-# Schema for the configuration files of the Recipes module.
 recipes.settings:
   type: config_object
-  label: 'Recipes settings'
+  label: 'Recipes Settings'
   mapping:
-    example:
-      type: string
-      label: 'Example'
+    prompt:
+      type: text
+      label: 'Prompt text'
+    use_structured_json_ai_response:
+      type: boolean
+      label: 'Use structured JSON AI response'

@@ -1,14 +1,17 @@
-uuid: 1195efe0-77df-4cfe-862c-2d4240f2d80b
 langcode: en
 status: true
 dependencies:
   config:
-    - field.field.media.recipes_image.field_media_image
-    - image.style.max_650x650
+    - field.field.media.recipes_image.field_recipes_image
+    - image.style.large
     - media.type.recipes_image
   module:
-    - focal_point
+    - image
     - path
+  enforced:
+    module:
+      - recipes
+_core:
 id: media.recipes_image.default
 targetEntityType: media
 bundle: recipes_image
@@ -20,15 +23,13 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
-  field_media_image:
-    type: image_focal_point
+  field_recipes_image:
+    type: image_image
     weight: 1
     region: content
     settings:
       progress_indicator: throbber
-      preview_image_style: max_650x650
-      preview_link: true
-      offsets: '50,50'
+      preview_image_style: large
     third_party_settings: {  }
   name:
     type: string_textfield

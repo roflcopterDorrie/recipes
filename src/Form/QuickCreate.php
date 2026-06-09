@@ -7,20 +7,17 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\Node;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\recipes\Validation\RecipeDataValidator;
-use Drupal\Core\Config\ImmutableConfig;
-use Drupal\ai\Provider\ProviderPluginManager;
+use Drupal\recipes\Services\RecipesDataExtractor;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\ai\OperationType\Chat\ChatInput;
-use Drupal\ai\OperationType\Chat\ChatMessage;
-use Drupal\ai\AiProviderPluginManager;
-use Drupal\ai\Plugin\ProviderProxy;
-use Drupal\Core\Http\ClientFactory;
-use DOMDocument;
 use Drupal\taxonomy\Entity\Term;
 use Doctrine\Inflector\InflectorFactory;
 use PhpUnitsOfMeasure\PhysicalQuantity\Mass;
+use Drupal\media\Entity\Media;
+use Drupal\file\FileRepository;
+use Drupal\Core\File\FileSystem;
+use Drupal\Core\File\FileExists;
+use Drupal\Core\Session\AccountProxyInterface;
 
 /**
  * Implements an example form.
@@ -30,38 +27,24 @@ class QuickCreate extends FormBase
   use DependencySerializationTrait;
 
   public function __construct(
-    protected RecipeDataValidator $recipe_data_validator,
+    protected RecipesDataExtractor $recipes_data_extractor,
     protected ConfigFactoryInterface $config_factory,
-    protected AiProviderPluginManager $ai_provider,
     protected EntityTypeManagerInterface $entity_type_manager,
-    protected ClientFactory $httpClient,
-    protected ?ImmutableConfig $config = NULL,
-    protected ?ProviderProxy $ai_proxy_provider = NULL,
-    protected ?string $ai_model_id = ''
-  ) {
-    $this->recipe_data_validator = $recipe_data_validator;
-    $this->config_factory = $config_factory;
-    $this->ai_provider = $ai_provider;
-    $this->config = $this->config_factory->get('recipes.settings');
-  }
+    protected FileSystem $file_system,
+    protected FileRepository $file_repository,
+    protected AccountProxyInterface $current_user
+  ) {}
 
   public static function create(ContainerInterface $container)
   {
     return new static(
-      $container->get('recipes.recipe_data_validator'),
+      $container->get('recipes.data_extractor'),
       $container->get('config.factory'),
-      $container->get('ai.provider'),
       $container->get('entity_type.manager'),
-      $container->get('http_client_factory')
+      $container->get('file_system'),
+      $container->get('file.repository'),
+      $container->get('current_user'),
     );
-  }
-
-  protected function chat(ChatInput $messages) {
-    // Setup the AI model provider so we can use it.
-    $ai_provider_settings = $this->ai_provider->getDefaultProviderForOperationType('chat');
-    $ai_proxy_provider = $this->ai_provider->createInstance($ai_provider_settings['provider_id']);
-    $ai_model_id = $ai_provider_settings['model_id'];
-    return $ai_proxy_provider->chat($messages, $ai_model_id);
   }
 
   /**
@@ -69,7 +52,7 @@ class QuickCreate extends FormBase
    */
   public function getFormId()
   {
-    return 'quick_create_form';
+    return 'recipes_quick_create_form';
   }
 
   public function buildForm(array $form, FormStateInterface $form_state)
@@ -85,7 +68,22 @@ class QuickCreate extends FormBase
       $form['url'] = [
         '#type' => 'url',
         '#title' => $this->t('Recipe URL'),
-        '#required' => TRUE,
+      ];
+
+      $form['or_markup'] = [
+        '#type' => 'markup',
+        '#markup' => " <h2>OR</h2>"
+      ];
+
+      $form['data'] = [
+        '#type' => 'textarea',
+        '#title' => $this->t('Recipe information'),
+      ];
+
+      $form['gen_ai_image'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t("Generate an image"),
+        '#default_value' => TRUE,
       ];
 
       $form['actions']['extract'] = [
@@ -97,10 +95,6 @@ class QuickCreate extends FormBase
 
       $extracted_recipe = $form_state->get('extracted_recipe');
 
-      // $form['preview_recipe_json'] = [
-      //   '#markup' => json_encode($extracted_recipe)
-      // ];
-
       // Preview the recipe to the user before it is saved.
       $form['preview_recipe'] = [
         '#theme' => 'recipe_preview',
@@ -109,23 +103,38 @@ class QuickCreate extends FormBase
 
       // I want to build up a form that the user can edit here in case the AI doesn't quite work.
 
-      $form['edited_recipe_title'] = [
+      $form['edited_recipe'] = [
+        '#type' => 'details',
+        '#title' => $this->t('Adjust recipe'),
+        '#open' => FALSE, // Collapsed by default
+      ];
+
+
+      $form['edited_recipe']['edited_recipe_title'] = [
         '#type' => 'textfield',
         '#title' => $this->t('Title'),
         '#default_value' => $extracted_recipe->title,
+        '#required' => TRUE,
       ];
 
-      $form['edited_ingredients_list'] = [
-        '#type' => 'fieldset',
+      $form['edited_recipe']['edited_recipe_image'] = [
+        '#type' => 'textfield',
+        '#title' => $this->t('Image URL'),
+        '#default_value' => $extracted_recipe->image_url,
+      ];
+
+      $form['edited_recipe']['edited_ingredients_list'] = [
+        '#type' => 'details',
         '#title' => $this->t('Ingredients'),
         '#tree' => TRUE,
+        '#open' => TRUE,
       ];
 
       foreach ($extracted_recipe->ingredients as $delta => $data) {
-        $form['edited_ingredients_list'][$delta] = [
+        $form['edited_recipe']['edited_ingredients_list'][$delta] = [
           '#type' => 'container',
           '#attributes' => ['class' => ['container-inline']], // Keeps fields on one line
-          
+
           'amount' => [
             '#type' => 'textfield',
             '#title' => $this->t('Amount'),
@@ -134,8 +143,8 @@ class QuickCreate extends FormBase
           ],
           'name' => [
             '#type' => 'textfield',
-            '#title' => $this->t('Ingredient'),
-            '#default_value' => $data->ingredient ?? '',
+            '#title' => $this->t('Name'),
+            '#default_value' => $data->name ?? '',
             '#size' => 7,
           ],
           'extra' => [
@@ -154,14 +163,15 @@ class QuickCreate extends FormBase
         ];
       }
 
-      $form['edited_steps_list'] = [
-        '#type' => 'fieldset',
+      $form['edited_recipe']['edited_steps_list'] = [
+        '#type' => 'details',
         '#title' => $this->t('Steps'),
         '#tree' => TRUE,
+        '#open' => TRUE,
       ];
 
       foreach ($extracted_recipe->steps as $delta => $data) {
-        $form['edited_steps_list'][$delta] = [
+        $form['edited_recipe']['edited_steps_list'][$delta] = [
           '#type' => 'container',
           'step' => [
             '#type' => 'textarea',
@@ -170,6 +180,23 @@ class QuickCreate extends FormBase
           ],
         ];
       }
+
+      $form['debug'] = [
+        '#type' => 'details',
+        '#title' => $this->t('Debug'),
+        '#open' => FALSE, // Collapsed by default
+      ];
+
+      $form['debug']['json'] = [
+        '#type' => 'item',
+        '#title' => $this->t('json'),
+        '#markup' => json_encode($extracted_recipe)
+      ];
+      $form['debug']['prompt'] = [
+        '#type' => 'item',
+        '#title' => $this->t('Prompt'),
+        '#markup' => $form_state->get('debug_prompt')
+      ];
 
       $form['actions']['save'] = [
         '#type' => 'submit',
@@ -188,78 +215,51 @@ class QuickCreate extends FormBase
     return $form;
   }
 
+  public function validateForm(array &$form, FormStateInterface $form_state)
+  {
+    $step = $form_state->get('step') ?: 1;
+    if ($step == 1) {
+      // Extract the submitted value using the field's machine name
+      $url = $form_state->getValue('url');
+
+      // If $url is empty, then we check if text has been filled out.
+      if (empty($url)) {
+        $data = $form_state->getValue('data');
+
+        if (empty($data)) {
+          $form_state->setErrorByName('url', $this->t('You must fill in either URL or Recipe information.'));
+        }
+      }
+    }
+  }
+
 
   public function submitExtract(array &$form, FormStateInterface $form_state)
   {
 
-    $prompt = $this->config->get('prompt');
+    $url = $form_state->getValue('url');
+    $data = $form_state->getValue('data');
+    $extracted_recipe = NULL;
 
-    $ingredientAisles = [];
-    $ingredientAisleTerms = $this->entity_type_manager->getStorage('taxonomy_term')->loadByProperties(['vid' => 'recipes_ingredient_aisle']);
-    foreach ($ingredientAisleTerms as $ingredientAisle) {
-      $ingredientAisles[] = '- ' . $ingredientAisle->getName() . ': ' . $ingredientAisle->getDescription() . PHP_EOL;
+    if (!empty($url)) {
+      $extracted_recipe = $this->recipes_data_extractor->extractRecipeFromUrl($url);
+      // DEBUG.
+      $debug_html = $this->recipes_data_extractor->getDataFromUrl($url);
+      $debug_recipe_text = $this->recipes_data_extractor->getBodyText($debug_html);
+    } elseif (!empty($data)) {
+      $extracted_recipe = $this->recipes_data_extractor->extractRecipeFromText($data);
+      // DEBUG.
+      $debug_recipe_text = $data;
     }
 
-    try {
-      $client = $this->httpClient->fromOptions();
-      $response = $client->request('GET', $form_state->getValue('url'), [
-        'timeout' => 10,
-        'headers' => [
-          'User-Agent' => 'Drupal Recipe Scraper/1.0',
-        ],
-      ]);
+    if (isset($extracted_recipe) && $extracted_recipe !== FALSE) {
+      $form_state->set('extracted_recipe', $extracted_recipe);
+      $form_state->set('step', 2);
 
-      $html = $response->getBody()->getContents();
+      // DEBUG.
+      $prompt = $this->recipes_data_extractor->generatePrompt($debug_recipe_text);
 
-      $dom = new DOMDocument();
-      @$dom->loadHTML($html);
-
-      $removeTags = ['script', 'style', 'noscript'];
-
-      foreach ($removeTags as $tagName) {
-        $nodes = $dom->getElementsByTagName($tagName);
-        while ($nodes->length > 0) {
-          $node = $nodes->item(0);
-          $node->parentNode->removeChild($node);
-        }
-      }
-
-      $body = $dom->getElementsByTagName('body')->item(0);
-      $recipe_website_text = $body->nodeValue;
-
-      $sanitisedPrompt = t($prompt, [
-        '@website_text' => $recipe_website_text,
-        '@ingredient_aisle_taxonomy' => implode(" ", $ingredientAisles),
-        '@schema' => $this->recipe_data_validator->getSchema()
-      ]);
-
-      $messages = new ChatInput([
-        new ChatMessage('user', $sanitisedPrompt->__toString()),
-      ]);
-
-      $response = $this->chat($messages);
-      $return_message = $response->getNormalized();
-
-      $recipe_text = $return_message->getText();
-
-      //$recipe_text = '{ "title": "Vegan Shepherd\u2019s Pie with Gravy", "ingredients": [ { "amount": "3 lb.", "ingredient": "potatoes", "category": "Fresh Fruits and Vegetables", "extra": "(I used a bag of organic red potatoes), peeled and chopped" }, { "amount": "4 ounces", "ingredient": "Garlic", "category": "Oils", "extra": "or equivalent" }, { "amount": "1/3 cup + 2 tbsp", "ingredient": "non-dairy milk", "category": "Plant based Milk", "extra": "(I used soy)" }, { "amount": "1 pound", "ingredient": "kosher salt", "category": "Spices and Seasoning", "extra": "or to taste" }, { "amount": "to taste", "ingredient": "Freshly ground black pepper", "category": "Spices and Seasoning", "extra": null }, { "amount": "1/2 tsp", "ingredient": "garlic powder", "category": "Spices and Seasoning", "extra": null }, { "amount": "2 tbsp", "ingredient": "extra virgin olive oil", "category": "Oils", "extra": null }, { "amount": "1", "ingredient": "yellow onion", "category": "Fresh Fruits and Vegetables", "extra": "finely chopped" }, { "amount": "3 cloves", "ingredient": "garlic", "category": "Fresh Fruits and Vegetables", "extra": "minced" }, { "amount": "4 medium", "ingredient": "carrots", "category": "Fresh Fruits and Vegetables", "extra": "peeled & small dice" }, { "amount": "2", "ingredient": "parsnips", "category": "Fresh Fruits and Vegetables", "extra": "or other root vegetable, peeled & small dice" }, { "amount": "4", "ingredient": "celery stalks", "category": "Fresh Fruits and Vegetables", "extra": "small dice" }, { "amount": "1 cup", "ingredient": "full sodium vegetable broth", "category": "Stock", "extra": "(or more as needed)" }, { "amount": "1/4 cup", "ingredient": "red wine", "category": "Condiments", "extra": "(or more broth)" }, { "amount": "2 tsp", "ingredient": "dried thyme", "category": "Herbs", "extra": null }, { "amount": "1/2 tsp", "ingredient": "Italian seasoning", "category": "Spices and Seasoning", "extra": null }, { "amount": "1/2-3/4 tsp", "ingredient": "kosher salt", "category": "Spices and Seasoning", "extra": "to taste + black pepper" }, { "amount": "3 tbsp", "ingredient": "flour", "category": "Baking Ingredients", "extra": "(I used whole wheat)" }, { "amount": null, "ingredient": "paprika", "category": "Spices and Seasoning", "extra": "garnish" }, { "amount": null, "ingredient": "ground pepper", "category": "Spices and Seasoning", "extra": "garnish" }, { "amount": null, "ingredient": "Thyme", "category": "Herbs", "extra": "garnish" } ], "steps": [ "Preheat oven to 425\u00b0F and lightly oil a 2.5 quart/2.3 litre casserole dish.", "Place peeled and chopped potatoes into a large pot and add water, 2 inches above potatoes.", "Bring to a boil and then simmer on low for about 30 minutes until very tender.", "Meanwhile, prepare the vegetable filling.", "Chop the onion and mince the garlic and add to a skillet along with the oil.", "Cook on low for about 5-7 minutes.", "Now add in the chopped carrots, parsnip, and celery.", "Cook on medium-low heat for about 15 minutes.", "When the potatoes are done cooking, drain and add back to the pot.", "Add the Earth Balance (or butter), milk, and seasonings and mash well.", "Set aside.", "In a small bowl, whisk together the liquid ingredients (broth, red wine (optional), thyme, and flour).", "Add this liquid mixture to the vegetables in the skillet and stir well.", "Add your salt and pepper to taste.", "Cook for another 5-10 minutes or so until thickened.", "Season to taste.", "Scoop vegetable mixture into casserole dish.", "Spread on the mashed potato mixture and garnish with paprika, ground pepper, and Thyme.", "Bake at 425\u00b0F for about 35 minutes, or until golden and bubbly.", "Allow to cool for at least 10 minutes before serving." ] }';
-      
-      $extracted_recipe = $this->recipe_data_validator->extract($recipe_text);
-      $result = $this->recipe_data_validator->validate($extracted_recipe, $this->recipe_data_validator->getSchema());
-      if ($result->isValid()) {
-        $form_state->set('extracted_recipe', $extracted_recipe);
-        $form_state->set('step', 2);
-      } else {
-        $form_state->set('step', 1);
-
-        foreach ($result->error()->subErrors() as $error) {
-          $this->messenger()->addError(t('Validation error: @msg', ['@msg' => $error->message()]));
-          $this->messenger()->addError($recipe_text);
-        }
-      }
-    } catch (\Exception $e) {
-      $this->messenger()->addError($this->t('Could not fetch the URL: @error', ['@error' => $e->getMessage()]));
-      return $form_state->setRebuild();
+      $form_state->set('debug_prompt', $prompt);
     }
 
     return $form_state->setRebuild();
@@ -269,15 +269,13 @@ class QuickCreate extends FormBase
   public function submitSave(array &$form, FormStateInterface $form_state)
   {
 
-    $recipe = $form_state->get('extracted_recipe');
-
-    // Generate and save the Recipe.
+    // Create Recipe.
     $recipe_node = Node::create([
       'type' => 'recipes_recipe',
       'title' => $form_state->getValue('edited_recipe_title'),
     ]);
 
-    // Ingredients.
+    // INGREDIENTS.
     $ingredient_references = [];
     foreach ($form_state->getValue('edited_ingredients_list') as $ingredient) {
 
@@ -344,16 +342,50 @@ class QuickCreate extends FormBase
     }
     $recipe_node->set('field_recipes_ingredients', $ingredient_references);
 
-    // Steps.
+    // STEPS.
     $step_data = [];
     $steps =  $form_state->getValue('edited_steps_list');
-    foreach($steps as $step){
+    foreach ($steps as $step) {
       $step_data[] = $step['step'];
     }
     $recipe_node->set('field_recipes_steps', $step_data);
 
+    // IMAGE.
+    $image_url = $form_state->getValue('edited_recipe_image');
+    if (!empty($image_url)) {
+      $image_data = $this->recipes_data_extractor->getDataFromUrl($image_url);
+
+      $filename = basename(parse_url($image_url, PHP_URL_PATH));
+
+      $directory = 'public://recipes';
+      $this->file_system->prepareDirectory($directory, FileSystem::CREATE_DIRECTORY);
+
+      /** @var \Drupal\file\FileInterface $file */
+      $file = $this->file_repository->writeData($image_data, "$directory/$filename", FileExists::Replace);
+
+      if (!$file) {
+        return null;
+      }
+
+      $media_image = Media::create([
+        'bundle' => 'recipes_image',
+        'uid' => $this->current_user->id(),
+        'name' => $filename,
+        'status' => 1,
+        'field_recipes_image' => [
+          'target_id' => $file->id(),
+          'alt' => 'Scraped Recipe Image',
+        ],
+      ]);
+
+      $media_image->save();
+      $recipe_node->set('field_recipes_image', $media_image);
+    }
+
+    // Save the recipe.
     $recipe_node->save();
 
+    // Redirect to the newly created recipe.
     $form_state->setRedirect('entity.node.canonical', ['node' => $recipe_node->id()]);
   }
 

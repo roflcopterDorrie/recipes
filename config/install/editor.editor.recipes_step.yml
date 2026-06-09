@@ -1,0 +1,21 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - filter.format.recipes_step
+  module:
+    - ckeditor5
+  enforced:
+    module:
+      - recipes
+_core:
+format: recipes_step
+editor: ckeditor5
+settings:
+  toolbar:
+    items:
+      - bold
+      - insertIngredient
+  plugins: {  }
+image_upload:
+  status: false

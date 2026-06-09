@@ -1,15 +1,17 @@
 name: Recipes
 description: Create and cook recipes.
-package: Custom
+package: Contrib
 
 type: module
-core_version_requirement: ^10
+core_version_requirement: ^10 | ^11
 
 dependencies:
-  - drupal:link
-  - drupal:views
   - ai:ai
+  - hook_event_dispatcher:hook_event_dispatcher
+  - core_event_dispatcher:core_event_dispatcher
+  - views_event_dispatcher:views_event_dispatcher
+  - media_library:media_library
+  - pathauto:pathauto
   - inline_entity_form:inline_entity_form
-  - drupal:focal_point
 
 php: 8.2

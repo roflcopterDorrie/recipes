@@ -1,4 +1,3 @@
-uuid: fa979ff9-f966-4411-a2f6-7c85c0d992e9
 langcode: en
 status: true
 dependencies:
@@ -10,7 +9,6 @@ dependencies:
     module:
       - recipes
 _core:
-  default_config_hash: rKhhKCk95kfiNSuKbL9UaiLqfKYWZ28eZXArGI_lUNc
 id: node.recipes_ingredient.field_recipes_ingredient
 field_name: field_recipes_ingredient
 entity_type: node

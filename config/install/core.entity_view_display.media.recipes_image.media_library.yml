@@ -1,14 +1,17 @@
-uuid: c3e7be22-11c1-46af-90bb-ba1d57b249da
 langcode: en
 status: true
 dependencies:
   config:
     - core.entity_view_mode.media.media_library
-    - field.field.media.recipes_image.field_media_image
+    - field.field.media.recipes_image.field_recipes_image
     - image.style.recipes_thumbnail
     - media.type.recipes_image
   module:
     - image
+  enforced:
+    module:
+      - recipes
+_core:
 id: media.recipes_image.media_library
 targetEntityType: media
 bundle: recipes_image
@@ -27,6 +30,6 @@ content:
     region: content
 hidden:
   created: true
-  field_media_image: true
+  field_recipes_image: true
   name: true
   uid: true
