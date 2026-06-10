@@ -19,14 +19,14 @@ recipes.add_to_list:
   defaults:
     _controller: '\Drupal\recipes\Controller\RecipeListController::AddToList'
   requirements:
-    _permission: 'create recipes_list content'
+    _permission: 'use own recipe lists'
 
 recipes.remove_from_list:
   path: '/recipes/remove-from-list/{recipe_id}'
   defaults:
     _controller: '\Drupal\recipes\Controller\RecipeListController::RemoveFromList'
   requirements:
-    _permission: 'create recipes_list content'
+    _permission: 'use own recipe lists'
 
 recipes.make_shopping_list:
   path: '/recipes/make-shopping-list'
@@ -34,7 +34,7 @@ recipes.make_shopping_list:
     _title: 'Make shopping list'
     _form: '\Drupal\recipes\Form\MakeShoppingList'
   requirements:
-    _permission: 'access content'
+    _permission: 'use own recipe lists'
 
 recipes.shopping_list:
   path: '/recipes/shopping-list'
@@ -42,5 +42,5 @@ recipes.shopping_list:
     _title: 'Shopping list'
     _form: '\Drupal\recipes\Form\ShoppingListForm'
   requirements:
-    _permission: 'access content'
+    _permission: 'use own recipe lists'
 

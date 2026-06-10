@@ -111,11 +111,13 @@ class RecipesDataExtractor
 
   public function extractRecipeFromUrl(string $url): bool|object {
     $html = $this->getDataFromUrl($url);
-    $main_image = $this->getMainImageUrl($html);
     $body = $this->getBodyText($html);
-    $recipe_text = $this->useAiToExtractRecipe($body);
-    $recipe_text = $this->addImageToJson($recipe_text, $main_image);
-    $validation = $this->validateJson($recipe_text);
+    $recipe_json = $this->useAiToExtractRecipe($body);
+    // Add image if available.
+    if ($main_image = $this->getMainImageUrl($html)) {
+      $recipe_json = $this->addImageToJson($recipe_json, $main_image);
+    }
+    $validation = $this->validateJson($recipe_json);
     if ($validation === FALSE) {
       $prompt = $this->generatePrompt($body);
       $this->messenger->addError(t('Prompt: @prompt', ['@prompt' => $prompt]));

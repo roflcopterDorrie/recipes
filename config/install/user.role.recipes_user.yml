@@ -12,6 +12,8 @@ dependencies:
     - filter
     - media
     - node
+    - recipes
+    - system
     - taxonomy
   enforced:
     module:
@@ -22,6 +24,9 @@ label: 'Recipe user'
 weight: 4
 is_admin: false
 permissions:
+  - 'access administration pages'
+  - 'cancel account'
+  - 'change own username'
   - 'create recipes_image media'
   - 'create recipes_ingredient content'
   - 'create recipes_recipe content'
@@ -38,9 +43,11 @@ permissions:
   - 'edit own recipes_recipe content'
   - 'revert recipes_ingredient revisions'
   - 'revert recipes_recipe revisions'
+  - 'use own recipe lists'
   - 'use text format recipes_step'
   - 'view any recipes_image media revisions'
   - 'view own unpublished content'
   - 'view own unpublished media'
   - 'view recipes_ingredient revisions'
   - 'view recipes_recipe revisions'
+  - 'view the administration theme'
