@@ -150,10 +150,14 @@ display:
       filters: {  }
       style:
         type: default
+        options:
+          grouping: {  }
+          row_class: ''
+          default_row_class: false
       row:
         type: fields
         options:
-          default_field_elements: true
+          default_field_elements: false
           inline: {  }
           separator: ''
           hide_empty: false
@@ -176,7 +180,7 @@ display:
           admin_label: ''
           plugin_id: text_custom
           empty: false
-          content: '<a href="/recipes/make-shopping-list">Make shopping list</a>'
+          content: '<a href="/recipes/make-shopping-list" class="button">Make shopping list</a>'
           tokenize: false
       footer: {  }
       display_extenders: {  }

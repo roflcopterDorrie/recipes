@@ -325,23 +325,10 @@ display:
           admin_label: Ingredient
           plugin_id: standard
           required: true
-      css_class: recipes-card-list
+      css_class: ''
       use_ajax: true
       group_by: true
-      header:
-        area:
-          id: area
-          table: views
-          field: area
-          relationship: none
-          group_type: group
-          admin_label: ''
-          plugin_id: text
-          empty: true
-          content:
-            value: '<a href="/admin/recipes/quick-create">Create recipe</a>'
-            format: basic_html
-          tokenize: false
+      header: {  }
       footer: {  }
       display_extenders: {  }
     cache_metadata:
