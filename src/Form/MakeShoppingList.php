@@ -8,9 +8,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
-use Drupal\recipes\Entity\ShoppingList;
-use Drupal\recipes\Entity\ShoppingListItem;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Drupal\recipes\Services\ShoppingList as ServicesShoppingList;
 
 /**
  * Implements an form to generate a Shopping List.
@@ -21,7 +19,8 @@ class MakeShoppingList extends FormBase
 
   public function __construct(
     protected EntityTypeManagerInterface $entity_type_manager,
-    protected AccountProxyInterface $current_user
+    protected AccountProxyInterface $current_user,
+    protected ServicesShoppingList $shopping_list,
   ) {}
 
   public static function create(ContainerInterface $container)
@@ -29,6 +28,7 @@ class MakeShoppingList extends FormBase
     return new static(
       $container->get('entity_type.manager'),
       $container->get('current_user'),
+      $container->get('recipes.shopping_list'),
     );
   }
 
@@ -97,57 +97,19 @@ class MakeShoppingList extends FormBase
 
   public function submitSave(array &$form, FormStateInterface $form_state)
   {
-    // Remove any previous shopping list.
-    $storage = $this->entity_type_manager->getStorage('recipes_shopping_list');
-    $entities = $storage->loadByProperties([
-      'uid' => $this->current_user->id(),
-    ]);
-    $shopping_list = reset($entities) ?: NULL;
-    if ($shopping_list) {
-      // Make sure the user has permission to delete this shopping list.
-      if (!$shopping_list->access('delete', $this->current_user)) {
-        $this->messenger()->addError('You do not have permission to delete this shopping list.');
-        return;
-      }
-      $shopping_list->delete();
+    $shopping_list = $this->shopping_list->load($this->current_user);
+
+    $ingredient_ids = [];
+    foreach($form_state->getValue('recipes') as $recipe_ingredient_ids) {
+      
+      $ingredient_ids += array_filter($recipe_ingredient_ids, function ($value) {
+        return $value === 1;
+      });
+      
     }
 
-    // Check permissions to create shopping lists.
-    $list_access_control_handler = $this->entity_type_manager->getAccessControlHandler('recipes_shopping_list');
-    if (!$list_access_control_handler->createAccess(NULL, $this->current_user)) {
-      $this->messenger()->addError('You do not have permission to create a new shopping list.');
-        return;
-    }
-    // Create new shopping list.
-    $shopping_list = ShoppingList::create([
-      'name' => 'Shopping list for ' . $this->current_user->id(),
-      'uid' => $this->current_user->id(),
-    ]);
-    $shopping_list->save();
-
-    // Check permissions to create ShoppingListItems.
-    $list_item_access_control_handler = $this->entity_type_manager->getAccessControlHandler('recipes_shopping_list_item');
-    if (!$list_item_access_control_handler->createAccess(NULL, $this->current_user)) {
-      $this->messenger()->addError('You do not have permission to create a new shopping list item.');
-        return;
-    }
-    // Create all the items in the list.
-    foreach($form_state->getValue('recipes') as $recipe_id => $ingredient_ids) {
-      foreach($ingredient_ids as $ingredient_id => $checked) {
-        if ($checked == 1) {
-          $shopping_list_item = ShoppingListItem::create([
-            'label' => 'Shopping list item',
-            'recipes_shopping_list_id' => ['target_id' => $shopping_list->id()],
-            'recipes_ingredient_id' => ['target_id' => $ingredient_id],
-            'collected' => FALSE,
-            'uid' => $this->current_user->id(),
-          ]);
-          $shopping_list_item->save();
-        }
-      }
-    }
-
-    
+    $shopping_list->clear();
+    $shopping_list->addIngredients(array_keys($ingredient_ids));
 
     $form_state->setRedirect('recipes.shopping_list');
   }

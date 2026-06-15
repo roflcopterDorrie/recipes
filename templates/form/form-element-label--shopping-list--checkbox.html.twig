@@ -2,8 +2,10 @@
   <span class="item-text">
     <span class="marker">-</span>
     <span class="ingredient">{{ingredient}}</span>
-    <span class="marker">-</span>
-    <span class="amount">{{amount}}</span>
+    {% if amount %}
+      <span class="marker">-</span>
+      <span class="amount">{{amount}}</span>
+    {% endif %}
 
     {% if extra %}
     <span class="extra">({{extra}})</span>

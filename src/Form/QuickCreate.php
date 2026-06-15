@@ -10,14 +10,13 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\recipes\Services\RecipesDataExtractor;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\taxonomy\Entity\Term;
-use Doctrine\Inflector\InflectorFactory;
-use PhpUnitsOfMeasure\PhysicalQuantity\Mass;
+
 use Drupal\media\Entity\Media;
 use Drupal\file\FileRepository;
 use Drupal\Core\File\FileSystem;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\recipes\Services\Ingredient;
 
 /**
  * Implements an example form.
@@ -32,7 +31,8 @@ class QuickCreate extends FormBase
     protected EntityTypeManagerInterface $entity_type_manager,
     protected FileSystem $file_system,
     protected FileRepository $file_repository,
-    protected AccountProxyInterface $current_user
+    protected AccountProxyInterface $current_user,
+    protected Ingredient $ingredient
   ) {}
 
   public static function create(ContainerInterface $container)
@@ -44,6 +44,7 @@ class QuickCreate extends FormBase
       $container->get('file_system'),
       $container->get('file.repository'),
       $container->get('current_user'),
+      $container->get('recipes.ingredient'),
     );
   }
 
@@ -278,66 +279,7 @@ class QuickCreate extends FormBase
     // INGREDIENTS.
     $ingredient_references = [];
     foreach ($form_state->getValue('edited_ingredients_list') as $ingredient) {
-
-      // Find this ingredient in our taxonomy, or if it doesn't exist, create it.
-      $ingredient_term_id = null;
-
-      // We only want to save the singular version of the ingredient name to help 
-      // control the data. We will display the plural if need when viewing the ingredient.
-      $inflector = InflectorFactory::create()->build();
-      $ingredient_singular = strtolower($inflector->singularize($ingredient['name']));
-
-      $ingredient_terms = $this->entity_type_manager->getStorage('taxonomy_term')->loadByProperties([
-        'name' => $ingredient_singular,
-        'vid' => 'recipes_ingredient',
-      ]);
-      if (!empty($ingredient_terms)) {
-        $ingredient_term = reset($ingredient_terms);
-        $ingredient_term_id = $ingredient_term->id();
-      } else {
-        $ingredient_term = Term::create([
-          'vid' => 'recipes_ingredient',
-          'name' => $ingredient_singular,
-        ]);
-        $ingredient_term->save();
-        $ingredient_term_id = $ingredient_term->id();
-      }
-
-      // Convert from imperial to metric for measurements.
-      $ingredient_amount = $ingredient['amount'];
-      if (isset($ingredient['amount']) && $ingredient_amount !== null) {
-        $pattern = '/(\d+(?:\/\d+)?|[\d\.]+)\s*(lb|lbs|pound|pounds|oz|ounce|ounces)\b/i';
-        if (preg_match($pattern, $ingredient_amount, $match)) {
-          $quantity_text = $match[1];
-          $unit = strtolower($match[2]);
-
-          $quantity = new Mass($quantity_text, $unit);
-          if ($quantity->toUnit('kg') < 1) {
-            $ingredient_amount = number_format($quantity->toUnit('g'), 0) . " grams";
-          } else {
-            $ingredient_amount = number_format($quantity->toUnit('kg'), 2) . " kgs";
-          }
-        }
-      }
-
-      $ingredient_node = Node::create([
-        'type' => 'recipes_ingredient',
-        'title' => $ingredient_singular,
-        'field_recipes_ingredient' => ['target_id' => $ingredient_term_id],
-        'field_recipes_ingredient_amount' => $ingredient_amount,
-        'field_recipes_ingredient_extra' => $ingredient['extra'] ?? null,
-      ]);
-
-      $ingredient_aisles = $this->entity_type_manager->getStorage('taxonomy_term')->loadByProperties([
-        'name' => $ingredient['category'],
-        'vid' => 'recipes_ingredient_aisle',
-      ]);
-      if (!empty($ingredient_aisles)) {
-        $ingredient_aisle = reset($ingredient_aisles);
-        $ingredient_node->set('field_recipes_ingredient_aisle', $ingredient_aisle->id());
-      }
-
-      $ingredient_node->save();
+      $ingredient_node = $this->ingredient->create($ingredient);
       $ingredient_references[] = ['target_id' => $ingredient_node->id()];
     }
     $recipe_node->set('field_recipes_ingredients', $ingredient_references);

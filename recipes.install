@@ -75,6 +75,10 @@ function recipes_install() {
         'name' => 'Asian Ingredients',
         'description' => 'Items typically found in the Asian or international aisle. Includes soy sauce, coconut milk, curry pastes, rice noodles, mirin, fish sauce.',
     ],
+    [
+        'name' => 'Custom',
+        'description' => 'Manually entered ingredients.',
+    ],
 ];
 
   foreach ($categories as $category) {

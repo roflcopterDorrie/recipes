@@ -10,6 +10,8 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\MessageCommand;
+use Drupal\recipes\Services\ShoppingList;
+use Drupal\recipes\Services\Ingredient;
 
 /**
  * Implements an form to generate a Shopping List.
@@ -20,17 +22,18 @@ class ShoppingListForm extends FormBase
 
   public function __construct(
     protected EntityTypeManagerInterface $entity_type_manager,
-    protected AccountProxyInterface $current_user
-  ) {
-    $this->entity_type_manager = $entity_type_manager;
-    $this->current_user = $current_user;
-  }
+    protected AccountProxyInterface $current_user,
+    protected Ingredient $ingredient,
+    protected ShoppingList $shopping_list,
+  ) {}
 
   public static function create(ContainerInterface $container)
   {
     return new static(
       $container->get('entity_type.manager'),
       $container->get('current_user'),
+      $container->get('recipes.ingredient'),
+      $container->get('recipes.shopping_list'),
     );
   }
 
@@ -48,19 +51,8 @@ class ShoppingListForm extends FormBase
     $form['#suffix'] = '</div>';
 
     // Load up the user's list.
-    $storage = $this->entity_type_manager->getStorage('recipes_shopping_list');
-    $entities = $storage->loadByProperties([
-      'uid' => $this->current_user->id(),
-    ]);
-    $shopping_list = reset($entities) ?: NULL;
+    $shopping_list = $this->shopping_list->load($this->current_user);
     if ($shopping_list) {
-
-      // Load up all the shopping list items.
-      $storage = $this->entity_type_manager->getStorage('recipes_shopping_list_item');
-      $shopping_list_items = $storage->loadByProperties([
-        'recipes_shopping_list_id' => $shopping_list->id(),
-      ]);
-
       $form['shopping_list_items'] = [
         '#type' => 'container',
         '#tree' => TRUE,
@@ -70,7 +62,7 @@ class ShoppingListForm extends FormBase
 
       $grouped = [];
 
-      foreach ($shopping_list_items as $shopping_list_item) {
+      foreach ($shopping_list->ingredients as $shopping_list_item) {
         $ingredient = $shopping_list_item->get('recipes_ingredient_id')->referencedEntities();
         $ingredient = reset($ingredient);
         $ingredient_term = $ingredient->get('field_recipes_ingredient')->referencedEntities();
@@ -109,6 +101,12 @@ class ShoppingListForm extends FormBase
       }
     }
 
+    // Create an ad hoc list that the user can add ingredients to.
+    $form['ad_hoc_ingredients'] = [
+      '#type' => 'textarea',
+      '#title' => 'Extra'
+    ];
+
     $form['actions']['save'] = [
       '#type' => 'submit',
       '#value' => $this->t('Save'),
@@ -143,10 +141,7 @@ class ShoppingListForm extends FormBase
         ['type' => 'error']
       ));
     }
-
     return $response;
-
-    
   }
 
   public function submitSave(array &$form, FormStateInterface $form_state)
@@ -162,6 +157,22 @@ class ShoppingListForm extends FormBase
         $shopping_list_item->save();
       }
     }
+
+    // Handle extra ingredients.
+    $extra = $form_state->getValue('ad_hoc_ingredients');
+    if (!empty($extra)) {
+      $ingredient_ids = [];
+      // Split up ingredients per line.
+      $ingredients = explode("\n", $extra);
+      foreach ($ingredients as $ingredient) {
+        $ingredient_node = $this->ingredient->create(['name' => $ingredient, 'category' => "Custom"]);
+        $ingredient_ids[] = $ingredient_node->id();
+      }
+
+      $shopping_list = $this->shopping_list->load($this->current_user);
+      $shopping_list->addIngredients($ingredient_ids);
+    }
+
   }
 
   public function submitForm(array &$form, FormStateInterface $form_state) {}

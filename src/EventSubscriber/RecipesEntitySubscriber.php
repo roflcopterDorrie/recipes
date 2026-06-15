@@ -72,6 +72,8 @@ class RecipesEntitySubscriber implements EventSubscriberInterface
         $list->save();
       }
     }
+
+    // Remove all shopping list items if a shopping list is deleted. 
   }
 
   /**
