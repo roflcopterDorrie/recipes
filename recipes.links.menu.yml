@@ -25,12 +25,6 @@ recipes.my_list:
   menu_name: recipes-recipes
   weight: 2
 
-recipes.make_shopping_list:
-  title: 'Make shopping list'
-  route_name: recipes.make_shopping_list
-  menu_name: recipes-recipes
-  weight: 3
-
 recipes.shopping_list:
   title: 'Shopping list'
   route_name: recipes.shopping_list
