@@ -13,5 +13,6 @@ dependencies:
   - media_library:media_library
   - pathauto:pathauto
   - inline_entity_form:inline_entity_form
+  - better_exposed_filters:better_exposed_filters
 
 php: 8.2
