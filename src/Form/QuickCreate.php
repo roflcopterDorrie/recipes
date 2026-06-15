@@ -81,8 +81,8 @@ class QuickCreate extends FormBase
       ];
 
       $form['gen_ai_image'] = [
-        '#type' => 'checkbox',
-        '#title' => $this->t("Generate an image"),
+        '#type' => 'url',
+        '#title' => $this->t("Image URL"),
         '#default_value' => TRUE,
       ];
 
@@ -104,7 +104,7 @@ class QuickCreate extends FormBase
       // I want to build up a form that the user can edit here in case the AI doesn't quite work.
 
       $form['edited_recipe'] = [
-        '#type' => 'details',
+        '#type' => 'fieldset',
         '#title' => $this->t('Adjust recipe'),
         '#open' => FALSE, // Collapsed by default
       ];
@@ -124,7 +124,7 @@ class QuickCreate extends FormBase
       ];
 
       $form['edited_recipe']['edited_ingredients_list'] = [
-        '#type' => 'details',
+        '#type' => 'fieldset',
         '#title' => $this->t('Ingredients'),
         '#tree' => TRUE,
         '#open' => TRUE,
@@ -164,7 +164,7 @@ class QuickCreate extends FormBase
       }
 
       $form['edited_recipe']['edited_steps_list'] = [
-        '#type' => 'details',
+        '#type' => 'fieldset',
         '#title' => $this->t('Steps'),
         '#tree' => TRUE,
         '#open' => TRUE,
@@ -182,7 +182,7 @@ class QuickCreate extends FormBase
       }
 
       $form['debug'] = [
-        '#type' => 'details',
+        '#type' => 'fieldset',
         '#title' => $this->t('Debug'),
         '#open' => FALSE, // Collapsed by default
       ];
