@@ -8,6 +8,8 @@ use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\MessageCommand;
 
 /**
  * Implements an form to generate a Shopping List.
@@ -82,7 +84,16 @@ class ShoppingListForm extends FormBase
           '#form_id' => $this->getFormId(),
           '#amount' => $ingredient->get('field_recipes_ingredient_amount')->value ?: NULL,
           '#ingredient' => reset($ingredient_term)->getName() ?: NULL,
-          '#extra' => $ingredient->get('field_recipes_ingredient_extra')->value ?: NULL
+          '#extra' => $ingredient->get('field_recipes_ingredient_extra')->value ?: NULL,
+          '#id' => $shopping_list_item->id(),
+          '#ajax' => [
+            'callback' => '::updateShoppingListItem',
+            'event' => 'change',
+            'progress' => [
+              'type' => 'none',
+              'message' => NULL,
+            ],
+          ]
         ];
       }
 
@@ -107,9 +118,39 @@ class ShoppingListForm extends FormBase
     return $form;
   }
 
+  public function updateShoppingListItem(array &$form, FormStateInterface $form_state)
+  {
+    $response = new AjaxResponse();
+
+    $triggering_element = $form_state->getTriggeringElement();
+    $shopping_list_item = $this->entity_type_manager->getStorage('recipes_shopping_list_item')->load($triggering_element['#id']);
+    if (!$shopping_list_item->access('update', $this->current_user)) {
+      $response->addCommand(new MessageCommand(
+        "You do not have permissions to update this item",
+        NULL,
+        ['type' => 'error']
+      ));
+      return $response;
+    }
+
+    if ($shopping_list_item) {
+      $shopping_list_item->set('collected', $triggering_element['#value']);
+      $shopping_list_item->save();
+    } else {
+      $response->addCommand(new MessageCommand(
+        "Could not find your shopping list.",
+        NULL,
+        ['type' => 'error']
+      ));
+    }
+
+    return $response;
+
+    
+  }
+
   public function submitSave(array &$form, FormStateInterface $form_state)
   {
-    
     foreach($form_state->getValue('shopping_list_items') as $aisle) {
       foreach($aisle as $shopping_list_item_id => $checked) {
         $shopping_list_item = $this->entity_type_manager->getStorage('recipes_shopping_list_item')->load($shopping_list_item_id);
