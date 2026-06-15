@@ -2,16 +2,13 @@
 
 namespace Drupal\recipes;
 
-use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityAccessControlHandler;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Access\AccessResult;
 
-/**
- * Access controller for the Recipe List entity.
- */
-class RecipeListAccessControlHandler extends EntityAccessControlHandler {
-
+class ShoppingListAccessControlHandler extends EntityAccessControlHandler {
+  
   /**
    * {@inheritdoc}
    * Handles Edit (update) and Delete operations on existing entities.
@@ -28,7 +25,7 @@ class RecipeListAccessControlHandler extends EntityAccessControlHandler {
       case 'update':
       case 'delete':
         $is_owner = ($account->id() === $entity->getOwnerId());
-        return AccessResult::allowedIf($account->hasPermission('use own recipe lists') && $is_owner)
+        return AccessResult::allowedIf($account->hasPermission('manage own recipe lists') && $is_owner)
           ->cachePerPermissions()
           ->cachePerUser()
           ->addCacheableDependency($entity);
@@ -44,7 +41,7 @@ class RecipeListAccessControlHandler extends EntityAccessControlHandler {
   protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL) {
     return AccessResult::allowedIf(
       $account->hasPermission('administer recipe lists') || 
-      $account->hasPermission('use own recipe lists')
+      $account->hasPermission('manage own recipe lists')
     )->cachePerPermissions();
   }
 

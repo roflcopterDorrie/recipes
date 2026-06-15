@@ -1,8 +1,6 @@
-# Admin permission (Can do everything)
 administer recipe lists:
-  title: 'Administer all Recipe Lists'
-  description: 'Grants full access to view, create, update, and delete any recipe list.'
+  title: 'Administer recipe lists'
   restrict access: true
 
-use own recipe lists:
-  title: 'Use own recipe lists'
+manage own recipe lists:
+  title: 'Manage own recipe lists'

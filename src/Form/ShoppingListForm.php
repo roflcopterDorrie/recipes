@@ -62,7 +62,7 @@ class ShoppingListForm extends FormBase
       $form['shopping_list_items'] = [
         '#type' => 'container',
         '#tree' => TRUE,
-        '#prefix' => '<div class="recipes-shopping-list">',
+        '#prefix' => '<div id="recipes-shopping-list">',
         '#suffix' => '</div>',
       ];
 
@@ -88,7 +88,7 @@ class ShoppingListForm extends FormBase
 
       foreach($grouped as $aisle => $group) {
         $form['shopping_list_items'][$aisle] = [
-          '#type' => 'details',
+          '#type' => 'fieldset',
           '#title' => $aisle,
           '#open' => TRUE,
         ];
@@ -109,9 +109,14 @@ class ShoppingListForm extends FormBase
 
   public function submitSave(array &$form, FormStateInterface $form_state)
   {
+    
     foreach($form_state->getValue('shopping_list_items') as $aisle) {
       foreach($aisle as $shopping_list_item_id => $checked) {
         $shopping_list_item = $this->entity_type_manager->getStorage('recipes_shopping_list_item')->load($shopping_list_item_id);
+        if (!$shopping_list_item->access('update', $this->current_user)) {
+          $this->messenger()->addError('You do not have permission to update this item.');
+          return;
+        }
         $shopping_list_item->set('collected', $checked);
         $shopping_list_item->save();
       }

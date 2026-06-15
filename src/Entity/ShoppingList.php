@@ -13,7 +13,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\user\EntityOwnerTrait;
 use Drupal\views\EntityViewsData;
-use Drupal\recipes\RecipeListAccessControlHandler;
+use Drupal\recipes\ShoppingListAccessControlHandler;
 
 /**
  * Defines the recipe list entity class.
@@ -32,7 +32,7 @@ use Drupal\recipes\RecipeListAccessControlHandler;
   ],
   handlers: [
     'views_data' => EntityViewsData::class,
-    'access' => RecipeListAccessControlHandler::class,
+    'access' => ShoppingListAccessControlHandler::class,
   ],
   base_table: 'recipes_shopping_list',
   label_count: [

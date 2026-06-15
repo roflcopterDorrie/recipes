@@ -5,6 +5,7 @@ use Drupal\Core\Session\AccountProxyInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\recipes\Entity\RecipeList;
+use Symfony\Component\HttpFoundation\Request;
 
 class RecipeListController extends ControllerBase {
 
@@ -20,7 +21,7 @@ class RecipeListController extends ControllerBase {
     );
   }
 
-  public function AddToList(int $recipe_id) {
+  public function AddToList(Request $request, int $recipe_id) {
     // Get the users default list.
     $storage = $this->entityTypeManager()->getStorage('recipes_recipe_list');
     $entities = $storage->loadByProperties([
@@ -29,6 +30,14 @@ class RecipeListController extends ControllerBase {
     $recipe_list = reset($entities) ?: NULL;
     
     if (!$recipe_list) { // Create a list since one doesn't exist.
+
+      // Check permissions to create shopping lists.
+      $list_access_control_handler = $this->entityTypeManager()->getAccessControlHandler('recipes_recipe_list');
+      if (!$list_access_control_handler->createAccess(NULL, $this->current_user)) {
+        $this->messenger()->addError('You do not have permission to create a new list.');
+          return;
+      }
+
       $recipe_list = RecipeList::create([
         'label' => 'Recipe list for user ' . $this->current_user->id(),
         'uid' => $this->current_user->id(),
@@ -42,21 +51,20 @@ class RecipeListController extends ControllerBase {
       $recipe_list->get('recipes')->appendItem([
         'target_id' => $recipe_id,
       ]);
-      
-      /* Old way of doing it.
-      $recipes = $recipe_list->get('field_recipes_recipe')->getValue();
-      $recipes[] = ['target_id' => $recipe_id];
-      $recipe_list->set('field_recipes_recipe', $recipes);*/
 
       $recipe_list->save();
 
-      return ['#markup' => 'Recipe added to list.'];
+      $this->messenger()->addMessage('Recipe added.');
     }
 
-    return ['#markup' => 'Could not add recipe to list.'];
+    $referer = $request->headers->get('referer');
+
+    if ($referer) {
+      return new \Drupal\Core\Routing\TrustedRedirectResponse($referer);
+    }
   }
 
-  public function RemoveFromList($recipe_id) {
+  public function RemoveFromList(Request $request, int $recipe_id) {
     // Get the users default list.
     $storage = $this->entityTypeManager()->getStorage('recipes_recipe_list');
     $entities = $storage->loadByProperties([
@@ -65,16 +73,24 @@ class RecipeListController extends ControllerBase {
     $recipe_list = reset($entities) ?: NULL;
     
     if ($recipe_list) { 
-      foreach($recipe_list->get('recipes')->referencedEntities() as $delta => $recipe) {
-        if ($recipe->id() == $recipe_id) {
-          $recipe_list->get('recipes')->removeItem($delta);
-          $recipe_list->save();
-          break;
+      if (!$recipe_list->access('update', $this->current_user)) {
+        $this->messenger()->addError('You do not have permission to update this list.');
+      } else {
+        foreach($recipe_list->get('recipes')->referencedEntities() as $delta => $recipe) {
+          if ($recipe->id() == $recipe_id) {
+            $recipe_list->get('recipes')->removeItem($delta);
+            $recipe_list->save();
+            break;
+          }
         }
+        $this->messenger()->addMessage('Recipe removed.', $this->messenger()::TYPE_STATUS);
       }
-      return ['#markup' => 'Recipe removed from list.'];
     }
 
-    return ['#markup' => 'Could not remove recipe from list.'];
+    $referer = $request->headers->get('referer');
+
+    if ($referer) {
+      return new \Drupal\Core\Routing\TrustedRedirectResponse($referer);
+    }
   }
 }
