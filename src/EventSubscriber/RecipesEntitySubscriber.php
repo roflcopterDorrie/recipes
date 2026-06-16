@@ -16,21 +16,15 @@ use Drupal\Core\Session\AccountProxyInterface;
  */
 class RecipesEntitySubscriber implements EventSubscriberInterface
 {
-  protected EntityTypeManagerInterface $entity_type_manager;
-  protected AccountProxyInterface $current_user;
-
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, AccountProxyInterface $current_user)
-  {
-    $this->entity_type_manager = $entity_type_manager;
-    $this->current_user = $current_user;
-  }
-
+  public function __construct(
+    protected EntityTypeManagerInterface $entity_type_manager,
+    protected AccountProxyInterface $current_user,
+  ) {}
 
   /**
    * {@inheritdoc}
    */
-  public static function getSubscribedEvents(): array
-  {
+  public static function getSubscribedEvents(): array {
     return [
       EntityHookEvents::ENTITY_PRE_DELETE => 'onEntityDelete',
       EntityHookEvents::ENTITY_VIEW_ALTER => 'onEntityViewAlter'
@@ -43,8 +37,7 @@ class RecipesEntitySubscriber implements EventSubscriberInterface
    * @param \Drupal\core_event_dispatcher\Event\Entity\EntityPredeleteEvent $event
    *   The event.
    */
-  public function onEntityDelete(EntityPredeleteEvent $event): void
-  {
+  public function onEntityDelete(EntityPredeleteEvent $event): void {
     // Remove all the ingredients associated with a recipe.
 
     // Only act if we are deleting a 'recipe' node.
@@ -82,8 +75,7 @@ class RecipesEntitySubscriber implements EventSubscriberInterface
    * @param \Drupal\core_event_dispatcher\Event\Entity\EntityViewAlterEvent $event
    *   The event.
    */
-  public function onEntityViewAlter(EntityViewAlterEvent $event): void
-  {
+  public function onEntityViewAlter(EntityViewAlterEvent $event): void {
     // Add an 'Add to list' button at the bottom of Recipe nodes.
     if ($event->getEntity()->getEntityTypeId() === 'node' && $event->getEntity()->bundle() === 'recipes_recipe') {
       $build = &$event->getBuild();
@@ -113,4 +105,5 @@ class RecipesEntitySubscriber implements EventSubscriberInterface
       }
     }
   }
+
 }

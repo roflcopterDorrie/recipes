@@ -8,11 +8,11 @@ use Drupal\user\UserInterface;
  */
 function recipes_theme($existing, $type, $theme, $path) {
   return [
-    'recipe_preview' => [
+    'recipes_preview_recipe' => [
       'variables' => [
         'recipe' => NULL,
       ],
-      'template' => 'recipe-preview',
+      'template' => 'preview/recipes-preview--recipe',
     ],
     'add_to_list_button' => [
       'variables' => [

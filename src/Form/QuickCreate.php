@@ -10,7 +10,6 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\recipes\Services\RecipesDataExtractor;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-
 use Drupal\media\Entity\Media;
 use Drupal\file\FileRepository;
 use Drupal\Core\File\FileSystem;
@@ -32,7 +31,7 @@ class QuickCreate extends FormBase
     protected FileSystem $file_system,
     protected FileRepository $file_repository,
     protected AccountProxyInterface $current_user,
-    protected Ingredient $ingredient
+    protected Ingredient $ingredient,
   ) {}
 
   public static function create(ContainerInterface $container)
@@ -81,7 +80,7 @@ class QuickCreate extends FormBase
         '#title' => $this->t('Recipe information'),
       ];
 
-      $form['gen_ai_image'] = [
+      $form['image_url'] = [
         '#type' => 'url',
         '#title' => $this->t("Image URL"),
         '#default_value' => TRUE,
@@ -98,16 +97,16 @@ class QuickCreate extends FormBase
 
       // Preview the recipe to the user before it is saved.
       $form['preview_recipe'] = [
-        '#theme' => 'recipe_preview',
+        '#theme' => 'recipes_preview_recipe',
         '#recipe' => $extracted_recipe,
       ];
 
       // I want to build up a form that the user can edit here in case the AI doesn't quite work.
 
       $form['edited_recipe'] = [
-        '#type' => 'fieldset',
+        '#type' => 'details',
         '#title' => $this->t('Adjust recipe'),
-        '#open' => FALSE, // Collapsed by default
+        '#open' => FALSE, 
       ];
 
 
@@ -183,7 +182,7 @@ class QuickCreate extends FormBase
       }
 
       $form['debug'] = [
-        '#type' => 'fieldset',
+        '#type' => 'details',
         '#title' => $this->t('Debug'),
         '#open' => FALSE, // Collapsed by default
       ];
@@ -240,6 +239,7 @@ class QuickCreate extends FormBase
 
     $url = $form_state->getValue('url');
     $data = $form_state->getValue('data');
+    $image_url = $form_state->getValue('image_url');
     $extracted_recipe = NULL;
 
     if (!empty($url)) {
@@ -249,6 +249,9 @@ class QuickCreate extends FormBase
       $debug_recipe_text = $this->recipes_data_extractor->getBodyText($debug_html);
     } elseif (!empty($data)) {
       $extracted_recipe = $this->recipes_data_extractor->extractRecipeFromText($data);
+      if (!empty($image_url)) {
+        $extracted_recipe = $this->recipes_data_extractor->addImageToJsonObject($extracted_recipe, $image_url);
+      }
       // DEBUG.
       $debug_recipe_text = $data;
     }

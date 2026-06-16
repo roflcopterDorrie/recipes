@@ -166,27 +166,33 @@ class RecipesDataExtractor
     return json_encode($extracted_recipe);
   }
 
-  private function validateJson(string $recipe_text) : bool|object {
+  public function addImageToJsonObject(object $recipe_json, string $main_image) : object {
+    $recipe_json->image_url = $main_image;
+    return $this->validateJsonObject($recipe_json);
+  }
 
-    if (($extracted_recipe = json_decode($recipe_text)) !== NULL) {
+  private function validateJsonObject(object $recipe_json_object) : bool|object {
+    $result = $this->recipes_data_validator->validate($recipe_json_object, $this->recipes_data_validator->getSchema());
 
-      $result = $this->recipes_data_validator->validate($extracted_recipe, $this->recipes_data_validator->getSchema());
-
-      if ($result->isValid()) {
-        return $extracted_recipe;
-      } else {
-        $errors = new ErrorFormatter()->format($result->error());
-        foreach ($errors as $error) {
-          $this->messenger->addError(t('Validation error: @msg', ['@msg' => $error[0]]));
-        }
-        $this->messenger->addError($recipe_text);
+    if ($result->isValid()) {
+      return $recipe_json_object;
+    } else {
+      $errors = new ErrorFormatter()->format($result->error());
+      foreach ($errors as $error) {
+        $this->messenger->addError(t('Validation error: @msg', ['@msg' => $error[0]]));
       }
+      $this->messenger->addError(json_encode($recipe_json_object));
+      return FALSE;
+    }
+  }
+
+  private function validateJson(string $recipe_text) : bool|object {
+    if (($extracted_recipe = json_decode($recipe_text)) !== NULL) {
+      return $this->validateJsonObject($extracted_recipe);
     } else {
       $this->messenger->addError(t('String returned from AI could not be json decoded: @ai_string', ['@ai_string' => $recipe_text]));
+      return FALSE;
     }
-
-
-    return FALSE;
   }
 
 }

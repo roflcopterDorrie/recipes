@@ -6,13 +6,17 @@
   {% endif %}
 
   <h3>Ingredients</h3>
-  <ul>
+  <ul class="ingredients">
     {% for ingredient in recipe.ingredients %}
       <li>
-        {{ ingredient.amount }} {{ ingredient.name }}
-        {% if ingredient.extra %}
-          ({{ ingredient.extra }})
-        {% endif %}
+        <div  class="ingredient">
+          <span class="marker">-</span>
+          <span class="ingredient__amount">{{ ingredient.amount }}</span> 
+          <span class="ingredient__name">{{ ingredient.name }}</span>
+          {% if ingredient.extra %}
+            <span class="ingredient__extra">({{ ingredient.extra }})</span>
+          {% endif %}
+        </div>
       </li>
     {% endfor %}
   </ul>
