@@ -84,6 +84,16 @@ class Ingredient
     if (!empty($ingredient_aisles)) {
       $ingredient_aisle = reset($ingredient_aisles);
       $ingredient_node->set('field_recipes_ingredient_aisle', $ingredient_aisle->id());
+    } else {
+      // We couldn't find a match for the aisle that the AI has provided, use Unknown instead.
+      $ingredient_aisles = $this->entity_type_manager->getStorage('taxonomy_term')->loadByProperties([
+        'name' => "Unknown",
+        'vid' => 'recipes_ingredient_aisle',
+      ]);
+      if (!empty($ingredient_aisles)) {
+        $ingredient_aisle = reset($ingredient_aisles);
+        $ingredient_node->set('field_recipes_ingredient_aisle', $ingredient_aisle->id());
+      }
     }
 
     $ingredient_node->save();

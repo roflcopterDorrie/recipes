@@ -36,6 +36,10 @@ function recipes_theme($existing, $type, $theme, $path) {
       'path' => $path . '/templates/form',
       'render element' => 'element',
     ],
+    'ingredient_search' => [
+      'variables' => [],
+      'template' => 'block/recipes-ingredient-search',
+    ],
   ];
 }
 

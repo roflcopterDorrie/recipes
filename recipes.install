@@ -89,3 +89,38 @@ function recipes_install() {
     ])->save();
   }
 }
+
+use Drupal\Core\Config\FileStorage;
+
+/**
+ * Support for ingredient search.
+ */
+function recipes_update_10001() {
+  // 1. Get the path to your module's config/install directory.
+  $module_handler = \Drupal::service('module_handler');
+  $module_path = $module_handler->getModule('recipes')->getPath();
+  $config_path = $module_path . '/config/install';
+  
+  $source = new FileStorage($config_path);
+  $config_storage = \Drupal::service('config.storage');
+  
+  // Add the new ingredients view
+  $config_name = 'views.view.recipes_ingredients';
+  $config_storage->write($config_name, $source->read($config_name));
+
+  // Update the browse recipes view.
+  $config_name = 'views.view.recipes';
+  $config_storage->write($config_name, $source->read($config_name));
+
+  // Add the custom category.
+  Term::create([
+    'name' => "Custom",
+    'vid' => 'recipes_ingredient_aisle',
+    ])->save();
+
+  // Add the unknown cateogry in case the AI makes a mistake.
+  Term::create([
+    'name' => "Unknown",
+    'vid' => 'recipes_ingredient_aisle',
+    ])->save();
+}
