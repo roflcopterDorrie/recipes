@@ -12,6 +12,8 @@ dependencies:
     - filter
     - media
     - node
+    - recipes
+    - system
     - taxonomy
   enforced:
     module:
@@ -36,6 +38,7 @@ permissions:
   - 'edit own recipes_image media'
   - 'edit own recipes_ingredient content'
   - 'edit own recipes_recipe content'
+  - 'manage own recipe lists'
   - 'revert recipes_ingredient revisions'
   - 'revert recipes_recipe revisions'
   - 'use text format recipes_step'
@@ -44,3 +47,4 @@ permissions:
   - 'view own unpublished media'
   - 'view recipes_ingredient revisions'
   - 'view recipes_recipe revisions'
+  - 'view the administration theme'

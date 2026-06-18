@@ -8,8 +8,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
-use Drupal\recipes\Entity\ShoppingList;
-use Drupal\recipes\Entity\ShoppingListItem;
+use Drupal\recipes\Services\ShoppingList as ServicesShoppingList;
 
 /**
  * Implements an form to generate a Shopping List.
@@ -20,7 +19,8 @@ class MakeShoppingList extends FormBase
 
   public function __construct(
     protected EntityTypeManagerInterface $entity_type_manager,
-    protected AccountProxyInterface $current_user
+    protected AccountProxyInterface $current_user,
+    protected ServicesShoppingList $shopping_list,
   ) {}
 
   public static function create(ContainerInterface $container)
@@ -28,6 +28,7 @@ class MakeShoppingList extends FormBase
     return new static(
       $container->get('entity_type.manager'),
       $container->get('current_user'),
+      $container->get('recipes.shopping_list'),
     );
   }
 
@@ -55,28 +56,29 @@ class MakeShoppingList extends FormBase
       $form['recipes'] = [
         '#type' => 'container',
         '#tree' => TRUE,
+        '#prefix' => '<div id="recipes-make-shopping-list">',
+        '#suffix' => '</div>',
       ];
 
       foreach($recipe_list->get('recipes')->referencedEntities() as $delta => $recipe) {
         
         $form['recipes'][$recipe->id()] = [
-          '#type' => 'details',
+          '#type' => 'fieldset',
           '#title' => $recipe->getTitle(),
           '#open' => TRUE
         ];
 
         foreach($recipe->get('field_recipes_ingredients')->referencedEntities() as $delta1 => $ingredient) {
           $ingredient_term = $ingredient->get('field_recipes_ingredient')->referencedEntities();
-          $label = array_filter([
-            $ingredient->get('field_recipes_ingredient_amount')->value ?: NULL,
-            reset($ingredient_term)->getName() ?: NULL,
-            $ingredient->get('field_recipes_ingredient_extra')->value ? '(' . $ingredient->get('field_recipes_ingredient_extra')->value . ')' : NULL,
-          ]);
 
           $form['recipes'][$recipe->id()][$ingredient->id()] = [
             '#type' => 'checkbox',
             '#default_value' => TRUE,
-            '#title' => implode(" ", $label),
+            '#title' => 'checkbox',
+            '#form_id' => $this->getFormId(),
+            '#amount' => $ingredient->get('field_recipes_ingredient_amount')->value ?: NULL,
+            '#ingredient' => reset($ingredient_term)->getName() ?: NULL,
+            '#extra' => $ingredient->get('field_recipes_ingredient_extra')->value ?: NULL
           ];
         }
       }
@@ -95,39 +97,19 @@ class MakeShoppingList extends FormBase
 
   public function submitSave(array &$form, FormStateInterface $form_state)
   {
-    // Remove any previous shopping list.
-    $storage = $this->entity_type_manager->getStorage('recipes_shopping_list');
-    $entities = $storage->loadByProperties([
-      'uid' => $this->current_user->id(),
-    ]);
-    $shopping_list = reset($entities) ?: NULL;
-    if ($shopping_list) {
-      $shopping_list->delete();
+    $shopping_list = $this->shopping_list->load($this->current_user);
+
+    $ingredient_ids = [];
+    foreach($form_state->getValue('recipes') as $recipe_ingredient_ids) {
+      
+      $ingredient_ids += array_filter($recipe_ingredient_ids, function ($value) {
+        return $value === 1;
+      });
+      
     }
 
-    // Create new shopping list.
-    $shopping_list = ShoppingList::create([
-      'name' => 'Shopping list for ' . $this->current_user->id(),
-      'uid' => $this->current_user->id(),
-    ]);
-    $shopping_list->save();
-
-    foreach($form_state->getValue('recipes') as $recipe_id => $ingredient_ids) {
-      foreach($ingredient_ids as $ingredient_id => $checked) {
-        if ($checked == 1) {
-          $shopping_list_item = ShoppingListItem::create([
-            'label' => 'Shopping list item',
-            'recipes_shopping_list_id' => ['target_id' => $shopping_list->id()],
-            'recipes_ingredient_id' => ['target_id' => $ingredient_id],
-            'collected' => FALSE,
-            'uid' => $this->current_user->id(),
-          ]);
-          $shopping_list_item->save();
-        }
-      }
-    }
-
-    
+    $shopping_list->clear();
+    $shopping_list->addIngredients(array_keys($ingredient_ids));
 
     $form_state->setRedirect('recipes.shopping_list');
   }

@@ -9,3 +9,10 @@ insertIngredient:
       css/insert_ingredient.admin.css: {} 
   dependencies:
     - core/ckeditor5
+
+ingredient_search:
+  js:
+    js/ingredient_search/ingredient_search.js: { attributes: { type: module } }
+  dependencies:
+    - core/drupal
+    - core/once

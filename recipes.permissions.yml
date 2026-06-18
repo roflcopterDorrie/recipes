@@ -1,3 +1,6 @@
-administer recipes_recipe_list:
+administer recipe lists:
   title: 'Administer recipe lists'
   restrict access: true
+
+manage own recipe lists:
+  title: 'Manage own recipe lists'
