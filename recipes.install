@@ -1,6 +1,7 @@
 <?php
 
 use Drupal\taxonomy\Entity\Term;
+use Drupal\Core\Config\FileStorage;
 
 /**
  * Implements hook_install().
@@ -90,8 +91,6 @@ function recipes_install() {
   }
 }
 
-use Drupal\Core\Config\FileStorage;
-
 /**
  * Support for ingredient search.
  */
@@ -112,6 +111,24 @@ function recipes_update_10001() {
     'name' => "Unknown",
     'vid' => 'recipes_ingredient_aisle',
   ])->save();
+}
+
+/**
+ * Recipe user permissions update.
+ */
+function recipes_update_10002() {
+  syncConfig([
+    "user.role.recipes_user"
+  ]);
+}
+
+/**
+ * My List view update.
+ */
+function recipes_update_10003() {
+  syncConfig([
+    "views.view.recipes_recipe_list",
+  ]);
 }
 
 function syncConfig(array $configs) {
