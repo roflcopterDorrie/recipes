@@ -37,9 +37,11 @@ class ShoppingList
     $entities = $storage->loadByProperties([
       'uid' => $user->id(),
     ]);
-    $this->shopping_list = reset($entities) ?: NULL;
+    if (!empty($entities)) {
+      $this->shopping_list = reset($entities);
+    }
 
-    if (!$this->shopping_list) {
+    if (!isset($this->shopping_list)) {
       // We don't have a shopping list yet for this user, create one.
 
       // Check permissions to create shopping lists.
