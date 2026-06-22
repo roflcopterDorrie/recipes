@@ -2,7 +2,6 @@ import Fuse from 'https://cdn.jsdelivr.net/npm/fuse.js@7.4.1/dist/fuse.basic.min
 
 (function (Drupal, once) {
 
-  console.log("Loaded");
   let ingredientCache = null;
 
   async function getIngredients() {
@@ -30,11 +29,19 @@ import Fuse from 'https://cdn.jsdelivr.net/npm/fuse.js@7.4.1/dist/fuse.basic.min
           ignoreLocation: true,
         });
 
+        renderResults([]);
+
         const ingredientInput = document.querySelector('#recipes-ingredient-search');
 
         ingredientInput.addEventListener('input', debounce(function (event) {
           const term = event.target.value;
-          if (!term) return;
+
+          if (term.length == 0) {
+            refreshViewWithIds([]);
+            renderResults([]);
+            return;
+          }
+
           const results = fuse.search(term);
           renderResults(results);
 
@@ -79,13 +86,13 @@ import Fuse from 'https://cdn.jsdelivr.net/npm/fuse.js@7.4.1/dist/fuse.basic.min
 
           if (!form) return;
 
-          const select = form.querySelector('select[name="tid[]"]');
+          const inputs = form.querySelectorAll('input[data-drupal-selector^="edit-tid-"]');
 
           // Loop through each option and check if its value is in your array
-          Array.from(select.options).forEach(option => {
-            if (ids.includes(option.value)) {
-            }
-            option.selected = ids.includes(option.value);
+          inputs.forEach(input => {
+            let id = input.getAttribute('data-drupal-selector');
+            id = id.replaceAll('edit-tid-', '');
+            input.checked = ids.includes(id);
           });
 
           form.querySelector('[type="submit"]').click();

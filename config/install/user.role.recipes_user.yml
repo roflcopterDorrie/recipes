@@ -18,7 +18,7 @@ dependencies:
   enforced:
     module:
       - recipes
-_core:
+_core: null
 id: recipes_user
 label: 'Recipe user'
 weight: 4
