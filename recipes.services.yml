@@ -47,3 +47,8 @@ services:
     arguments:
       - '@entity_type.manager'
       - '@messenger'
+
+  recipes.disable_views_scroll:
+    class: Drupal\recipes\EventSubscriber\DisableViewsScrollSubscriber
+    tags:
+      - { name: event_subscriber }
