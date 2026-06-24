@@ -35,10 +35,7 @@ export default class InsertIngredientUI extends Plugin {
           model: new UIModel({
             withText: true,
             label: ingredient.name,
-            id: ingredient.id,
-            amount: ingredient.amount,
-            name: ingredient.name,
-            extra: ingredient.extra
+            dataId: ingredient.id,
           })
         });
       });
@@ -48,8 +45,8 @@ export default class InsertIngredientUI extends Plugin {
 
       // 4. Listen to the execution
       this.listenTo(dropdownView, 'execute', eventInfo => {
-        const { id, amount, name, extra } = eventInfo.source;
-        editor.execute('insertIngredient', { id, amount, name, extra });
+        const { dataId } = eventInfo.source;
+        editor.execute('insertIngredient', { dataId });
         editor.editing.view.focus();
       });
 
