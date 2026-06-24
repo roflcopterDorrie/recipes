@@ -1,6 +1,8 @@
 langcode: en
 status: true
 dependencies:
+  module:
+    - recipes
   enforced:
     module:
       - recipes
@@ -15,6 +17,12 @@ filters:
     status: true
     weight: -10
     settings:
-      allowed_html: '<br> <p> <strong> <ingredient data-ingredient-id> <span class data-ingredient-id label>'
+      allowed_html: '<br> <p> <strong> <ingredient data-id>'
       filter_html_help: true
       filter_html_nofollow: false
+  recipes_filter_ingredient:
+    id: recipes_filter_ingredient
+    provider: recipes
+    status: true
+    weight: 0
+    settings: {  }
