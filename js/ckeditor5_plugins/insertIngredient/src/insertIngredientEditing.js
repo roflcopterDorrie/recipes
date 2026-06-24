@@ -31,27 +31,9 @@ export default class InsertIngredientEditing extends Plugin {
 
     schema.register('ingredient', {
       allowWhere: '$text',
-      allowIn: '$block',
+      isInline: true, 
       isObject: true,
-      allowAttributes: ['id'],
-    });
-
-    // Inner amount span - Un-commented and changed content rule to match inline elements
-    schema.register('ingredientAmount', {
-      allowIn: 'ingredient',
-      allowContentOf: '$block'
-    });
-
-    // Inner name span - Un-commented and changed content rule to match inline elements
-    schema.register('ingredientName', {
-      allowIn: 'ingredient',
-      allowContentOf: '$block'
-    });
-
-    // Inner extra details span - Un-commented and changed content rule to match inline elements
-    schema.register('ingredientExtra', {
-      allowIn: 'ingredient',
-      allowContentOf: '$block'
+      allowAttributes: ['data-id'],
     });
   }
 
@@ -62,70 +44,64 @@ export default class InsertIngredientEditing extends Plugin {
   _defineConverters() {
     const conversion = this.editor.conversion;
 
-    // --- 1. Main Ingredient Wrapper ---
+    // Upcast 
     conversion.for('upcast').elementToElement({
-      view: { name: 'span', classes: 'ingredient' },
+      view: {
+        name: 'ingredient',
+        attributes: {
+          'data-id': true
+        }
+      },
       model: (viewElement, { writer }) => {
         return writer.createElement('ingredient', {
-          id: viewElement.getAttribute('data-ingredient-id')
+          'data-id': viewElement.getAttribute('data-id')
         });
       }
     });
 
-    // DB Output: Clean HTML
+    // Output for saving in the database.
     conversion.for('dataDowncast').elementToElement({
       model: 'ingredient',
       view: (modelElement, { writer }) => {
-        return writer.createContainerElement('span', {
-          class: 'ingredient',
-          'data-ingredient-id': modelElement.getAttribute('id')
+        return writer.createContainerElement('ingredient', {
+          'data-id': modelElement.getAttribute('data-id')
         });
       }
     });
 
-    // Editor UI View: FIXED to use toWidget instead of toWidgetEditable
+    // Editor UI View.
     conversion.for('editingDowncast').elementToElement({
       model: 'ingredient',
       view: (modelElement, { writer }) => {
-        const span = writer.createContainerElement('span', {
-          class: 'ingredient',
-          'data-ingredient-id': modelElement.getAttribute('id')
+        const ingredientId = modelElement.getAttribute('data-id');
+        const ingredientData = this.getIngredientById(ingredientId);
+
+        // Outer wrapper.
+        const widgetWrapper = writer.createContainerElement('span', {
+            class: 'ingredient',
+            'data-id': modelElement.getAttribute('data-id')
         });
-        return toWidget(span, writer, { label: 'ingredient widget' });
+
+        // Inner label.
+        const innerLabel = writer.createUIElement('span', null, function(domDocument) {
+            const domElement = this.toDomElement(domDocument);
+            domElement.innerText = ingredientData.name;
+            domElement.setAttribute('contenteditable', 'false');
+            return domElement;
+        });
+        writer.insert(writer.createPositionAt(widgetWrapper, 0), innerLabel);
+
+        // Return the widget.
+        return toWidget(widgetWrapper, writer, { label: 'ingredient widget' });
       }
     });
 
-    // --- 2. Children (Updated for Editing UI mapping) ---
-    this._registerChildConverter('ingredientAmount', 'ingredient__amount');
-    this._registerChildConverter('ingredientName', 'ingredient__name');
-    this._registerChildConverter('ingredientExtra', 'ingredient__extra');
   }
 
-  _registerChildConverter(modelName, className) {
-    const conversion = this.editor.conversion;
-
-    conversion.for('upcast').elementToElement({
-      view: { name: 'span', classes: className },
-      model: (viewElement, { writer }) => {
-        return writer.createElement(modelName);
-      }
-    });
-
-    // 2. Downcast: Dynamically swap element types based on text presence
-    conversion.for('downcast').elementToElement({
-      model: modelName,
-      view: (modelElement, { writer }) => {
-        // If the model node has no text inside it, render an EmptyElement
-        if (modelElement.childCount === 0) {
-          return writer.createEmptyElement('span', {
-            class: `${className} is-empty`
-          });
-        }
-
-        // If it has text, render a standard container element
-        return writer.createContainerElement('span', { class: className });
-      }
-    });
+  getIngredientById(id) {
+    const availableIngredients = drupalSettings.recipes.ingredients;
+    const found = availableIngredients.find(ingredient => Number(id) === Number(ingredient.id));
+    return found || null;
   }
 
 
