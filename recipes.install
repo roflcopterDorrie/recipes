@@ -142,6 +142,26 @@ function recipes_update_10004() {
   ]);
 }
 
+/**
+ * Update text format for recipes.
+ */
+function recipes_update_10005() {
+  syncConfig([
+    "filter.format.recipes_step",
+  ]);
+}
+
+/**
+ * Update permissions on views.
+ */
+function recipes_update_10006() {
+  syncConfig([
+    "views.view.recipes_recipe_list",
+    'views.view.recipes',
+  ]);
+}
+
+
 
 function syncConfig(array $configs) {
   $module_handler = \Drupal::service('module_handler');
