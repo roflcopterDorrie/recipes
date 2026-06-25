@@ -3,6 +3,7 @@ status: true
 dependencies:
   module:
     - recipes
+    - user
   enforced:
     module:
       - recipes
@@ -103,8 +104,9 @@ display:
           sort_asc_label: Asc
           sort_desc_label: Desc
       access:
-        type: none
-        options: {  }
+        type: perm
+        options:
+          perm: 'manage own recipe lists'
       cache:
         type: tag
         options: {  }
@@ -190,6 +192,7 @@ display:
         - 'languages:language_interface'
         - url
         - user
+        - user.permissions
       tags: {  }
   list:
     id: list
@@ -207,4 +210,5 @@ display:
         - 'languages:language_interface'
         - url
         - user
+        - user.permissions
       tags: {  }
