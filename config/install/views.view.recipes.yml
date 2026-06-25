@@ -134,7 +134,7 @@ display:
       access:
         type: perm
         options:
-          perm: 'access content'
+          perm: 'manage own recipe lists'
       cache:
         type: tag
         options: {  }
