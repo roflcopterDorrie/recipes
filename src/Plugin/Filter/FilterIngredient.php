@@ -22,11 +22,11 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
  */
 class FilterIngredient extends FilterBase implements ContainerFactoryPluginInterface {
 
-  protected $entityTypeManager;
+  protected $entity_type_manager;
 
   public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->entityTypeManager = $entity_type_manager;
+    $this->entity_type_manager = $entity_type_manager;
   }
 
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
@@ -39,6 +39,7 @@ class FilterIngredient extends FilterBase implements ContainerFactoryPluginInter
   }
 
   public function process($text, $langcode) {
+
     $result = new FilterProcessResult($text);
 
     if (strpos($text, 'ingredient') === FALSE) {
@@ -58,7 +59,9 @@ class FilterIngredient extends FilterBase implements ContainerFactoryPluginInter
       
       if ($id) {
         // Load ingredient
-        if ($ingredient = $this->entityTypeManager->getStorage('node')->load($id)) {
+        $ingredients = $this->entity_type_manager->getStorage('node')->loadByProperties(['uuid' => $id]);
+        if (!empty($ingredients)) {
+          $ingredient = reset($ingredients);
           // Load the term info.
           if ($ingredient_term = $ingredient->get('field_recipes_ingredient')->entity) {
             // Create replacement node.
