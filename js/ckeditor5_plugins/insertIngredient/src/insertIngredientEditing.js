@@ -76,6 +76,7 @@ export default class InsertIngredientEditing extends Plugin {
         const ingredientId = modelElement.getAttribute('data-id');
         const ingredientData = this.getIngredientById(ingredientId);
 
+
         // Outer wrapper.
         const widgetWrapper = writer.createContainerElement('span', {
             class: 'ingredient',
@@ -85,7 +86,11 @@ export default class InsertIngredientEditing extends Plugin {
         // Inner label.
         const innerLabel = writer.createUIElement('span', null, function(domDocument) {
             const domElement = this.toDomElement(domDocument);
-            domElement.innerText = ingredientData.name;
+            if (ingredientData != null) {
+              domElement.innerText = ingredientData.name;
+            } else {
+              domElement.innerText = "Ingredient not found";
+            }
             domElement.setAttribute('contenteditable', 'false');
             return domElement;
         });
@@ -94,13 +99,14 @@ export default class InsertIngredientEditing extends Plugin {
         // Return the widget.
         return toWidget(widgetWrapper, writer, { label: 'ingredient widget' });
       }
+
     });
 
   }
 
   getIngredientById(id) {
     const availableIngredients = drupalSettings.recipes.ingredients;
-    const found = availableIngredients.find(ingredient => Number(id) === Number(ingredient.id));
+    const found = availableIngredients.find(ingredient => String(id) === String(ingredient.uuid));
     return found || null;
   }
 

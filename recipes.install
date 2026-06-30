@@ -161,8 +161,48 @@ function recipes_update_10006() {
   ]);
 }
 
+/**
+ * Replace ingredient node ids with uuids for recipe steps.
+ */
+function recipes_update_10007() {
+  // Go through all the steps in the database.
+  // Get the node ids that are referenced.
+  // Replace the data-id with uuids instead of node ids.
+  $entity_type_manager = \Drupal::service('entity_type.manager');
+  $recipes = $entity_type_manager->getStorage('node')->loadByProperties(['type' => 'recipes_recipe']);
+  foreach($recipes as &$recipe) {
+    $steps = $recipe->get('field_recipes_steps');
+    foreach($steps as &$step) {
+      $dom = new \DOMDocument();
+      // Load HTML handling UTF-8 safely
+      @$dom->loadHTML(mb_convert_encoding($step->value, 'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+      
+      $xpath = new \DOMXPath($dom);
+      $elements = $xpath->query('//ingredient');
 
+      foreach ($elements as $element) {
+        $id = $element->getAttribute('data-id');
+        if ($id && is_numeric($id)) {
+          // Load ingredient by nid.
+          $ingredient = $entity_type_manager->getStorage('node')->load($id);
+          if ($ingredient) {
+            $element->setAttribute('data-id', $ingredient->uuid());
+          }
+        }
+      }
 
+      if ($html = $dom->saveHTML()) {
+        $step->value = $html;
+      }
+    }
+
+    $recipe->save();
+  }
+}
+
+/**
+ * 
+ */
 function syncConfig(array $configs) {
   $module_handler = \Drupal::service('module_handler');
   $module_path = $module_handler->getModule('recipes')->getPath();

@@ -35,7 +35,7 @@ export default class InsertIngredientUI extends Plugin {
           model: new UIModel({
             withText: true,
             label: ingredient.name,
-            dataId: ingredient.id,
+            dataId: ingredient.uuid,
           })
         });
       });
