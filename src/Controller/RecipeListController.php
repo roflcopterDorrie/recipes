@@ -93,4 +93,29 @@ class RecipeListController extends ControllerBase {
       return new \Drupal\Core\Routing\TrustedRedirectResponse($referer);
     }
   }
+
+  public function ClearList(Request $request) {
+    // Get the users default list.
+    $storage = $this->entityTypeManager()->getStorage('recipes_recipe_list');
+    $entities = $storage->loadByProperties([
+      'uid' => $this->current_user->id(),
+    ]);
+    $recipe_list = reset($entities) ?: NULL;
+    
+    if ($recipe_list) { 
+      if (!$recipe_list->access('update', $this->current_user)) {
+        $this->messenger()->addError('You do not have permission to update this list.');
+      } else {
+        $recipe_list->recipes = [];
+        $recipe_list->save();
+        $this->messenger()->addMessage('My list cleared.', $this->messenger()::TYPE_STATUS);
+      }
+    }
+
+    $referer = $request->headers->get('referer');
+
+    if ($referer) {
+      return new \Drupal\Core\Routing\TrustedRedirectResponse($referer);
+    }
+  }
 }

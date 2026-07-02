@@ -163,10 +163,13 @@ class ShoppingListForm extends FormBase
     if (!empty($extra)) {
       $ingredient_ids = [];
       // Split up ingredients per line.
-      $ingredients = explode("\n", $extra);
+      $ingredients = explode(PHP_EOL, $extra);
       foreach ($ingredients as $ingredient) {
-        $ingredient_node = $this->ingredient->create(['name' => $ingredient, 'category' => "Custom"]);
-        $ingredient_ids[] = $ingredient_node->id();
+        $ingredient = trim($ingredient);
+        if (!empty($ingredient)) {
+          $ingredient_node = $this->ingredient->create(['name' => $ingredient, 'category' => "Custom"]);
+          $ingredient_ids[] = $ingredient_node->id();
+        }
       }
 
       $shopping_list = $this->shopping_list->load($this->current_user);

@@ -44,3 +44,9 @@ recipes.shopping_list:
   requirements:
     _permission: 'manage own recipe lists'
 
+recipes.my_list_clear:
+  path: '/recipes/my-list/clear'
+  defaults:
+    _controller: '\Drupal\recipes\Controller\RecipeListController::ClearList'
+  requirements:
+    _permission: 'manage own recipe lists'

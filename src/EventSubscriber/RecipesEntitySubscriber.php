@@ -89,14 +89,14 @@ class RecipesEntitySubscriber implements EventSubscriberInterface
       $entity = reset($entities) ?: NULL;
 
       if ($entity) { // Found the recipe in the list.
-        $build['remove_from_list_button'] = [
+        $build['recipe_actions'] = [
           '#theme' => 'remove_from_list_button',
           '#label' => 'Remove from list',
           '#id' => $event->getEntity()->id(),
           '#weight' => 100
         ];
       } else { // Didn't find the recipe in the list.
-        $build['add_to_list_button'] = [
+        $build['recipe_actions'] = [
           '#theme' => 'add_to_list_button',
           '#label' => 'Add to list',
           '#id' => $event->getEntity()->id(),

@@ -118,7 +118,7 @@ class QuickCreate extends FormBase
       ];
 
       $form['edited_recipe']['edited_recipe_image'] = [
-        '#type' => 'textfield',
+        '#type' => 'url',
         '#title' => $this->t('Image URL'),
         '#default_value' => $extracted_recipe->image_url,
       ];
