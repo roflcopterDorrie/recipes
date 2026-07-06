@@ -210,6 +210,15 @@ function recipes_update_10008() {
 }
 
 /**
+ * Fix permissions issue with My List view.
+ */
+function recipes_update_10009() {
+  syncConfig([
+    "views.view.recipes_recipe_list",
+  ]);
+}
+
+/**
  * 
  */
 function syncConfig(array $configs) {

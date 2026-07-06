@@ -18,12 +18,12 @@ dependencies:
   enforced:
     module:
       - recipes
-_core: null
 id: recipes_user
 label: 'Recipe user'
 weight: 4
 is_admin: false
 permissions:
+  - 'access administration pages'
   - 'create recipes_image media'
   - 'create recipes_ingredient content'
   - 'create recipes_recipe content'
