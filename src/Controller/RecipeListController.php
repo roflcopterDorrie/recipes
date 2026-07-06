@@ -112,10 +112,6 @@ class RecipeListController extends ControllerBase {
       }
     }
 
-    $referer = $request->headers->get('referer');
-
-    if ($referer) {
-      return new \Drupal\Core\Routing\TrustedRedirectResponse($referer);
-    }
+    return $this->redirect('view.recipes_recipe_list.list');
   }
 }

@@ -3,6 +3,7 @@ status: true
 dependencies:
   config:
     - user.role.administrator
+    - user.role.recipes_user
   module:
     - node
     - recipes
@@ -166,6 +167,7 @@ display:
             restrict_roles: true
             roles:
               administrator: administrator
+              recipes_user: recipes_user
           break_phrase: false
           not: false
       filters: {  }
