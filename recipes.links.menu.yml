@@ -5,14 +5,14 @@ recipes.settings:
   weight: 10
 
 recipes.browse:
-  title: 'Browse recipes'
+  title: 'Browse'
   description: 'View all the recipes.'
   route_name: view.recipes.browse
   menu_name: recipes-recipes
   weight: 0
 
 recipes.quick_create:
-  title: 'Quick create'
+  title: 'Create'
   description: 'Quickly create a recipe from another website'
   route_name: recipes.quick_create
   menu_name: recipes-recipes
