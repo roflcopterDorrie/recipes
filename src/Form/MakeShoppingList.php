@@ -107,7 +107,6 @@ class MakeShoppingList extends FormBase
       });
       
     }
-
     $shopping_list->clear();
     $shopping_list->addIngredients(array_keys($ingredient_ids));
 
