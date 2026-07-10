@@ -101,6 +101,31 @@ class Ingredient
     return $ingredient_node;
   }
 
-  
+  /**
+   * @return Node
+   */
+  public function populate(Node $ingredient) : Node{
+    $aisles = $ingredient->get('field_recipes_ingredient_aisle')->referencedEntities();
+    if (!empty($aisles)) {
+      $ingredient->aisle = reset($aisles);
+    } else {
+      // Find the unknown aisle.
+      $ingredient_aisles = $this->entity_type_manager->getStorage('taxonomy_term')->loadByProperties([
+        'name' => 'Unknown',
+        'vid' => 'recipes_ingredient_aisle',
+      ]);
+      if (!empty($ingredient_aisles)) {
+        $ingredient->aisle = reset($ingredient_aisles);
+      }
+    }
+
+    $terms = $ingredient->get('field_recipes_ingredient')->referencedEntities();
+    if (!empty($terms)) {
+      $ingredient->ingredient = reset($terms);
+    }
+    $ingredient->amount = $ingredient->get('field_recipes_ingredient_amount')->value ?: NULL;
+    $ingredient->extra = $ingredient->get('field_recipes_ingredient_extra')->value ?: NULL;
+    return $ingredient;
+  }
 
 }

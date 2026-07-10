@@ -62,21 +62,18 @@ class ShoppingListForm extends FormBase
 
       $grouped = [];
 
-      foreach ($shopping_list->ingredients as $shopping_list_item) {
-        $ingredient = $shopping_list_item->get('recipes_ingredient_id')->referencedEntities();
-        $ingredient = reset($ingredient);
-        $ingredient_term = $ingredient->get('field_recipes_ingredient')->referencedEntities();
+      foreach ($shopping_list->shopping_list_items as $shopping_list_item) {
 
-        $aisle = $ingredient->get('field_recipes_ingredient_aisle')->referencedEntities();
+        $ingredient = $shopping_list->getIngredient($shopping_list_item);
 
-        $grouped[reset($aisle)->getName()][$shopping_list_item->id()] = [
+        $grouped[$ingredient->aisle->getName()][$shopping_list_item->id()] = [
           '#type' => 'checkbox',
           '#title' => 'checkbox',
           '#default_value' => $shopping_list_item->get("collected")->value,
           '#form_id' => $this->getFormId(),
-          '#amount' => $ingredient->get('field_recipes_ingredient_amount')->value ?: NULL,
-          '#ingredient' => reset($ingredient_term)->getName() ?: NULL,
-          '#extra' => $ingredient->get('field_recipes_ingredient_extra')->value ?: NULL,
+          '#amount' => $ingredient->amount,
+          '#ingredient' => $ingredient->ingredient->getName() ?: NULL,
+          '#extra' => $ingredient->extra,
           '#id' => $shopping_list_item->id(),
           '#ajax' => [
             'callback' => '::updateShoppingListItem',
@@ -87,6 +84,16 @@ class ShoppingListForm extends FormBase
             ],
           ]
         ];
+      }
+
+      // Sort alphabetically.
+      ksort($grouped, SORT_STRING);
+
+      // Always put custom last.
+      if (array_key_exists('Custom', $grouped)) {
+        $custom = $grouped['Custom'];
+        unset($grouped['Custom']);
+        $grouped['Custom'] = $custom;
       }
 
       foreach($grouped as $aisle => $group) {

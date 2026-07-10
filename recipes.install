@@ -219,6 +219,25 @@ function recipes_update_10009() {
 }
 
 /**
+ * Update ingredient amounts to use fraction characters.
+ */
+function recipes_update_10010() {
+  // Go through all the ingredients in the database.
+  $entity_type_manager = \Drupal::service('entity_type.manager');
+  $ingredients = $entity_type_manager->getStorage('node')->loadByProperties(['type' => 'recipes_ingredient']);
+  foreach($ingredients as &$ingredient) {
+    $amount = $ingredient->get('field_recipes_ingredient_amount')->value;
+    $amount = str_replace('1/2', '½', $amount);
+    $amount = str_replace('3/4', '¾', $amount);
+    $amount = str_replace('1/4', '¼', $amount);
+    $amount = str_replace('1/3', '⅓', $amount);
+    $amount = str_replace('2/3', '⅔', $amount);
+    $ingredient->set('field_recipes_ingredient_amount', $amount);
+    $ingredient->save();
+  }
+}
+
+/**
  * 
  */
 function syncConfig(array $configs) {

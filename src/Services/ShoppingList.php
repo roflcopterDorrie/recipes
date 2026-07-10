@@ -17,19 +17,23 @@ class ShoppingList
   protected ShoppingListEntity $shopping_list;
   protected AccountInterface $user;
 
-  public array $ingredients {
-    get {
-      if (!isset($this->recipeData)) {
-        $this->ingredients = $this->getIngredients();
-      }
-      return $this->ingredients;
-    }
-  }
-
   public function __construct(
     protected EntityTypeManagerInterface $entity_type_manager,
     protected Messenger $messenger,
+    protected Ingredient $ingredient_service
   ) {}
+
+  /**
+   * @return ShoppingListItem[]
+   */
+  public array $shopping_list_items {
+    get {
+      if (!isset($this->shopping_list_items)) {
+        $this->shopping_list_items = $this->getShoppingListItems();
+      }
+      return $this->shopping_list_items;
+    }
+  }
 
   public function load(AccountInterface $user) : ?ShoppingList {
     $this->user = $user;
@@ -62,13 +66,24 @@ class ShoppingList
     return $this;
   }
 
-  private function getIngredients() : ?array {
+  /**
+   * @return ShoppingListItem[]
+   */
+  private function getShoppingListItems() : ?array {
     // Load up all the shopping list items.
     $storage = $this->entity_type_manager->getStorage('recipes_shopping_list_item');
     $shopping_list_items = $storage->loadByProperties([
       'recipes_shopping_list_id' => $this->shopping_list->id(),
     ]);
     return $shopping_list_items;
+  }
+
+  public function getIngredient(ShoppingListItem $item) : ?Node{
+    $ingredients = $item->get('recipes_ingredient_id')->referencedEntities();
+    if (!empty($ingredients)) {
+      return $this->ingredient_service->populate(reset($ingredients));
+    }
+    return NULL;
   }
 
   public function delete() : bool {
@@ -85,9 +100,13 @@ class ShoppingList
 
   public function clear() {
     if ($this->shopping_list) {
-      foreach($this->ingredients as $ingredient) {
-        if ($ingredient->access('delete', $this->user)) {
-          $ingredient->delete();
+      foreach($this->shopping_list_items as $item) {
+        $ingredient = $this->getIngredient($item); 
+        $ingredient = $this->ingredient_service->populate($ingredient);
+        if ($ingredient->aisle->getName() != 'Custom' || ($ingredient->aisle->getName() == 'Custom' && $item->get('collected')->value == 1)) {
+          if ($item->access('delete', $this->user)) {
+            $item->delete();
+          }
         }
       }
     }
