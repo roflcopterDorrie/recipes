@@ -82,32 +82,26 @@ class RecipesEntitySubscriber implements EventSubscriberInterface
     if ($event->getEntity()->getEntityTypeId() === 'node' && $event->getEntity()->bundle() === 'recipes_recipe') {
       $build = &$event->getBuild();
 
-      // Check that this recipe isn't already in the list.
-      $storage = $this->entity_type_manager->getStorage('recipes_recipe_list');
-      $entities = $storage->loadByProperties([
-        'uid' => $this->current_user->id(),
-        'recipes' => ['target_id' => $event->getEntity()->id()]
-      ]);
-      $entity = reset($entities) ?: NULL;
+      if ($build['#view_mode'] == 'full') {
 
-      if ($entity) { // Found the recipe in the list.
-        $build['recipe_actions'] = [
-          '#theme' => 'remove_from_list_button',
-          '#label' => 'Remove from list',
-          '#id' => $event->getEntity()->id(),
-          '#weight' => 100
-        ];
-      } else { // Didn't find the recipe in the list.
-        $build['recipe_actions'] = [
-          '#theme' => 'add_to_list_button',
-          '#label' => 'Add to list',
-          '#id' => $event->getEntity()->id(),
-          '#weight' => 100
+        $build['my_list_button'] = [
+          '#lazy_builder' => [
+              'recipes.my_list:buildButton',
+              [ $event->getEntity()->id() ],
+            ],
+          '#create_placeholder' => TRUE,
+          '#weight' => 100,
         ];
       }
     }
   }
 
+  /**
+   * Entity pre save.
+   *
+   * @param \Drupal\core_event_dispatcher\Event\Entity\EntityPresaveEvent $event
+   *   The event.
+   */
   public function onEntityPreSave(EntityPresaveEvent $event): void {
     if ($event->getEntity()->getEntityTypeId() === 'node' && $event->getEntity()->bundle() === 'recipes_ingredient') {
       // Check the ingredients amount field and convert any fractions to their character counterpart.

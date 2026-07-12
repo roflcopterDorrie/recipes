@@ -6,6 +6,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\recipes\Entity\RecipeList;
 use Symfony\Component\HttpFoundation\Request;
+use Drupal\Core\Cache\Cache;
 
 class RecipeListController extends ControllerBase {
 
@@ -54,14 +55,15 @@ class RecipeListController extends ControllerBase {
 
       $recipe_list->save();
 
+      Cache::invalidateTags([
+        'recipes_recipe_list:' . $this->current_user->id(),
+      ]);
+
+
       $this->messenger()->addMessage('Recipe added.');
     }
 
-    $referer = $request->headers->get('referer');
-
-    if ($referer) {
-      return new \Drupal\Core\Routing\TrustedRedirectResponse($referer);
-    }
+    return $this->redirect('view.recipes_recipe_list.list');
   }
 
   public function RemoveFromList(Request $request, int $recipe_id) {
@@ -83,15 +85,14 @@ class RecipeListController extends ControllerBase {
             break;
           }
         }
+        Cache::invalidateTags([
+          'recipes_recipe_list:' . $this->current_user->id(),
+        ]);
         $this->messenger()->addMessage('Recipe removed.', $this->messenger()::TYPE_STATUS);
       }
     }
 
-    $referer = $request->headers->get('referer');
-
-    if ($referer) {
-      return new \Drupal\Core\Routing\TrustedRedirectResponse($referer);
-    }
+    return $this->redirect('view.recipes_recipe_list.list');
   }
 
   public function ClearList(Request $request) {
@@ -108,6 +109,9 @@ class RecipeListController extends ControllerBase {
       } else {
         $recipe_list->recipes = [];
         $recipe_list->save();
+        Cache::invalidateTags([
+          'recipes_recipe_list:' . $this->current_user->id(),
+        ]);
         $this->messenger()->addMessage('My list cleared.', $this->messenger()::TYPE_STATUS);
       }
     }

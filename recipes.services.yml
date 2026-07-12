@@ -53,3 +53,10 @@ services:
     class: Drupal\recipes\EventSubscriber\DisableViewsScrollSubscriber
     tags:
       - { name: event_subscriber }
+
+  recipes.my_list:
+    class: Drupal\recipes\Services\MyList
+    arguments:
+      - '@current_user'
+      - '@entity_type.manager'
+      
