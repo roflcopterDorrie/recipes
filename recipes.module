@@ -14,21 +14,14 @@ function recipes_theme($existing, $type, $theme, $path) {
       ],
       'template' => 'preview/recipes-preview--recipe',
     ],
-    'add_to_list_button' => [
+    'my_list_button' => [
       'variables' => [
         'label' => NULL,
         'id' => NULL,
+        'route' => NULL,
         'attributes' => [],
       ],
-      'template' => 'form/add-to-list-button',
-    ],
-    'remove_from_list_button' => [
-      'variables' => [
-        'label' => NULL,
-        'id' => NULL,
-        'attributes' => [],
-      ],
-      'template' => 'form/remove-from-list-button',
+      'template' => 'form/my-list-button',
     ],
     'recipes_recipe_list' => ['render element' => 'elements'],
     'form_element_label__shopping_list__checkbox' => [
