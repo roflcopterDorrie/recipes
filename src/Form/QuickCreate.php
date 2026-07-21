@@ -282,8 +282,9 @@ class QuickCreate extends FormBase
     // INGREDIENTS.
     $ingredient_references = [];
     foreach ($form_state->getValue('edited_ingredients_list') as $ingredient) {
-      $ingredient_node = $this->ingredient->create($ingredient);
-      $ingredient_references[] = ['target_id' => $ingredient_node->id()];
+      if ($ingredient_node = $this->ingredient->create($ingredient)) {
+        $ingredient_references[] = ['target_id' => $ingredient_node->id()];
+      }
     }
     $recipe_node->set('field_recipes_ingredients', $ingredient_references);
 

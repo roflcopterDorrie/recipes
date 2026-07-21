@@ -63,7 +63,7 @@ class RecipeListController extends ControllerBase {
       $this->messenger()->addMessage('Recipe added.');
     }
 
-    return $this->redirect('view.recipes_recipe_list.list');
+    return $this->redirect('view.recipes.browse');
   }
 
   public function RemoveFromList(Request $request, int $recipe_id) {

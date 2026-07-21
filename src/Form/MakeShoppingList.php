@@ -9,6 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\recipes\Services\ShoppingList as ServicesShoppingList;
+use Drupal\recipes\Services\Ingredient;
 
 /**
  * Implements an form to generate a Shopping List.
@@ -21,6 +22,7 @@ class MakeShoppingList extends FormBase
     protected EntityTypeManagerInterface $entity_type_manager,
     protected AccountProxyInterface $current_user,
     protected ServicesShoppingList $shopping_list,
+    protected Ingredient $ingredient,
   ) {}
 
   public static function create(ContainerInterface $container)
@@ -29,6 +31,7 @@ class MakeShoppingList extends FormBase
       $container->get('entity_type.manager'),
       $container->get('current_user'),
       $container->get('recipes.shopping_list'),
+      $container->get('recipes.ingredient'),
     );
   }
 
@@ -71,13 +74,17 @@ class MakeShoppingList extends FormBase
         foreach($recipe->get('field_recipes_ingredients')->referencedEntities() as $delta1 => $ingredient) {
           $ingredient_term = $ingredient->get('field_recipes_ingredient')->referencedEntities();
 
+          $amount = $ingredient->get('field_recipes_ingredient_amount')->value ?: NULL;
+          $ingredient_term = reset($ingredient_term)->getName() ?: NULL;
+          $ingredient_term = $this->ingredient->pluralise($amount, $ingredient_term);
+
           $form['recipes'][$recipe->id()][$ingredient->id()] = [
             '#type' => 'checkbox',
             '#default_value' => TRUE,
             '#title' => 'checkbox',
             '#form_id' => $this->getFormId(),
-            '#amount' => $ingredient->get('field_recipes_ingredient_amount')->value ?: NULL,
-            '#ingredient' => reset($ingredient_term)->getName() ?: NULL,
+            '#amount' => $amount,
+            '#ingredient' => $ingredient_term,
             '#extra' => $ingredient->get('field_recipes_ingredient_extra')->value ?: NULL
           ];
         }

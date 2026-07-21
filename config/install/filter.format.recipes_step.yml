@@ -6,7 +6,6 @@ dependencies:
   enforced:
     module:
       - recipes
-_core: null
 name: 'Recipe step'
 format: recipes_step
 weight: 0
