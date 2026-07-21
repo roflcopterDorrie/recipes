@@ -6,9 +6,10 @@ use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
-use Doctrine\Inflector\InflectorFactory;
 use PhpUnitsOfMeasure\PhysicalQuantity\Mass;
 use Drupal\Core\Messenger\MessengerInterface;
+use rachid\pluralizer\Pluralizer;
+use Drupal\Core\Config\ConfigFactoryInterface;
 
 class Ingredient
 {
@@ -17,6 +18,7 @@ class Ingredient
   public function __construct(
     protected EntityTypeManagerInterface $entity_type_manager,
     protected MessengerInterface $messenger,
+    protected ConfigFactoryInterface $config_factory,
   ) {}
 
   public function create(array $values) : ?Node {
@@ -117,13 +119,53 @@ class Ingredient
         $ingredient->aisle = reset($ingredient_aisles);
       }
     }
+   
+    $ingredient->amount = $ingredient->get('field_recipes_ingredient_amount')->value ?: NULL;
+    $ingredient->extra = $ingredient->get('field_recipes_ingredient_extra')->value ?: NULL;
 
     $terms = $ingredient->get('field_recipes_ingredient')->referencedEntities();
     if (!empty($terms)) {
-      $ingredient->ingredient = reset($terms);
+      $ingredient_term = reset($terms);
+      $ingredient->ingredient = $ingredient_term->getName();
+      
+      $ingredient->ingredient = $this->pluralise($ingredient->amount, $ingredient->ingredient);
     }
-    $ingredient->amount = $ingredient->get('field_recipes_ingredient_amount')->value ?: NULL;
-    $ingredient->extra = $ingredient->get('field_recipes_ingredient_extra')->value ?: NULL;
+    return $ingredient;
+  }
+
+  public function pluralise(?string $amount, string $ingredient) : string {
+    if (!isset($amount)) {
+      return $ingredient;
+    }
+
+    $singluar = TRUE;
+
+
+    // Find any numerical numbers and see if they are above 1.
+    if (preg_match("/\d+[\.\,]?\d*/", $amount, $matches) === 1) {
+      if (isset($matches[0])) {
+        if (floatval($matches[0]) > 1.0) {
+          $singluar = FALSE;
+        }
+      }
+    }
+
+    // Look for fractions.
+    if ($singluar === TRUE && preg_match("/[½,¾,⅓,¼,⅔]/", $amount) === 1) {
+      $singluar = FALSE;
+    }
+
+    if ($singluar === FALSE) {
+      // Take the last word of the ingredient, that is usually the one we need to check.
+      $parts = explode(' ', $ingredient);
+      $ingredient_part = array_pop($parts);
+      $exclude = $this->config_factory->get('recipes.settings')->get('exclude_words_from_plurals');
+      $exclude = preg_split('/\R+/', trim($exclude));
+      $ingredient_part = Pluralizer::pluralize($ingredient_part, $exclude?:[]);
+      array_push($parts, $ingredient_part);
+      return implode(' ', $parts);
+    }
+
     return $ingredient;
   }
 

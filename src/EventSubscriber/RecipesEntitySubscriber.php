@@ -9,6 +9,7 @@ use Drupal\core_event_dispatcher\Event\Entity\EntityViewAlterEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\recipes\Services\Ingredient;
 
 /**
  * Class RecipesEntitySubscriber.
@@ -20,6 +21,7 @@ class RecipesEntitySubscriber implements EventSubscriberInterface
   public function __construct(
     protected EntityTypeManagerInterface $entity_type_manager,
     protected AccountProxyInterface $current_user,
+    protected Ingredient $ingredient,
   ) {}
 
   /**
@@ -28,9 +30,28 @@ class RecipesEntitySubscriber implements EventSubscriberInterface
   public static function getSubscribedEvents(): array {
     return [
       EntityHookEvents::ENTITY_PRE_DELETE => 'onEntityPreDelete',
-      EntityHookEvents::ENTITY_VIEW_ALTER => 'onEntityViewAlter',
+      EntityHookEvents::ENTITY_VIEW_ALTER => 'entityViewAlter',
       EntityHookEvents::ENTITY_PRE_SAVE => 'onEntityPreSave'
     ];
+  }
+
+  /**
+   * Entity view alter.
+   *
+   * @param \Drupal\core_event_dispatcher\Event\Entity\EntityViewAlterEvent $event
+   *   The event.
+   */
+  public function entityViewAlter(EntityViewAlterEvent $event): void {
+    if ($event->getEntity()->getEntityTypeId() === 'node') {
+      switch ($event->getEntity()->bundle()) {
+        case 'recipes_recipe':
+          $this->nodeRecipeViewAlter($event);
+          break;
+        case 'recipes_ingredient':
+          $this->nodeIngredientViewAlter($event);
+          break;
+      }
+    }
   }
 
   /**
@@ -72,28 +93,43 @@ class RecipesEntitySubscriber implements EventSubscriberInterface
   }
 
   /**
-   * Entity view alter.
+   * Node Recipe view alter.
    *
    * @param \Drupal\core_event_dispatcher\Event\Entity\EntityViewAlterEvent $event
    *   The event.
    */
-  public function onEntityViewAlter(EntityViewAlterEvent $event): void {
+  public function nodeRecipeViewAlter(EntityViewAlterEvent $event): void {
     // Add an 'Add to list' button at the bottom of Recipe nodes.
-    if ($event->getEntity()->getEntityTypeId() === 'node' && $event->getEntity()->bundle() === 'recipes_recipe') {
-      $build = &$event->getBuild();
+    $build = &$event->getBuild();
 
-      if ($build['#view_mode'] == 'full') {
+    if ($build['#view_mode'] == 'full') {
 
-        $build['my_list_button'] = [
-          '#lazy_builder' => [
-              'recipes.my_list:buildButton',
-              [ $event->getEntity()->id() ],
-            ],
-          '#create_placeholder' => TRUE,
-          '#weight' => 100,
-        ];
-      }
+      $build['my_list_button'] = [
+        '#lazy_builder' => [
+            'recipes.my_list:buildButton',
+            [ $event->getEntity()->id() ],
+          ],
+        '#create_placeholder' => TRUE,
+        '#weight' => 100,
+      ];
     }
+  }
+
+  /**
+   * Node Ingredient view alter.
+   *
+   * @param \Drupal\core_event_dispatcher\Event\Entity\EntityViewAlterEvent $event
+   *   The event.
+   */
+  public function nodeIngredientViewAlter(EntityViewAlterEvent $event): void {
+    
+    $build = &$event->getBuild();
+    
+    $node = $build['#node'];
+    $amount = $node->get('field_recipes_ingredient_amount')->value;
+    $ingredient = $node->get('field_recipes_ingredient')->entity->getName();
+    $ingredient = $this->ingredient->pluralise($amount, $ingredient);
+    $build['field_recipes_ingredient'][0]['#plain_text'] = $ingredient;
   }
 
   /**

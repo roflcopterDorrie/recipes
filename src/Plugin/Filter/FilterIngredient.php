@@ -9,6 +9,7 @@ use Drupal\filter\Plugin\FilterBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\recipes\Services\Ingredient;
 
 /**
  * Provides a filter to render ingredients dynamically.
@@ -22,11 +23,13 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
  */
 class FilterIngredient extends FilterBase implements ContainerFactoryPluginInterface {
 
-  protected $entity_type_manager;
+  protected EntityTypeManagerInterface $entity_type_manager;
+  protected Ingredient $ingredient;
 
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, Ingredient $ingredient) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entity_type_manager = $entity_type_manager;
+    $this->ingredient = $ingredient;
   }
 
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
@@ -34,7 +37,8 @@ class FilterIngredient extends FilterBase implements ContainerFactoryPluginInter
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
+      $container->get('recipes.ingredient')
     );
   }
 
@@ -64,8 +68,14 @@ class FilterIngredient extends FilterBase implements ContainerFactoryPluginInter
           $ingredient = reset($ingredients);
           // Load the term info.
           if ($ingredient_term = $ingredient->get('field_recipes_ingredient')->entity) {
+
+            $ingredient_term = $ingredient_term->getName();
+            if ($amount_data = $ingredient->get('field_recipes_ingredient_amount')->value) {
+              $ingredient_term = $this->ingredient->pluralise($amount_data, $ingredient_term);
+            }
+
             // Create replacement node.
-            $newNode = $dom->createElement('span', htmlspecialchars($ingredient_term->getName()));
+            $newNode = $dom->createElement('span', htmlspecialchars($ingredient_term));
             $newNode->setAttribute('class', 'ingredient');
             
             // Swap the placeholder for the real HTML.
@@ -117,7 +127,12 @@ class FilterIngredient extends FilterBase implements ContainerFactoryPluginInter
 
     // Name.
     if ($ingredient_term = $ingredient_data->get('field_recipes_ingredient')->entity) {
-      $name = $dom->createElement('span', htmlspecialchars($ingredient_term->getName()));
+      $ingredient_term = $ingredient_term->getName();
+      if ($amount_data = $ingredient_data->get('field_recipes_ingredient_amount')->value) {
+        $ingredient_term = $this->ingredient->pluralise($amount_data, $ingredient_term);
+      }
+
+      $name = $dom->createElement('span', htmlspecialchars($ingredient_term));
       $name->setAttribute('class', 'ingredient__name');
       $ingredient_info->appendChild($name);
     }

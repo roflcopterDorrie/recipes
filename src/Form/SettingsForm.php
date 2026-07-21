@@ -42,6 +42,12 @@ final class SettingsForm extends ConfigFormBase {
       '#default_value' => $this->config('recipes.settings')->get('use_structured_json_ai_response'),
     ];
 
+    $form['exclude_words_from_plurals'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Ingredient words that are always singluar'),
+      '#default_value' => $this->config('recipes.settings')->get('exclude_words_from_plurals'),
+    ];
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -69,6 +75,7 @@ final class SettingsForm extends ConfigFormBase {
     $this->config('recipes.settings')
       ->set('prompt', $form_state->getValue('prompt'))
       ->set('use_structured_json_ai_response', $form_state->getValue('use_structured_json_ai_response'))
+      ->set('exclude_words_from_plurals', $form_state->getValue('exclude_words_from_plurals'))
       ->save();
     parent::submitForm($form, $form_state);
   }
