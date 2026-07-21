@@ -105,14 +105,16 @@ class RecipesEntitySubscriber implements EventSubscriberInterface
   public function onEntityPreSave(EntityPresaveEvent $event): void {
     if ($event->getEntity()->getEntityTypeId() === 'node' && $event->getEntity()->bundle() === 'recipes_ingredient') {
       // Check the ingredients amount field and convert any fractions to their character counterpart.
-      // eg 1/2, 1/4, 1/3 = ½, ¼, ¾
+      // eg 1/2, 1/4, 3/4 = ½, ¼, ¾
       $amount = $event->getEntity()->get('field_recipes_ingredient_amount')->value;
-      $amount = str_replace('1/2', '½', $amount);
-      $amount = str_replace('3/4', '¾', $amount);
-      $amount = str_replace('1/4', '¼', $amount);
-      $amount = str_replace('1/3', '⅓', $amount);
-      $amount = str_replace('2/3', '⅔', $amount);
-      $event->getEntity()->set('field_recipes_ingredient_amount', $amount);
+      if (!empty($amount)) { // Custom ingredients don't have an amount.
+        $amount = str_replace('1/2', '½', $amount);
+        $amount = str_replace('3/4', '¾', $amount);
+        $amount = str_replace('1/4', '¼', $amount);
+        $amount = str_replace('1/3', '⅓', $amount);
+        $amount = str_replace('2/3', '⅔', $amount);
+        $event->getEntity()->set('field_recipes_ingredient_amount', $amount);
+      }
     }
   }
 
