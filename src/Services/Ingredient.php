@@ -22,8 +22,7 @@ class Ingredient
   public function create(array $values) : ?Node {
 
     // Sanity check for values.
-    if (!isset($values['name'])) {
-      $this->messenger->addError('To create an ingredient you must provide a "name".');
+    if (!isset($values['name']) || empty($values['name'])) {
       return NULL;
     }
 
