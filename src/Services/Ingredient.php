@@ -8,8 +8,8 @@ use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
 use PhpUnitsOfMeasure\PhysicalQuantity\Mass;
 use Drupal\Core\Messenger\MessengerInterface;
-use rachid\pluralizer\Pluralizer;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use roflcopterdorrie\pluralizer\Pluralizer;
 
 class Ingredient
 {
@@ -33,8 +33,7 @@ class Ingredient
 
     // We only want to save the singular version of the ingredient name to help 
     // control the data. We will display the plural if need when viewing the ingredient.
-    $inflector = InflectorFactory::create()->build();
-    $ingredient_singular = strtolower($inflector->singularize($values['name']));
+    $ingredient_singular = Pluralizer::singularize($values['name'], $this->getExcludeWords());
 
     $ingredient_terms = $this->entity_type_manager->getStorage('taxonomy_term')->loadByProperties([
       'name' => $ingredient_singular,
@@ -140,7 +139,6 @@ class Ingredient
 
     $singluar = TRUE;
 
-
     // Find any numerical numbers and see if they are above 1.
     if (preg_match("/\d+[\.\,]?\d*/", $amount, $matches) === 1) {
       if (isset($matches[0])) {
@@ -159,14 +157,23 @@ class Ingredient
       // Take the last word of the ingredient, that is usually the one we need to check.
       $parts = explode(' ', $ingredient);
       $ingredient_part = array_pop($parts);
-      $exclude = $this->config_factory->get('recipes.settings')->get('exclude_words_from_plurals');
-      $exclude = preg_split('/\R+/', trim($exclude));
-      $ingredient_part = Pluralizer::pluralize($ingredient_part, $exclude?:[]);
+      
+      $ingredient_part = Pluralizer::pluralize($ingredient_part, $this->getExcludeWords());
       array_push($parts, $ingredient_part);
       return implode(' ', $parts);
     }
 
     return $ingredient;
+  }
+
+  private function getExcludeWords() : array
+  {
+    $exclude = $this->config_factory->get('recipes.settings')->get('exclude_words_from_plurals');
+    if (is_string($exclude)) {
+      $exclude = preg_split('/\R+/', trim($exclude));
+      return $exclude;
+    }
+    return [];
   }
 
 }
