@@ -66,6 +66,10 @@ class ShoppingListForm extends FormBase
 
         $ingredient = $shopping_list->getIngredient($shopping_list_item);
 
+        if ($ingredient == null) { // If ingredient is missing, ignore.
+          continue;
+        }
+
         $grouped[$ingredient->aisle->getName()][$shopping_list_item->id()] = [
           '#type' => 'checkbox',
           '#title' => 'checkbox',

@@ -90,6 +90,7 @@ class Ingredient
         'name' => 'Unknown',
         'vid' => 'recipes_ingredient_aisle',
       ]);
+      
       if (!empty($ingredient_aisles)) {
         $ingredient->aisle = reset($ingredient_aisles);
       }

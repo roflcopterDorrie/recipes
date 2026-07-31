@@ -79,11 +79,8 @@ class ShoppingList
   }
 
   public function getIngredient(ShoppingListItem $item) : ?Node{
-    $ingredients = $item->get('recipes_ingredient_id')->referencedEntities();
-    if (!empty($ingredients)) {
-      return $this->ingredient_service->populate(reset($ingredients));
-    }
-    return NULL;
+    $ingredient = $item->get('recipes_ingredient_id')->entity;
+    return $ingredient ? $this->ingredient_service->populate($ingredient) : NULL;
   }
 
   public function delete() : bool {
@@ -101,7 +98,11 @@ class ShoppingList
   public function clear() {
     if ($this->shopping_list) {
       foreach($this->shopping_list_items as $item) {
-        $ingredient = $this->getIngredient($item); 
+        $ingredient = $this->getIngredient($item);
+        if ($ingredient == null) { // If ingredient is missing, just delete it.
+          $item->delete();
+          return;
+        }
         $ingredient = $this->ingredient_service->populate($ingredient);
         if ($ingredient->aisle->getName() != 'Custom' || ($ingredient->aisle->getName() == 'Custom' && $item->get('collected')->value == 1)) {
           if ($item->access('delete', $this->user)) {
