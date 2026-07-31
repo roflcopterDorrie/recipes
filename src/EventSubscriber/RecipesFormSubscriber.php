@@ -55,7 +55,7 @@ class RecipesFormSubscriber implements EventSubscriberInterface {
     foreach ($node->get('field_recipes_ingredients')->referencedEntities() as $ingredient) {
       $ingredients[] = [
         'uuid' => $ingredient->uuid(),
-        'name' => $ingredient->get('field_recipes_ingredient')->entity->getName() ?? NULL,
+        'name' => $ingredient->getTitle(),
         'amount' => $ingredient->get('field_recipes_ingredient_amount')->value ?? NULL,
         'extra' => $ingredient->get('field_recipes_ingredient_extra')->value ? '(' . $ingredient->get('field_recipes_ingredient_extra')->value . ')' : NULL
       ];

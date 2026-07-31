@@ -47,9 +47,6 @@ class RecipesEntitySubscriber implements EventSubscriberInterface
         case 'recipes_recipe':
           $this->nodeRecipeViewAlter($event);
           break;
-        case 'recipes_ingredient':
-          $this->nodeIngredientViewAlter($event);
-          break;
       }
     }
   }
@@ -113,23 +110,6 @@ class RecipesEntitySubscriber implements EventSubscriberInterface
         '#weight' => 100,
       ];
     }
-  }
-
-  /**
-   * Node Ingredient view alter.
-   *
-   * @param \Drupal\core_event_dispatcher\Event\Entity\EntityViewAlterEvent $event
-   *   The event.
-   */
-  public function nodeIngredientViewAlter(EntityViewAlterEvent $event): void {
-    
-    $build = &$event->getBuild();
-    
-    $node = $build['#node'];
-    $amount = $node->get('field_recipes_ingredient_amount')->value;
-    $ingredient = $node->get('field_recipes_ingredient')->entity->getName();
-    $ingredient = $this->ingredient->pluralise($amount, $ingredient);
-    $build['field_recipes_ingredient'][0]['#plain_text'] = $ingredient;
   }
 
   /**

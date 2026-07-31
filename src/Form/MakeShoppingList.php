@@ -72,19 +72,13 @@ class MakeShoppingList extends FormBase
         ];
 
         foreach($recipe->get('field_recipes_ingredients')->referencedEntities() as $delta1 => $ingredient) {
-          $ingredient_term = $ingredient->get('field_recipes_ingredient')->referencedEntities();
-
-          $amount = $ingredient->get('field_recipes_ingredient_amount')->value ?: NULL;
-          $ingredient_term = reset($ingredient_term)->getName() ?: NULL;
-          $ingredient_term = $this->ingredient->pluralise($amount, $ingredient_term);
-
           $form['recipes'][$recipe->id()][$ingredient->id()] = [
             '#type' => 'checkbox',
             '#default_value' => TRUE,
             '#title' => 'checkbox',
             '#form_id' => $this->getFormId(),
-            '#amount' => $amount,
-            '#ingredient' => $ingredient_term,
+            '#amount' => $ingredient->get('field_recipes_ingredient_amount')->value ?: NULL,
+            '#ingredient' => $ingredient->getTitle(),
             '#extra' => $ingredient->get('field_recipes_ingredient_extra')->value ?: NULL
           ];
         }
