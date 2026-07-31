@@ -25,7 +25,7 @@ import Fuse from 'https://cdn.jsdelivr.net/npm/fuse.js@7.4.1/dist/fuse.basic.min
         const fuse = new Fuse(ingredients, {
           keys: ['title'],
           includeScore: true,
-          threshold: 0.3,
+          threshold: 0.1,
           ignoreLocation: true,
         });
 
@@ -45,15 +45,21 @@ import Fuse from 'https://cdn.jsdelivr.net/npm/fuse.js@7.4.1/dist/fuse.basic.min
           const results = fuse.search(term);
           renderResults(results);
 
-          let ingredientIds = [];
+          if (term.length > 0) {
+            refreshViewWithString(term);
+          } else {
+            clearResults();
+          }
+          
+          /*let ingredientIds = [];
           results.forEach(({ item }) => {
-            ingredientIds.push(item.tid);
+            ingredientIds.push(item.nid);
           });
           if (ingredientIds.length > 0) {
             refreshViewWithIds(ingredientIds);
           } else {
             clearResults();
-          }
+          }*/
         }, 200)
         );
 
@@ -81,19 +87,25 @@ import Fuse from 'https://cdn.jsdelivr.net/npm/fuse.js@7.4.1/dist/fuse.basic.min
           }
         }
 
+        function refreshViewWithString(ingredient) {
+          const form = document.querySelector('.views-exposed-form');
+          const input = form.querySelector('input[data-drupal-selector^="edit-ingredient"]');
+          input.value = ingredient;
+          form.querySelector('[type="submit"]').click();
+        }
+
         function refreshViewWithIds(ids) {
           const form = document.querySelector('.views-exposed-form');
 
           if (!form) return;
 
-          const inputs = form.querySelectorAll('input[data-drupal-selector^="edit-tid-"]');
+          const input = form.querySelector('input[data-drupal-selector^="edit-ingredient"]');
 
-          // Loop through each option and check if its value is in your array
-          inputs.forEach(input => {
-            let id = input.getAttribute('data-drupal-selector');
-            id = id.replaceAll('edit-tid-', '');
-            input.checked = ids.includes(id);
-          });
+          input.value = ids.join(',');
+
+          if (input.value.length > 128) {
+            input.value = input.value.slice(0, 128);
+          }
 
           form.querySelector('[type="submit"]').click();
         }

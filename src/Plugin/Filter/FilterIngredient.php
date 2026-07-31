@@ -66,27 +66,19 @@ class FilterIngredient extends FilterBase implements ContainerFactoryPluginInter
         $ingredients = $this->entity_type_manager->getStorage('node')->loadByProperties(['uuid' => $id]);
         if (!empty($ingredients)) {
           $ingredient = reset($ingredients);
-          // Load the term info.
-          if ($ingredient_term = $ingredient->get('field_recipes_ingredient')->entity) {
 
-            $ingredient_term = $ingredient_term->getName();
-            if ($amount_data = $ingredient->get('field_recipes_ingredient_amount')->value) {
-              $ingredient_term = $this->ingredient->pluralise($amount_data, $ingredient_term);
-            }
+          // Create replacement node.
+          $newNode = $dom->createElement('span', htmlspecialchars($ingredient->getTitle()));
+          $newNode->setAttribute('class', 'ingredient');
+          
+          // Swap the placeholder for the real HTML.
+          $element->parentNode->replaceChild($newNode, $element);
 
-            // Create replacement node.
-            $newNode = $dom->createElement('span', htmlspecialchars($ingredient_term));
-            $newNode->setAttribute('class', 'ingredient');
-            
-            // Swap the placeholder for the real HTML.
-            $element->parentNode->replaceChild($newNode, $element);
-
-            // Add ingredients in a list at the bottom of the text.
-            $dom = $this->addIngredientToList($dom, $ingredient);
-            
-            // Add cache tags so if the ingredient changes, the page cache clears.
-            $result->addCacheTags($ingredient->getCacheTags());
-          }
+          // Add ingredients in a list at the bottom of the text.
+          $dom = $this->addIngredientToList($dom, $ingredient);
+          
+          // Add cache tags so if the ingredient changes, the page cache clears.
+          $result->addCacheTags($ingredient->getCacheTags());
         }
       }
     }
@@ -126,16 +118,10 @@ class FilterIngredient extends FilterBase implements ContainerFactoryPluginInter
     }
 
     // Name.
-    if ($ingredient_term = $ingredient_data->get('field_recipes_ingredient')->entity) {
-      $ingredient_term = $ingredient_term->getName();
-      if ($amount_data = $ingredient_data->get('field_recipes_ingredient_amount')->value) {
-        $ingredient_term = $this->ingredient->pluralise($amount_data, $ingredient_term);
-      }
-
-      $name = $dom->createElement('span', htmlspecialchars($ingredient_term));
-      $name->setAttribute('class', 'ingredient__name');
-      $ingredient_info->appendChild($name);
-    }
+    $name = $dom->createElement('span', htmlspecialchars($ingredient_data->getTitle()));
+    $name->setAttribute('class', 'ingredient__name');
+    $ingredient_info->appendChild($name);
+    
 
     // Extra.
     if ($extra_data = $ingredient_data->get('field_recipes_ingredient_extra')->value) {

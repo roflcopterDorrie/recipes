@@ -72,7 +72,7 @@ class ShoppingListForm extends FormBase
           '#default_value' => $shopping_list_item->get("collected")->value,
           '#form_id' => $this->getFormId(),
           '#amount' => $ingredient->amount,
-          '#ingredient' => $ingredient->ingredient ?: NULL,
+          '#ingredient' => $ingredient->name ?: NULL,
           '#extra' => $ingredient->extra,
           '#id' => $shopping_list_item->id(),
           '#ajax' => [
