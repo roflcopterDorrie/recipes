@@ -101,7 +101,7 @@ class ShoppingList
         $ingredient = $this->getIngredient($item);
         if ($ingredient == null) { // If ingredient is missing, just delete it.
           $item->delete();
-          return;
+          continue;
         }
         $ingredient = $this->ingredient_service->populate($ingredient);
         if ($ingredient->aisle->getName() != 'Custom' || ($ingredient->aisle->getName() == 'Custom' && $item->get('collected')->value == 1)) {
