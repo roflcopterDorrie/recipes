@@ -95,7 +95,9 @@ class RecipesDataExtractor
     $ingredientAisles = [];
     $ingredientAisleTerms = $this->entity_type_manager->getStorage('taxonomy_term')->loadByProperties(['vid' => 'recipes_ingredient_aisle']);
     foreach ($ingredientAisleTerms as $ingredientAisle) {
-      $ingredientAisles[] = '- ' . $ingredientAisle->getName() . ': ' . PHP_EOL;
+      if ($ingredientAisle->getName() != 'Custom') {
+        $ingredientAisles[] = '- ' . $ingredientAisle->getName() . ': ' . PHP_EOL;
+      }
     }
 
     $prompt = $this->config->get('prompt');
